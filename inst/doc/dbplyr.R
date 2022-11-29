@@ -1,8 +1,12 @@
 ## ---- include = FALSE---------------------------------------------------------
+
+installed_version <- tryCatch(utils::packageVersion("duckdb"), error = function(e) NA)
+build <- !is.na(installed_version) && installed_version >= "0.5"
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = TRUE
+  eval = build
 )
 
 ## -----------------------------------------------------------------------------

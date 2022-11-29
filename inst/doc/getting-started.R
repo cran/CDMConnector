@@ -1,8 +1,11 @@
 ## ---- include = FALSE---------------------------------------------------------
+installed_version <- tryCatch(utils::packageVersion("duckdb"), error = function(e) NA)
+build <- !is.na(installed_version) && installed_version >= "0.5"
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = TRUE
+  eval = build
 )
 
 ## -----------------------------------------------------------------------------
@@ -85,7 +88,7 @@ cdm %>%
 list.files(save_path)
 
 ## -----------------------------------------------------------------------------
-cdm <- cdm_from_files(save_path, cdm_tables = c("cohort", "observation_period", "person"))
+cdm <- cdm_from_files(save_path)
 
 class(cdm$cohort)
 
@@ -119,4 +122,36 @@ self_contained_query <- function(connection_details) {
 }
 
 self_contained_query(connection_details)
+
+## ---- error=TRUE--------------------------------------------------------------
+
+library(checkmate)
+
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+
+
+assertTables(cdm_from_con(con, cdm_tables = "drug_era"), tables = c("person"))
+
+# add missing table error to collection
+err <- checkmate::makeAssertCollection()
+assertTables(cdm_from_con(con, cdm_tables = "drug_era"), tables = c("person"), add = err)
+err$getMessages()
+
+
+## ---- error=TRUE--------------------------------------------------------------
+countDrugsByGender <- function(cdm) {
+  assertTables(cdm, tables = c("person", "drug_era"), empty.ok = FALSE)
+
+  cdm$person %>%
+    dplyr::inner_join(cdm$drug_era, by = "person_id") %>%
+    dplyr::count(.data$gender_concept_id, .data$drug_concept_id) %>%
+    dplyr::collect()
+}
+
+countDrugsByGender(cdm_from_con(con, cdm_tables = "person"))
+
+DBI::dbExecute(con, "delete from drug_era")
+countDrugsByGender(cdm_from_con(con))
+
+DBI::dbDisconnect(con, shutdown = TRUE)
 

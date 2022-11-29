@@ -2,6 +2,15 @@
 
 # [CDMConnector](https://odyosg.github.io/CDMConnector/)
 
+<!-- badges: start -->
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/CDMConnector)](https://CRAN.R-project.org/package=CDMConnector)
+[![codecov.io](https://codecov.io/github/OdyOSG/CDMConnector/coverage.svg?branch=main)](https://codecov.io/github/OdyOSG/CDMConnector?branch=main)
+[![Build
+Status](https://github.com/OdyOSG/CDMConnector/workflows/R-CMD-check/badge.svg)](https://github.com/OdyOSG/CDMConnector/actions?query=workflow%3AR-CMD-check)
+<!-- badges: end -->
+
 > Are you using the [tidyverse](https://www.tidyverse.org/) with an OMOP
 > Common Data Model?
 >
@@ -14,11 +23,13 @@
 ## Overview
 
 CDMConnector introduces a single R object that represents an OMOP CDM
-relational database heavily inspired by the
-[dm](https://cynkra.github.io/dm/) pacakge. The cdm object can be used
-in dplyr style data analysis pipelines and facilitates interactive data
-exploration. cdm objects encapsulate references to OMOP CDM tables in a
-remote RDBMS as well as metadata neccessary for interacting with a CDM.
+relational database inspired by the [dm](https://dm.cynkra.com/),
+[DatabaseConnector](http://ohdsi.github.io/DatabaseConnector/), and
+[Andromeda](https://ohdsi.github.io/Andromeda/) packages. The cdm object
+can be used in dplyr style data analysis pipelines and facilitates
+interactive data exploration. cdm objects encapsulate references to
+[OMOP CDM tables](https://ohdsi.github.io/CommonDataModel/) in a remote
+RDBMS as well as metadata necessary for interacting with a CDM.
 
 [![OMOP CDM
 v5.4](https://ohdsi.github.io/CommonDataModel/images/cdm54.png)](https://ohdsi.github.io/CommonDataModel/)
@@ -31,13 +42,17 @@ behaves like a named list of tables.
 
 -   Quickly create a list of references to a subset of CDM tables
 -   Store connection information for later use inside functions
--   Use any DBI driver backend with the OMOP CDM
+-   Use any DBI driver back-end with the OMOP CDM
 
 See Getting started for more details.
 
 ## Installation
 
-CDMConnector can be installed from GitHub:
+CDMConnector can be installed from CRAN:
+
+    install.packages("CDMConnector")
+
+The development version can be installed from GitHub:
 
     # install.packages("devtools")
     devtools::install_github("darwin-eu/CDMConnector")
@@ -55,7 +70,7 @@ Create a `cdm_reference` object from any DBI connection. Use the
 
     ## # OMOP CDM reference (tbl_duckdb_connection)
     ## 
-    ## Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death, note, note_nlp, specimen, fact_relationship, location, care_site, provider, payer_plan_period, cost, drug_era, dose_era, condition_era, concept, vocabulary, concept_relationship, concept_ancestor, drug_strength
+    ## Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, measurement, observation, death, location, care_site, provider, drug_era, dose_era, condition_era, cdm_source, concept, vocabulary, concept_relationship, concept_synonym, concept_ancestor, drug_strength
 
 A `cdm_reference` is a named list of table references:
 
@@ -64,21 +79,19 @@ A `cdm_reference` is a named list of table references:
 
     ##  [1] "person"               "observation_period"   "visit_occurrence"    
     ##  [4] "visit_detail"         "condition_occurrence" "drug_exposure"       
-    ##  [7] "procedure_occurrence" "device_exposure"      "measurement"         
-    ## [10] "observation"          "death"                "note"                
-    ## [13] "note_nlp"             "specimen"             "fact_relationship"   
-    ## [16] "location"             "care_site"            "provider"            
-    ## [19] "payer_plan_period"    "cost"                 "drug_era"            
-    ## [22] "dose_era"             "condition_era"        "concept"             
-    ## [25] "vocabulary"           "concept_relationship" "concept_ancestor"    
-    ## [28] "drug_strength"
+    ##  [7] "procedure_occurrence" "measurement"          "observation"         
+    ## [10] "death"                "location"             "care_site"           
+    ## [13] "provider"             "drug_era"             "dose_era"            
+    ## [16] "condition_era"        "cdm_source"           "concept"             
+    ## [19] "vocabulary"           "concept_relationship" "concept_synonym"     
+    ## [22] "concept_ancestor"     "drug_strength"
 
 Use dplyr verbs with the table references.
 
     tally(cdm$person)
 
     ## # Source:   SQL [1 x 1]
-    ## # Database: DuckDB 0.3.5-dev1410 [root@Darwin 21.6.0:R 4.2.0//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmprBcx88/cdm.duckdb]
+    ## # Database: DuckDB 0.5.1 [root@Darwin 21.6.0:R 4.2.0//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpA7SXZK/mqwjfklh/cdm.duckdb]
     ##       n
     ##   <dbl>
     ## 1  2694
@@ -90,7 +103,7 @@ Compose operations with the pipe.
       count(top_conditions = concept_name, sort = TRUE)
 
     ## # Source:     SQL [?? x 2]
-    ## # Database:   DuckDB 0.3.5-dev1410 [root@Darwin 21.6.0:R 4.2.0//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmprBcx88/cdm.duckdb]
+    ## # Database:   DuckDB 0.5.1 [root@Darwin 21.6.0:R 4.2.0//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpA7SXZK/mqwjfklh/cdm.duckdb]
     ## # Ordered by: desc(n)
     ##    top_conditions                               n
     ##    <chr>                                    <dbl>
@@ -105,7 +118,6 @@ Compose operations with the pipe.
     ##  9 Sinusitis                                 1001
     ## 10 Acute bacterial sinusitis                  939
     ## # … with more rows
-    ## # ℹ Use `print(n = ...)` to see more rows
 
 Run a simple quality check on a cdm.
 
@@ -123,8 +135,7 @@ CDMConnector is tested using the following DBI driver backends:
 -   [RPostgres](https://rpostgres.r-dbi.org/reference/postgres) on
     Postgres and Redshift
 -   [odbc](https://solutions.rstudio.com/db/r-packages/odbc/) on
-    Microsoft SQL Server and
-    [snowflake](https://community.snowflake.com/s/article/How-To-Connect-Snowflake-with-R-RStudio-using-RODBC-driver-on-Windows-MacOS-Linux)
+    Microsoft SQL Server
 -   [duckdb](https://duckdb.org/docs/api/r)
 
 ## Getting help
@@ -136,9 +147,3 @@ If you encounter a clear bug, please file an issue with a minimal
 ------------------------------------------------------------------------
 
 License: Apache 2.0
-
-Funded by:
-
-[![DARWIN-EU](man/figures/darwin-eu-logo.png)](https://www.ema.europa.eu/en/about-us/how-we-work/big-data/data-analysis-real-world-interrogation-network-darwin-eu)
-<span style="padding-right:50px"> </span>
-[![Odysseus](man/figures/logo_odys.svg)](https://odysseusinc.com/)
