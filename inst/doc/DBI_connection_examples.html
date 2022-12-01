@@ -347,7 +347,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="sql-server" class="section level3">
 <h3>SQL Server</h3>
-<p>Using odbc with SQL Server requires driver setup described <a href="https://solutions.rstudio.com/db/r-packages/odbc/">here</a>.</p>
+<p>Using odbc with SQL Server requires driver setup described <a href="https://solutions.posit.co/connections/db/r-packages/odbc/">here</a>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(),</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Driver   =</span> <span class="st">&quot;ODBC Driver 18 for SQL Server&quot;</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Server   =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_SERVER&quot;</span>),</span>
