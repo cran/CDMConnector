@@ -23,7 +23,7 @@ listTables <- function(con, schema = NULL) {
   if (is(con, "DatabaseConnectorJdbcConnection")) {
     DBI::dbListTables(con, databaseSchema = paste0(schema, collapse = "."))
 
-  } else if (is(con, "PqConnection") || is(con, "RedshiftConnection")) {
+      } else if (is(con, "PqConnection") || is(con, "RedshiftConnection")) {
     sql <- glue::glue_sql("select table_name from information_schema.tables where table_schema = {schema[[1]]};", .con = con)
     DBI::dbGetQuery(con, sql) %>%
       dplyr::pull(.data$table_name)
@@ -33,12 +33,22 @@ listTables <- function(con, schema = NULL) {
     DBI::dbGetQuery(con, sql) %>%
       dplyr::pull(.data$table_name)
 
-  } else if (is(con, "Microsoft SQL Server")) {
+  } else if (is(con, "Spark SQL")) {
+    # spark odbc connection
+    sql <- paste("SHOW TABLES", if (!is.null(schema)) paste("IN", schema[[1]]))
+    DBI::dbGetQuery(con, sql) %>%
+      dplyr::filter(.data$isTemporary == FALSE) %>%
+      dplyr::pull(.data$tableName)
+
+  } else if (is(con, "OdbcConnection")) {
     if (length(schema) == 1) {
       DBI::dbListTables(con, schema_name = schema)
     } else {
       DBI::dbListTables(con, catalog_name = schema[[1]], schema_name = schema[[2]])
     }
+  } else if (is(con, "OraConnection")) {
+    checkmate::assert_character(schema, null.ok = TRUE, len = 1, min.chars = 1)
+    DBI::dbListTables(con, schema = schema)
   } else {
     rlang::abort(paste(paste(class(con), collapse = ", "), "connection not supported"))
   }

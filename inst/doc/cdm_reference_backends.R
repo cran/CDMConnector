@@ -1,14 +1,13 @@
 ## ---- include = FALSE---------------------------------------------------------
 library(CDMConnector)
-if (!eunomia_is_available()) download_optional_data()
-
-installed_version <- tryCatch(utils::packageVersion("duckdb"), error = function(e) NA)
-build <- !is.na(installed_version) && installed_version >= "0.6" && eunomia_is_available()
+if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = path.expand("~/EunomiaData"))
+if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
+if (!eunomia_is_available()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = build
+  comment = "#>", 
+  build = eunomia_is_available()
 )
 
 ## ----pressure, echo=FALSE, out.width = '80%'----------------------------------
@@ -46,15 +45,14 @@ dir.create(dOut)
 CDMConnector::stow(cdm, dOut)
 
 ## ---- message=FALSE, warning=FALSE--------------------------------------------
-cdm_arrow <- cdm_from_files(dOut, cdm_tables = c("person", "condition_occurrence"), as_data_frame = FALSE)
+cdm_arrow <- cdm_from_files(dOut, as_data_frame = FALSE)
 
 cdm_arrow$person %>%
-  tally() %>%
-  collect()
+  nrow()
 
 cdm_arrow$condition_occurrence %>%
-  tally() %>%
-  collect()
+  nrow()
+
 
 ## ---- message=FALSE, warning=FALSE--------------------------------------------
 cdm_arrow$result <- cdm_arrow$person %>%

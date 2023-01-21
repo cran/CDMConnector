@@ -1,15 +1,12 @@
 ## ---- include = FALSE---------------------------------------------------------
 library(CDMConnector)
-if (!eunomia_is_available()) download_optional_data()
-
-installed_version <- tryCatch(utils::packageVersion("duckdb"), error = function(e) NA)
-build <- !is.na(installed_version) && installed_version >= "0.6" && eunomia_is_available()
-
+if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = path.expand("~/EunomiaData"))
+if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
+if (!eunomia_is_available()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = build
+  comment = "#>"
 )
 
 ## -----------------------------------------------------------------------------
@@ -101,14 +98,12 @@ cdm$cohort %>%
   pull(n)
 
 cdm <- cdm_from_files(save_path, 
-                      cdm_tables = c("cohort", "observation_period", "person"), 
                       as_data_frame = FALSE)
 
 class(cdm$cohort)
 
 cdm$cohort %>% 
-  tally() %>% 
-  pull(n)
+  nrow()
 
 ## ---- error=TRUE--------------------------------------------------------------
 DBI::dbDisconnect(con, shutdown = TRUE)

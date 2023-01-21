@@ -27,10 +27,19 @@ dateadd <- function(date, number, interval = "day") {
   checkmate::assertCharacter(interval, len = 1)
   checkmate::assertSubset(interval, choices = c("day", "year"))
   checkmate::assertCharacter(date, len = 1)
-  checkmate::assertIntegerish(number)
+  if(!(checkmate::testCharacter(number, len = 1) || checkmate::testIntegerish(number, len = 1))) {
+    rlang::abort("`number` must a character string with a column name or a number.")
+  }
 
   dot <- get(".", envir = parent.frame())
   targetDialect <- CDMConnector::dbms(dot$src$con)
+
+  if (targetDialect == "oracle") {
+    date <- as.character(DBI::dbQuoteIdentifier(dot$src$con, date))
+    if (is.character(number)) {
+      number <- as.character(DBI::dbQuoteIdentifier(dot$src$con, number))
+    }
+  }
 
   sql <- glue::glue("DATEADD({interval}, {number}, {date})")
   sql <- SqlRender::translate(sql = as.character(sql), targetDialect = targetDialect)
@@ -40,7 +49,7 @@ dateadd <- function(date, number, interval = "day") {
 
 #' Compute the difference between two days
 #'
-#' #' This function must be "unquoted" using the "bang bang" operator (!!). See example.
+#' This function must be "unquoted" using the "bang bang" operator (!!). See example.
 #'
 #' @param start The name of the start date column in the database as a string.
 #' @param end The name of the end date column in the database as a string.
@@ -74,8 +83,58 @@ datediff <- function(start, end, interval = "day") {
   dot <- get(".", envir = parent.frame())
   targetDialect <- CDMConnector::dbms(dot$src$con)
 
+  if (targetDialect == "oracle") {
+    start <- as.character(DBI::dbQuoteIdentifier(dot$src$con, start))
+    end <- as.character(DBI::dbQuoteIdentifier(dot$src$con, end))
+  }
+
   sql <- glue::glue("DATEDIFF({interval}, {start},  {end})")
   sql <- SqlRender::translate(sql = as.character(sql), targetDialect = targetDialect)
   dbplyr::sql(sql)
 }
 
+#' as.Date dbplyr translation wrapper
+#'
+#' This is a workaround for using as.Date inside dplyr verbs against a database
+#' backend. This function should only be used inside dplyr verbs where the first
+#' argument is a database table reference. `asDate` must be unquoted with !! inside
+#' dplyr verbs (see example).
+#'
+#' @param x an R expression
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' con <- DBI::dbConnect(odbc::odbc(), "Oracle")
+#' date_tbl <- dplyr::copy_to(con,
+#'                            data.frame(y = 2000L, m = 10L, d = 10L),
+#'                            name = "tmp",
+#'                            temporary = TRUE)
+#'
+#' df <- date_tbl %>%
+#'   dplyr::mutate(date_from_parts = !!asDate(paste0(
+#'     .data$y, "/",
+#'     .data$m, "/",
+#'     .data$d
+#'   ))) %>%
+#'   collect()
+#' }
+asDate <- function(x) {
+  x_quo <- rlang::enquo(x)
+  .data <- get(".", envir = parent.frame())
+  dialect <- CDMConnector::dbms(.data$src$con)
+
+  if (dialect == "oracle") {
+    x <- dbplyr::partial_eval(x_quo, data = .data)
+    x <- dbplyr::translate_sql(!!x, con = .data$src$con)
+    x <- glue::glue("TO_DATE({x}, 'YYYY-MM-DD')")
+    return(dplyr::sql(x))
+  } else if (dialect == "spark") {
+    x <- dbplyr::partial_eval(x_quo, data = .data)
+    x <- dbplyr::translate_sql(!!x, con = .data$src$con)
+    x <- glue::glue("TO_DATE({x})")
+    return(dplyr::sql(x))
+  } else {
+    return(rlang::expr(as.Date(!!x_quo)))
+  }
+}

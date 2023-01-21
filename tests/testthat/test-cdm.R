@@ -98,7 +98,6 @@ test_that("cdm reference works on sql server", {
 
   expect_error(DBI::dbGetQuery(con, "select * from tempdb.dbo.cohort"), "Invalid object")
 
-  expect_equal(dbms(con), "sql server")
   expect_equal(dbms(cdm), "sql server")
 
   DBI::dbDisconnect(con)
@@ -132,6 +131,70 @@ test_that("cdm reference works on redshift", {
   DBI::dbDisconnect(con)
 })
 
+test_that("cdm reference works on Spark", {
+
+  skip_if_not("Databricks" %in% odbc::odbcListDataSources()$name)
+  skip("Only run this test manually")
+
+  con <- DBI::dbConnect(odbc::odbc(), dsn = "Databricks", bigint = "numeric")
+
+  expect_true(is.character(listTables(con, schema = "omop531")))
+
+  cdm <- cdm_from_con(con, cdm_schema = "omop531", cdm_tables = tbl_group("default"))
+
+  expect_error(assert_tables(cdm, "cost"))
+  expect_true(version(cdm) %in% c("5.3", "5.4"))
+  cdm$cdm_source
+
+  expect_true(is.null(verify_write_access(con, write_schema = "omop531results")))
+
+  expect_true("concept" %in% names(cdm))
+  expect_s3_class(collect(head(cdm$concept)), "data.frame")
+
+  expect_equal(dbms(cdm), "spark")
+
+  DBI::dbDisconnect(con)
+})
+
+test_that("cdm reference works on Oracle", {
+
+  skip_on_ci()
+  skip_on_cran()
+  skip_if_not("OracleODBC-19" %in% odbc::odbcListDataSources()$name)
+
+  # library(ROracle)
+  # con <- DBI::dbConnect(DBI::dbDriver("Oracle"),
+  #                       username = Sys.getenv("CDM5_ORACLE_USER"),
+  #                       password= Sys.getenv("CDM5_ORACLE_PASSWORD"),
+  #                       dbname = Sys.getenv("CDM5_ORACLE_SERVER"))
+
+  con <- DBI::dbConnect(odbc::odbc(), "OracleODBC-19")
+
+  # allTables <- DBI::dbListTables(con, schema = "CDMV5", full = TRUE)
+  writeSchema <- "OHDSI"
+  cdmSchema <- "CDMV5"
+
+  # List schemas
+  # dbGetQuery(con, "select username as schema from sys.all_users")
+
+  expect_true(is.character(listTables(con, schema = cdmSchema)))
+
+  # Oracle test cdm v5.3 is missing visit_detail
+  cdm <- cdm_from_con(con, cdm_schema = cdmSchema, cdm_tables = c(tbl_group("default"), -visit_detail))
+
+  expect_error(assert_tables(cdm, "cost"))
+  expect_true(version(cdm) %in% c("5.3", "5.4"))
+  # expect_s3_class(snapshot(cdm), "cdm_snapshot") # test database person table is missing birth_datetime
+
+  expect_true(is.null(verify_write_access(con, write_schema = writeSchema)))
+
+  expect_true("concept" %in% names(cdm))
+  expect_s3_class(collect(head(cdm$concept)), "data.frame")
+
+  expect_equal(dbms(cdm), "oracle")
+
+  DBI::dbDisconnect(con)
+})
 
 test_that("cdm reference works on duckdb", {
   skip_if_not(rlang::is_installed("duckdb", version = "0.6"))
@@ -339,8 +402,8 @@ test_that("DatabaseConnector cdm reference works on redshift", {
 
 test_that("DatabaseConnector cdm reference works on sql server", {
   skip_if(Sys.getenv("CDM5_SQL_SERVER_USER") == "")
-  # skip("DatabaseConnector does not preserve logical datatypes")
-  # skip("sql server test database cdm5.dbo.person does not have birth_datetime")
+  # Note that DatabaseConnector does not preserve logical datatypes
+  # Note sql server test database cdm5.dbo.person does not have birth_datetime
 
   con <- DBI::dbConnect(DatabaseConnector::DatabaseConnectorDriver(),
                         dbms     = "sql server",

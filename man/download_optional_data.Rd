@@ -2,17 +2,10 @@
 % Please edit documentation in R/optional_data.R
 \name{download_optional_data}
 \alias{download_optional_data}
-\title{Download optional data for this package if required.}
+\title{Download the example Eunomia CDM dataset}
 \usage{
 download_optional_data()
 }
-\value{
-Named list. The list has entries: "available": vector of strings.
-The names of the files that are available in the local file cache.
-You can access them using get_optional_data_file(). "missing": vector of strings.
-The names of the files that this function was unable to retrieve.
-}
 \description{
-Ensure that the optional data is available locally in the package cache.
-Will try to download the data only if it is not available.
+This function is deprecated. Use downloadEunomiaData instead.
 }
