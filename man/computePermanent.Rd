@@ -13,7 +13,7 @@ computePermanent(x, name, schema = NULL, overwrite = FALSE)
 
 \item{schema}{Schema to create the new table in
 Can be a length 1 or 2 vector.
-(e.g. schema = "my_schema", schema = c("my_schema", "dbo))}
+(e.g. schema = "my_schema", schema = c("my_schema", "dbo"))}
 
 \item{overwrite}{If the table already exists in the remote database
 should it be overwritten? (TRUE or FALSE)}
@@ -22,21 +22,9 @@ should it be overwritten? (TRUE or FALSE)}
 A dplyr reference to the newly created table
 }
 \description{
-Run a dplyr query and store the result in a permanent table
+This function has been superceded by \code{computeQuery} which should be used
+instead of \code{computePermanent}.
 }
-\examples{
-\dontrun{
-library(CDMConnector)
-
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
-concept <- dplyr::tbl(con, "concept")
-
-rxnorm_count <- concept \%>\%
-  dplyr::filter(domain_id == "Drug") \%>\%
-  dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) \%>\%
-  dplyr::count(isRxnorm) \%>\%
-  computePermanent("rxnorm_count")
-
-DBI::dbDisconnect(con, shutdown = TRUE)
-}
+\details{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }

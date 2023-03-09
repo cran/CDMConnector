@@ -5,3 +5,4 @@ withr::local_envvar(
 )
 
 tryCatch(downloadEunomiaData(), error = function(e) NA)
+

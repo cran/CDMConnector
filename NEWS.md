@@ -1,11 +1,30 @@
-# CDMConnector 0.4.0
+# CDMConnector 0.5.0
+
+* Define `generatedCohortSet` class
+* Add `summarize_quantile` for cross database quantile queries
+* Add `GeneratedCohortSet` object, constructor, and attribute accessor functions
+* Add vignette on cohort generation
+* Add `cdmSubset`, `cdmSubsetCohort`, `cdmSample` for subsetting a cdm
+* Add `cdmFlatten` for transforming a cdm into a single flat table of observations
+* Improve test coverage
+* Make Java dependency optional
+* `cdm_schema` is now required in `cdm_from_con` except for duckdb connections
+* Remove visit_detail from default cdm tables
+* Deprecate `computePermanent`
+* Improve package website
+
+Substantial contributions by @edward-burn, @catalamarti, @Tsemharb who are now
+package co-authors.
+
+Released Mar 8, 2023
+
+# CDMConnector 0.4.1
 
 * Add `computeQuery` function for creating temp and persistent tables from dplyr queries
 * Download Eunomia from darwin-eu repository as zipped csv files
 * Add passing tests for Oracle and Spark
 * Add `asDate` wrapper that provides correct as.Date dbplyr translations
 * Incorporate code review suggestions from @mvankessel-EMC
-
 
 Released Jan 21, 2023
 

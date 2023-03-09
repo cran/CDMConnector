@@ -13,7 +13,7 @@ appendPermanent(x, name, schema = NULL)
 will be created.}
 
 \item{schema}{Schema where the table exists. Can be a length 1 or 2 vector.
-(e.g. schema = "my_schema", schema = c("my_schema", "dbo))}
+(e.g. schema = "my_schema", schema = c("my_schema", "dbo"))}
 }
 \value{
 A dplyr reference to the newly created table
@@ -24,7 +24,6 @@ Run a dplyr query and add the result set to an existing
 \examples{
 \dontrun{
 library(CDMConnector)
-library(SqlUtilities)
 
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
 concept <- dplyr::tbl(con, "concept")
@@ -34,7 +33,7 @@ rxnorm_count <- concept \%>\%
   dplyr::filter(domain_id == "Drug") \%>\%
   dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) \%>\%
   dplyr::count(domain_id, isRxnorm) \%>\%
-  computePermanent("rxnorm_count")
+  computeQu("rxnorm_count")
 
 # append to an existing table
 rxnorm_count <- concept \%>\%

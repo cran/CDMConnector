@@ -1,50 +1,33 @@
 #' Run a dplyr query and store the result in a permanent table
 #'
+#' This function has been superceded by `computeQuery` which should be used
+#' instead of `computePermanent`.
+#'
+#' `r lifecycle::badge("deprecated")`
+#'
 #' @param x A dplyr query
 #' @param name Name of the table to be created
 #' @param schema Schema to create the new table in
 #' Can be a length 1 or 2 vector.
-#' (e.g. schema = "my_schema", schema = c("my_schema", "dbo))
+#' (e.g. schema = "my_schema", schema = c("my_schema", "dbo"))
 #' @param overwrite If the table already exists in the remote database
 #' should it be overwritten? (TRUE or FALSE)
 #'
 #' @return A dplyr reference to the newly created table
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' library(CDMConnector)
-#'
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
-#' concept <- dplyr::tbl(con, "concept")
-#'
-#' rxnorm_count <- concept %>%
-#'   dplyr::filter(domain_id == "Drug") %>%
-#'   dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) %>%
-#'   dplyr::count(isRxnorm) %>%
-#'   computePermanent("rxnorm_count")
-#'
-#' DBI::dbDisconnect(con, shutdown = TRUE)
-#' }
 computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
+  lifecycle::deprecate_warn("0.5.0", "computePermanent()", "computeQuery()")
+  .computePermanent(x, name, schema, overwrite)
+}
+
+.computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
+
   checkmate::assertCharacter(schema, min.len = 1, max.len = 2, null.ok = TRUE)
   checkmate::assertCharacter(name, len = 1)
   checkmate::assertClass(x, "tbl_sql")
   checkmate::assertLogical(overwrite, len = 1)
 
-  if (length(schema) == 2) {
-    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(x$src$con, schema[[1]]),
-                            DBI::dbQuoteIdentifier(x$src$con, schema[[2]]),
-                            DBI::dbQuoteIdentifier(x$src$con, name),
-                            sep = ".")
-  } else if (length(schema) == 1) {
-    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(x$src$con, schema),
-                            DBI::dbQuoteIdentifier(x$src$con, name),
-                            sep = ".")
-  } else {
-    fullNameQuoted <- DBI::dbQuoteIdentifier(x$src$con, name)
-  }
-
+  fullNameQuoted <- getFullTableNameQuoted(x, name, schema)
   existingTables <- CDMConnector::listTables(x$src$con, schema = schema)
   if (name %in% existingTables) {
     if (overwrite) {
@@ -82,7 +65,7 @@ computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
 
   DBI::dbExecute(x$src$con, sql)
 
-  if (is(x$src$con, "duckdb_connection")) {
+  if (methods::is(x$src$con, "duckdb_connection")) {
     ref <- dplyr::tbl(x$src$con, paste(c(schema, name), collapse = "."))
   } else if (length(schema) == 2) {
     ref <- dplyr::tbl(x$src$con,
@@ -101,7 +84,7 @@ computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
 #' @param name Name of the table to be appended. If it does not already exist it
 #'   will be created.
 #' @param schema Schema where the table exists. Can be a length 1 or 2 vector.
-#'   (e.g. schema = "my_schema", schema = c("my_schema", "dbo))
+#'   (e.g. schema = "my_schema", schema = c("my_schema", "dbo"))
 #'
 #' @return A dplyr reference to the newly created table
 #' @export
@@ -109,7 +92,6 @@ computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
 #' @examples
 #' \dontrun{
 #' library(CDMConnector)
-#' library(SqlUtilities)
 #'
 #' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
 #' concept <- dplyr::tbl(con, "concept")
@@ -119,7 +101,7 @@ computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
 #'   dplyr::filter(domain_id == "Drug") %>%
 #'   dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) %>%
 #'   dplyr::count(domain_id, isRxnorm) %>%
-#'   computePermanent("rxnorm_count")
+#'   computeQu("rxnorm_count")
 #'
 #' # append to an existing table
 #' rxnorm_count <- concept %>%
@@ -136,19 +118,7 @@ appendPermanent <- function(x, name, schema = NULL) {
   checkmate::assertCharacter(name, len = 1)
   checkmate::assertClass(x, "tbl_sql")
 
-  if (length(schema) == 2) {
-    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(x$src$con, schema[[1]]),
-                            DBI::dbQuoteIdentifier(x$src$con, schema[[2]]),
-                            DBI::dbQuoteIdentifier(x$src$con, name),
-                            sep = ".")
-  } else if (length(schema) == 1) {
-    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(x$src$con, schema),
-                            DBI::dbQuoteIdentifier(x$src$con, name),
-                            sep = ".")
-  } else {
-    fullNameQuoted <- DBI::dbQuoteIdentifier(x$src$con, name)
-  }
-
+  fullNameQuoted <- getFullTableNameQuoted(x, name, schema)
   existingTables <- CDMConnector::listTables(x$src$con, schema = schema)
   if (!(tolower(name) %in% tolower(existingTables))) {
     return(computePermanent(x = x,
@@ -197,6 +167,26 @@ uniqueTableName <- function() {
 #'
 #' @return A `dplyr::tbl()` reference to the newly created table.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' library(CDMConnector)
+#'
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+#' cdm <- cdm_from_con(con, "main")
+#'
+#' # create a temporary table in the remote database from a dplyr query
+#' drugCount <- cdm$concept %>%
+#'   dplyr::count(domain_id == "Drug") %>%
+#'   computeQuery()
+#'
+#' # create a permanent table in the remote database from a dplyr query
+#' drugCount <- cdm$concept %>%
+#'   dplyr::count(domain_id == "Drug") %>%
+#'   computeQuery("tmp_table", temporary = FALSE, schema = "main")
+#'
+#' DBI::dbDisconnect(con, shutdown = TRUE)
+#' }
 computeQuery <- function(x,
                          name = uniqueTableName(),
                          temporary = TRUE,
@@ -209,7 +199,7 @@ computeQuery <- function(x,
   con <- x$src$con
 
   if (temporary) {
-    if (is(con, "OraConnection") || is(con, "Oracle")) {
+    if (methods::is(con, "OraConnection") || methods::is(con, "Oracle")) {
       # https://github.com/tidyverse/dbplyr/issues/621#issuecomment-1362229669
       name <- paste0("ORA$PTT_", name)
       sql <- dbplyr::build_sql(
@@ -222,7 +212,7 @@ computeQuery <- function(x,
       )
       DBI::dbExecute(con, sql)
       return(dplyr::tbl(con, name))
-    } else if (is(con, "Spark SQL")) {
+    } else if (methods::is(con, "Spark SQL")) {
       sql <- dbplyr::build_sql(
         "CREATE ", if (overwrite) dbplyr::sql("OR REPLACE "),
         "TEMPORARY VIEW \n",
@@ -236,6 +226,115 @@ computeQuery <- function(x,
       return(dplyr::compute(x, name = name, temporary = temporary, ...))
     }
   } else {
-    computePermanent(x, name = name, schema = schema, overwrite = overwrite)
+    .computePermanent(x, name = name, schema = schema, overwrite = overwrite)
   }
 }
+
+#' Drop tables from write_schema of a cdm object
+#'
+#' cdm objects can have zero or more cohort tables stored in a special schema
+#' where the user has write access. This function removes tables from a cdm's
+#' write_schema
+#'
+#'
+#' @param cdm A cdm reference
+#' @param name A character vector of tables in the cdm's write_schema or
+#' a [tidyselect](https://tidyselect.r-lib.org/reference/language.html)
+#' specification of tables to drop.
+#' (e.g. `starts_with("temp")`, `matches("study01")`, etc.)
+#' @param verbose Print a message when dropping a table? TRUE or FALSE (default)
+#'
+#' @return Returns the cdm object with selected tables removed
+#' @importFrom tidyselect starts_with ends_with matches
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' library(CDMConnector)
+#'
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+#' cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+#'
+#' # create two temporary tables in the remote database from a query with a common prefix
+#' cdm$tmp_table <- cdm$concept %>%
+#'   dplyr::count(domain_id == "Drug") %>%
+#'   computeQuery("tmp_table", temporary = FALSE, schema = "main")
+#'
+#' cdm$tmp_table2 <- cdm$concept %>%
+#'   dplyr::count(domain_id == "Condition") %>%
+#'   computeQuery("tmp_table2", temporary = FALSE, schema = "main")
+#'
+#' stringr::str_subset(DBI::dbListTables(con), "tmp")
+#' #> [1] "tmp_table"  "tmp_table2"
+#' stringr::str_subset(names(cdm), "tmp")
+#' #> [1] "tmp_table"  "tmp_table2"
+#'
+#' # drop tables with a common prefix
+#' cdm <- dropTable(cdm, name = dplyr::starts_with("tmp"))
+#'
+#' stringr::str_subset(DBI::dbListTables(con), "tmp")
+#' #> character(0)
+#' stringr::str_subset(names(cdm), "tmp")
+#' #> character(0)
+#'
+#' DBI::dbDisconnect(con, shutdown = TRUE)
+#' }
+dropTable <- function(cdm, name, verbose = FALSE) {
+
+  checkmate::assertClass(cdm, "cdm_reference")
+  assert_write_schema(cdm)
+  schema <- attr(cdm, "write_schema")
+  con <- attr(cdm, "dbcon")
+  checkmate::assertTRUE(DBI::dbIsValid(con))
+
+  allTables <- CDMConnector::listTables(con, schema = schema)
+  names(allTables) <- allTables
+  toDrop <- names(tidyselect::eval_select(rlang::enquo(name), data = allTables))
+
+  for (i in seq_along(toDrop)) {
+
+    if (toDrop[i] %in% allTables) {
+      if (verbose) {
+        message(paste0("Dropping", schema, ".", toDrop[i]))
+      }
+      DBI::dbRemoveTable(con, inSchema(schema, toDrop[i]))
+    }
+
+    if (toDrop[i] %in% names(cdm)) {
+      cdm[[toDrop[i]]] <- NULL
+    }
+  }
+
+  return(invisible(cdm))
+}
+
+# Get the full table name consisting of the schema and table name.
+#
+# @param x A dplyr query
+# @param name Name of the table to be created.
+# @param schema Schema to create the new table in
+# Can be a length 1 or 2 vector.
+# (e.g. schema = "my_schema", schema = c("my_schema", "dbo"))
+#
+# @return the full table name
+getFullTableNameQuoted <- function(x, name, schema) {
+  checkmate::assertClass(x, "tbl_sql")
+  checkmate::assertCharacter(schema, min.len = 1, max.len = 2, null.ok = TRUE)
+  checkmate::assertCharacter(name, len = 1)
+
+  connection <- x$src$con
+  if (length(schema) == 2) {
+    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(connection, schema[[1]]),
+                            DBI::dbQuoteIdentifier(connection, schema[[2]]),
+                            DBI::dbQuoteIdentifier(connection, name),
+                            sep = ".")
+  } else if (length(schema) == 1) {
+    fullNameQuoted <- paste(DBI::dbQuoteIdentifier(connection, schema),
+                            DBI::dbQuoteIdentifier(connection, name),
+                            sep = ".")
+  } else {
+    fullNameQuoted <- DBI::dbQuoteIdentifier(connection, name)
+  }
+  return(fullNameQuoted)
+}
+
