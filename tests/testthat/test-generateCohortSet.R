@@ -89,7 +89,11 @@ test_that("duckdb cohort generation with attrition", {
   # test readCohortSet with non existing directory
   expect_error(readCohortSet(system.file("cohorts99", package = "CDMConnector", mustWork = FALSE)))
 
-  cdm <- generateCohortSet(cdm, cohortSet, name = "chrt0", computeAttrition = TRUE)
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "chrt0",
+                           computeAttrition = TRUE,
+                           overwrite = TRUE)
 
   expect_true("chrt0" %in% listTables(con, schema = write_schema))
 
@@ -108,13 +112,29 @@ test_that("duckdb cohort generation with attrition", {
   expect_s3_class(counts, "data.frame")
   expect_equal(nrow(counts), 3)
 
-  # drop tables
-  DBI::dbRemoveTable(con, DBI::Id(schema = "main", table = "chrt0"))
-  expect_false("chrt0" %in% listTables(con, schema = write_schema))
+  # cdm_from_con should find existing tables
+  cdm2 <- cdm_from_con(con, "main", write_schema = "main", cohort_tables = "chrt0")
 
-  DBI::dbRemoveTable(con, DBI::Id(schema = write_schema, table = "chrt0_count"))
-  DBI::dbRemoveTable(con, DBI::Id(schema = write_schema, table = "chrt0_set"))
-  DBI::dbRemoveTable(con, DBI::Id(schema = write_schema, table = "chrt0_attrition"))
+  expect_s3_class(cdm2$chrt0, "GeneratedCohortSet")
+  expect_s3_class(cohortAttrition(cdm2$chrt0), "tbl_dbi")
+  expect_s3_class(cohortCount(cdm2$chrt0), "tbl_dbi")
+  expect_s3_class(cohortSet(cdm2$chrt0), "tbl_dbi")
+
+  # try overwrite=TRUE
+  cdm2 <- generateCohortSet(cdm2,
+                            cohortSet,
+                            name = "chrt0",
+                            computeAttrition = TRUE,
+                            overwrite = TRUE)
+
+  expect_s3_class(cdm2$chrt0, "GeneratedCohortSet")
+  expect_s3_class(cohortAttrition(cdm2$chrt0), "tbl_dbi")
+  expect_s3_class(cohortCount(cdm2$chrt0), "tbl_dbi")
+  expect_s3_class(cohortSet(cdm2$chrt0), "tbl_dbi")
+
+  # drop tables
+  dropTable(cdm, name = dplyr::starts_with("chrt0"))
+  expect_false(any(stringr::str_detect(listTables(con, schema = write_schema), "^chrt0")))
 
   DBI::dbDisconnect(con, shutdown = TRUE)
 })
@@ -147,7 +167,11 @@ test_that("SQL Server cohort generation with attrition", {
   cohortSet <- cohortSet[3,]
   expect_s3_class(cohortSet, "CohortSet")
 
-  cdm <- generateCohortSet(cdm, cohortSet, name = "chrt0", computeAttrition = TRUE)
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "chrt0",
+                           computeAttrition = TRUE,
+                           overwrite = TRUE)
 
   expect_true("chrt0" %in% listTables(con, schema = write_schema))
 
@@ -204,7 +228,11 @@ test_that("Redshift cohort generation with attrition", {
   cohortSet <- cohortSet[3,]
   expect_s3_class(cohortSet, "CohortSet")
 
-  cdm <- generateCohortSet(cdm, cohortSet, name = "chrt0", computeAttrition = TRUE)
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "chrt0",
+                           computeAttrition = TRUE,
+                           overwrite = TRUE)
 
   expect_true("chrt0" %in% listTables(con, schema = write_schema))
 
@@ -258,7 +286,11 @@ test_that("Postgres cohort generation with attrition", {
   cohortSet <- cohortSet[3,]
   expect_s3_class(cohortSet, "CohortSet")
 
-  cdm <- generateCohortSet(cdm, cohortSet, name = "chrt0", computeAttrition = TRUE)
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "chrt0",
+                           computeAttrition = TRUE,
+                           overwrite = TRUE)
 
   expect_true("chrt0" %in% listTables(con, schema = write_schema))
 

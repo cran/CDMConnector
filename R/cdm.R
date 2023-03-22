@@ -2,23 +2,23 @@
 #'
 #' @param con A DBI database connection to a database where an OMOP CDM v5.4 or
 #'   v5.3 instance is located.
-#' @param cdm_schema The schema where the OMOP CDM tables are located. Defaults
+#' @param cdm_schema,cdmSchema The schema where the OMOP CDM tables are located. Defaults
 #'   to NULL.
-#' @param write_schema An optional schema in the CDM database that the user has
+#' @param write_schema,writeSchema An optional schema in the CDM database that the user has
 #'   write access to.
-#' @param cdm_tables Which tables should be included? Supports a character
+#' @param cdm_tables,cdmTables Which tables should be included? Supports a character
 #'   vector, tidyselect selection helpers, or table groups.
 #' \itemize{
 #'   \item{tbl_group("all")}{all CDM tables}
 #'   \item{tbl_group("vocab")}{the CDM vocabulary tables}
 #'   \item{tbl_group("clinical")}{the clinical CDM tables}
 #' }
-#' @param cohort_tables A character vector listing the cohort table names to be
+#' @param cohort_tables,cohortTables A character vector listing the cohort table names to be
 #'   included in the CDM object.
-#' @param cdm_version The version of the OMOP CDM: "5.3" (default), "5.4",
+#' @param cdm_version,cdmVersion The version of the OMOP CDM: "5.3" (default), "5.4",
 #'   "auto". "auto" attempts to automatically determine the cdm version using
 #'   heuristics. Cohort tables must be in the write_schema.
-#' @param cdm_name The name of the CDM. If NULL (default) the cdm_source_name
+#' @param cdm_name,cdmName The name of the CDM. If NULL (default) the cdm_source_name
 #'.  field in the CDM_SOURCE table will be used.
 #' @return A list of dplyr database table references pointing to CDM tables
 #' @importFrom dplyr all_of matches starts_with ends_with contains
@@ -118,6 +118,7 @@ cdm_from_con <- function(con,
       verify_write_access(con, write_schema = write_schema)
     }
 
+    dbTablesWrite <- listTables(con, schema = write_schema)
     # Add existing GeneratedCohortSet objects to cdm object
     if (!is.null(cohort_tables)) {
       if (is.null(write_schema)) {
@@ -129,23 +130,23 @@ cdm_from_con <- function(con,
         cohort_ref <- dplyr::tbl(con, inSchema(write_schema, cohort_tables[i], dbms(con))) %>%
           dplyr::rename_all(tolower)
 
-        # Optional attribute tables {cohort}_set, {chohort}_inclusion, {cohort}_count
+        # Optional attribute tables {cohort}_set, {chohort}_attrition, {cohort}_count
         nm <- paste0(cohort_tables[i], "_set")
-        if (nm %in% dbTables) {
+        if (nm %in% dbTablesWrite) {
           cohort_set_ref <- dplyr::tbl(con, inSchema(write_schema, nm, dbms(con))) %>%
             dplyr::rename_all(tolower)
-        } else if (nm %in% toupper(dbTables)) {
+        } else if (nm %in% toupper(dbTablesWrite)) {
           cohort_set_ref <- dplyr::tbl(con, inSchema(write_schema, toupper(nm), dbms(con))) %>%
             dplyr::rename_all(tolower)
         } else {
           cohort_set_ref <- NULL
         }
 
-        nm <- paste0(cohort_tables[i], "_inclusion")
-        if (nm %in% dbTables) {
+        nm <- paste0(cohort_tables[i], "_attrition")
+        if (nm %in% dbTablesWrite) {
           cohort_attrition_ref <- dplyr::tbl(con, inSchema(write_schema, nm, dbms(con))) %>%
             dplyr::rename_all(tolower)
-        } else if (nm %in% toupper(dbTables)) {
+        } else if (nm %in% toupper(dbTablesWrite)) {
           cohort_attrition_ref <- dplyr::tbl(con, inSchema(write_schema, toupper(nm), dbms(con))) %>%
             dplyr::rename_all(tolower)
         } else {
@@ -153,10 +154,10 @@ cdm_from_con <- function(con,
         }
 
         nm <- paste0(cohort_tables[i], "_count")
-        if (nm %in% dbTables) {
+        if (nm %in% dbTablesWrite) {
           cohort_count_ref <- dplyr::tbl(con, inSchema(write_schema, nm, dbms(con))) %>%
             dplyr::rename_all(tolower)
-        } else if (nm %in% toupper(dbTables)) {
+        } else if (nm %in% toupper(dbTablesWrite)) {
           cohort_count_ref <- dplyr::tbl(con, inSchema(write_schema, toupper(nm), dbms(con))) %>%
             dplyr::rename_all(tolower)
         } else {
@@ -164,10 +165,11 @@ cdm_from_con <- function(con,
         }
 
 
-        cdm[[cohort_tables[i]]] <- newGeneratedCohortSet(cohort_ref = cohort_ref,
-                                                         cohort_attrition_ref = cohort_attrition_ref,
-                                                         cohort_set_ref = cohort_set_ref,
-                                                         cohort_count_ref = cohort_count_ref)
+        cdm[[cohort_tables[i]]] <- new_generated_cohort_set(
+          cohort_ref = cohort_ref,
+          cohort_attrition_ref = cohort_attrition_ref,
+          cohort_set_ref = cohort_set_ref,
+          cohort_count_ref = cohort_count_ref)
       }
     }
 
@@ -292,27 +294,12 @@ cdmName <- function(cdm) {
   return(attr(cdm, "cdm_name"))
 }
 
-#' Create a CDM reference object from a database connection
-#'
-#' @param con A DBI database connection to a database where an OMOP CDM v5.4
-#'   instance is located.
-#' @param cdmSchema The schema where the OMOP CDM tables are located. Defaults
-#'   to NULL.
-#' @param writeSchema An optional schema in the CDM database that the user has
-#'   write access to.
-#' @param cdmTables Which tables should be included? Supports a character
-#'   vector, tidyselect selection helpers, or table groups.
-#' \itemize{
-#'   \item{tbl_group("all")}{all CDM tables}
-#'   \item{tbl_group("vocab")}{the CDM vocabulary tables}
-#'   \item{tbl_group("clinical")}{the clinical CDM tables}
-#' }
-#' @param cohortTables A character vector listing the cohort table names to be
-#'   included in the CDM object. Cohort tables must be in the write_schema.
-#' @param cdmName The name of the CDM. If NULL (default) the cdm_source_name
-#'.  field in the CDM_SOURCE table will be used.
-#' @return A list of dplyr database table references pointing to CDM tables
-#' @importFrom dplyr all_of matches starts_with ends_with contains
+
+#' @rdname cdmName
+#' @export
+cdm_name <- cdmName
+
+
 #' @rdname cdm_from_con
 #' @export
 cdmFromCon <- function(con,
@@ -320,6 +307,7 @@ cdmFromCon <- function(con,
                        cdmTables = tbl_group("default"),
                        writeSchema = NULL,
                        cohortTables = NULL,
+                       cdmVersion = "5.3",
                        cdmName = NULL) {
   cdm_from_con(
     con = con,
@@ -327,9 +315,11 @@ cdmFromCon <- function(con,
     cdm_tables = {{cdmTables}},
     write_schema = writeSchema,
     cohort_tables = cohortTables,
+    cdm_version = cdmVersion,
     cdm_name = cdmName
   )
 }
+
 
 #' Print a CDM reference object
 #'
@@ -395,7 +385,7 @@ verify_write_access <- function(con, write_schema, add = NULL) {
 #' The OMOP CDM tables are grouped together and the `tbl_group` function allows
 #' users to easily create a CDM reference including one or more table groups.
 #'
-#' \figure{cdm54.png}{CDM 5.4}
+#' {\figure{cdm54.png}{options: width="100\%" alt="CDM 5.4"}}
 #'
 #' The "default" table group is meant to capture the most commonly used set
 #' of CDM tables. Currently the "default" group is: person,
@@ -432,6 +422,10 @@ tbl_group <- function(group) {
     unlist() %>%
     unique()
 }
+
+#' @export
+#' @rdname tbl_group
+tblGroup <- tbl_group
 
 #' Get the database management system (dbms) from a cdm_reference or DBI
 #' connection
@@ -473,7 +467,8 @@ dbms.DBIConnection <- function(con) {
     "duckdb_connection" = "duckdb",
     "Spark SQL" = "spark",
     "OraConnection" = "oracle",
-    "Oracle" = "oracle"
+    "Oracle" = "oracle",
+    "Snowflake" = "snowflake"
     # add mappings from various connection classes to dbms here
   )
 
@@ -532,7 +527,7 @@ stow <- function(cdm, path, format = "parquet") {
 #' @param path A folder where an OMOP CDM v5.4 instance is located.
 #' @param format What is the file format to be read in? Must be "auto"
 #'   (default), "parquet", "csv", "feather".
-#' @param as_data_frame TRUE (default) will read files into R as dataframes.
+#' @param as_data_frame,asDataFrame TRUE (default) will read files into R as dataframes.
 #'   FALSE will read files into R as Arrow Datasets.
 #' @return A list of dplyr database table references pointing to CDM tables
 #' @export
@@ -590,27 +585,17 @@ cdm_from_files <-
     cdm
   }
 
-#' Create a CDM reference from a folder containing parquet, csv, or feather
-#' files
-#'
-#' @param path A folder where an OMOP CDM v5.4 instance is located.
-#' @param format What is the file format to be read in? Must be "auto"
-#'   (default), "parquet", "csv", "feather".
-#' @param asDataFrame TRUE (default) will read files into R as dataframes.
-#'   FALSE will read files into R as Arrow Datasets.
-#' @return A list of dplyr database table references pointing to CDM tables
+
 #' @rdname cdm_from_files
 #' @export
-cdmFromFiles <-
-  function(path,
-           format = "auto",
-           asDataFrame = TRUE) {
-    cdm_from_files(
-      path = path,
-      format = format,
-      as_data_frame = asDataFrame
-    )
-  }
+cdmFromFiles <- function(path,
+                         format = "auto",
+                         asDataFrame = TRUE) {
+  cdm_from_files(path = path,
+                 format = format,
+                 as_data_frame = asDataFrame)
+}
+
 
 #' Bring a remote CDM reference into R
 #'
@@ -649,9 +634,9 @@ NULL
 #'
 #' @param cdm A cdm object
 #'
-#' @return A list of attributes about the cdm including selected fields from the
-#'   cdm_source table and record counts from the person and observation_period
-#'   tables
+#' @return A named list of attributes about the cdm including selected fields
+#' from the cdm_source table and record counts from the person and
+#' observation_period tables
 #' @export
 #'
 #' @examples
@@ -664,11 +649,8 @@ NULL
 #' DBI::dbDisconnect(con, shutdown = TRUE)
 #' }
 snapshot <- function(cdm) {
-  assert_tables(cdm,
-                tables = c("cdm_source",
-                           "person",
-                           "observation_period",
-                           "vocabulary"))
+  assert_tables(cdm, tables = c("cdm_source", "vocabulary"), empty.ok = TRUE)
+  assert_tables(cdm, tables = c("person", "observation_period"))
 
   person_cnt <- dplyr::tally(cdm$person, name = "n") %>% dplyr::pull(.data$n)
 
@@ -680,9 +662,22 @@ snapshot <- function(cdm) {
     dplyr::filter(.data$vocabulary_id == "None") %>%
     dplyr::pull(.data$vocabulary_version)
 
+  if (length(vocab_version) == 0) {
+    vocab_version <- NA_character_
+  }
+
   cdm_source_name <- cdm$cdm_source %>% dplyr::pull(.data$cdm_source_name)
 
-  dplyr::collect(cdm$cdm_source) %>%
+  cdm_source <- dplyr::collect(cdm$cdm_source)
+  if (nrow(cdm_source) == 0) {
+    cdm_source <- dplyr::tibble(vocabulary_version = vocab_version,
+                                cdm_source_name = "",
+                                cdm_holder = "",
+                                cdm_release_date = "",
+                                cdm_version = attr(cdm, "cdm_version"))
+  }
+
+  cdm_source %>%
     dplyr::mutate(vocabulary_version = dplyr::coalesce(.env$vocab_version,
                                                        .data$vocabulary_version)) %>%
     dplyr::mutate(
@@ -699,10 +694,18 @@ snapshot <- function(cdm) {
       "observation_period_cnt"
     ) %>%
     as.list() %>%
+    c(list(cdm_schema = attr(cdm, "cdm_schema"),
+           write_schema = attr(cdm, "write_schema"),
+           cdm_name = attr(cdm, "cdm_name"))) %>%
     magrittr::set_class("cdm_snapshot")
+
 }
 
+#' @export
 print.cdm_snapshot <- function(x, ...) {
   cli::cat_rule(x$cdm_source_name)
+  if (length(x$cdm_schema) > 1) {
+    x$cdm_schema <- paste0(x$cdm_schema, collapse = ".")
+  }
   purrr::walk2(names(x[-1]), x[-1], ~ cli::cat_bullet(.x, ": ", .y))
 }
