@@ -356,79 +356,71 @@ we’ll be using the Eunomia “GI Bleed” dataset.</p>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>We can define a cohort for GI bleeding, where we exclude anyone with
 a record of rheumatoid arthritis at any time.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;OHDSI/Capr&quot;, &quot;v2&quot;) # Use the development version of Capr v2</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;OHDSI/Capr&quot;)</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Capr)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create a cohort set folder for saving cohort definitions</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;cohorts&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(path)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>gibleed_cohort_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">condition</span>(<span class="fu">cs</span>(<span class="fu">descendants</span>(<span class="dv">192671</span>))),</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">attrition =</span> <span class="fu">attrition</span>(</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;no RA&quot;</span> <span class="ot">=</span> <span class="fu">withAll</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">exactly</span>(<span class="dv">0</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>              <span class="fu">condition</span>(<span class="fu">cs</span>(<span class="fu">descendants</span>(<span class="dv">80809</span>))),</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>              <span class="fu">duringInterval</span>(<span class="fu">eventStarts</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>))))</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># write json cohort definition</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">writeCohort</span>(gibleed_cohort_definition, <span class="fu">file.path</span>(path, <span class="st">&quot;gibleed.json&quot;</span>))</span></code></pre></div>
-<p>Now we have our cohort definition, we can generate the cohort.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gibleed_cohort_set <span class="ot">&lt;-</span> <span class="fu">readCohortSet</span>(<span class="at">path =</span> path)</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># requires CirceR optional dependency</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generateCohortSet</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  cdm,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  gibleed_cohort_set,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">computeAttrition =</span> <span class="cn">TRUE</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>gibleed_cohort_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">condition</span>(<span class="fu">cs</span>(<span class="fu">descendants</span>(<span class="dv">192671</span>))),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">attrition =</span> <span class="fu">attrition</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;no RA&quot;</span> <span class="ot">=</span> <span class="fu">withAll</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">exactly</span>(<span class="dv">0</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>              <span class="fu">condition</span>(<span class="fu">cs</span>(<span class="fu">descendants</span>(<span class="dv">80809</span>))),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>              <span class="fu">duringInterval</span>(<span class="fu">eventStarts</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>))))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># requires CirceR optional dependency</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generateCohortSet</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  cdm,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">cohortSet =</span> <span class="fu">list</span>(<span class="at">gibleed =</span> gibleed_cohort_definition),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">computeAttrition =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>We can see that we now have our cohort instantiated in the database
 with a reference to it added to the cdm reference.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
-<pre><code>#&gt; Rows: 237
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
+<pre><code>#&gt; Rows: 476
 #&gt; Columns: 4
-#&gt; $ cohort_definition_id &lt;int&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3…
-#&gt; $ subject_id           &lt;dbl&gt; 3, 32, 80, 133, 187, 188, 202, 260, 264, 273, 285…
-#&gt; $ cohort_start_date    &lt;date&gt; 1958-01-29, 1987-06-09, 1974-10-27, 2019-04-05, …
-#&gt; $ cohort_end_date      &lt;date&gt; 2018-10-29, 2014-12-24, 2019-04-15, 2019-04-06, …</code></pre>
+#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+#&gt; $ subject_id           &lt;dbl&gt; 35, 80, 99, 115, 116, 133, 160, 163, 164, 187, 18…
+#&gt; $ cohort_start_date    &lt;date&gt; 1997-07-25, 1974-10-27, 2000-03-11, 2001-04-15, …
+#&gt; $ cohort_end_date      &lt;date&gt; 2018-12-25, 2019-04-15, 2019-04-27, 2019-05-05, …</code></pre>
 </div>
 <div id="cohort-attributes" class="section level2">
 <h2>Cohort attributes</h2>
 <p>As well as the cohort itself, the cohort has a number of attributes.
 First, is a count of participants by cohort. We can use
 <code>cohortCount</code> to get these counts.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
 <pre><code>#&gt; Rows: 1
 #&gt; Columns: 3
-#&gt; $ cohort_definition_id &lt;int&gt; 3
-#&gt; $ cohort_entries       &lt;dbl&gt; 237
-#&gt; $ cohort_subjects      &lt;dbl&gt; 237</code></pre>
+#&gt; $ cohort_definition_id &lt;int&gt; 1
+#&gt; $ number_records       &lt;dbl&gt; 476
+#&gt; $ number_subjects      &lt;dbl&gt; 476</code></pre>
 <p>We also have the attrition associated with entry into the cohort
 available via <code>cohortAttrition</code>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortAttrition</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortAttrition</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
 <pre><code>#&gt; Rows: 1
 #&gt; Columns: 7
-#&gt; $ cohort_definition_id &lt;int&gt; 3
-#&gt; $ number_records       &lt;dbl&gt; 237
-#&gt; $ number_subjects      &lt;dbl&gt; 237
+#&gt; $ cohort_definition_id &lt;int&gt; 1
+#&gt; $ number_records       &lt;dbl&gt; 476
+#&gt; $ number_subjects      &lt;dbl&gt; 476
 #&gt; $ reason_id            &lt;dbl&gt; 1
 #&gt; $ reason               &lt;chr&gt; &quot;Qualifying initial records&quot;
 #&gt; $ excluded_records     &lt;dbl&gt; 0
 #&gt; $ excluded_subjects    &lt;dbl&gt; 0</code></pre>
 <p>And lastly, we can also access the settings associated with the
 cohort using <code>cohortCount</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortSet</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cohortSet</span>(cdm<span class="sc">$</span>gibleed) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span></code></pre></div>
 <pre><code>#&gt; Rows: 1
 #&gt; Columns: 2
-#&gt; $ cohort_definition_id &lt;int&gt; 3
-#&gt; $ cohort_name          &lt;chr&gt; &quot;GIBleed_male&quot;</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+#&gt; $ cohort_definition_id &lt;int&gt; 1
+#&gt; $ cohort_name          &lt;chr&gt; &quot;gibleed&quot;</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 
 
