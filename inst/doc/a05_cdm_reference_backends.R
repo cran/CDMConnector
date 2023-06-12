@@ -20,7 +20,7 @@ library(ggplot2)
 
 ## ---- message=FALSE, warning=FALSE--------------------------------------------
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, cdm_schema = "main", cdm_tables = c("person", "condition_occurrence"))
+cdm <- cdm_from_con(con, cdm_schema = "main")
 
 # first filter to only those with condition_concept_id "4035415"
 cdm$condition_occurrence %>% tally()
@@ -42,7 +42,7 @@ cdm$person %>% tally()
 ## ---- message=FALSE, warning=FALSE--------------------------------------------
 dOut <- tempfile()
 dir.create(dOut)
-CDMConnector::stow(cdm, dOut)
+CDMConnector::stow(cdm, dOut, format = "parquet")
 
 ## ---- message=FALSE, warning=FALSE--------------------------------------------
 cdm_arrow <- cdm_from_files(dOut, as_data_frame = FALSE)

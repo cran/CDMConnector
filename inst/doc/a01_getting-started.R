@@ -31,15 +31,16 @@ cdm$person %>%
   glimpse()
 
 ## -----------------------------------------------------------------------------
-cdm_from_con(con, cdm_tables = c("person", "observation_period")) # character vector
-cdm_from_con(con, cdm_tables = starts_with("concept")) # tables that start with 'concept'
-cdm_from_con(con, cdm_tables = contains("era")) # tables that contain the substring 'era'
-cdm_from_con(con, cdm_tables = matches("person|period")) # regular expression
+cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl("person", "observation_period") # quoted names
+cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(person, observation_period) # unquoted names 
+cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(starts_with("concept")) # tables that start with 'concept'
+cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(contains("era")) # tables that contain the substring 'era'
+cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(matches("person|period")) # regular expression
 
 ## -----------------------------------------------------------------------------
 # pre-defined groups
-cdm_from_con(con, cdm_tables = tbl_group("clinical")) 
-cdm_from_con(con, cdm_tables = tbl_group("vocab")) 
+cdm_from_con(con, "main") %>% cdm_select_tbl(tbl_group("clinical")) 
+cdm_from_con(con, "main") %>% cdm_select_tbl(tbl_group("vocab")) 
 
 ## -----------------------------------------------------------------------------
 tbl_group("default")
@@ -52,12 +53,11 @@ cohort <- tibble(cohort_definition_id = 1L,
 
 invisible(DBI::dbExecute(con, "create schema write_schema;"))
 
-DBI::dbWriteTable(con, DBI::Id(schema = "write_schema", table_name = "cohort"), cohort)
+DBI::dbWriteTable(con, DBI::Id(schema = "write_schema", name = "cohort"), cohort)
 
 
 ## -----------------------------------------------------------------------------
 cdm <- cdm_from_con(con, 
-                    cdm_tables = c("person", "observation_period"), 
                     write_schema = "write_schema",
                     cohort_tables = "cohort") 
 
@@ -75,7 +75,7 @@ save_path <- file.path(tempdir(), "tmp")
 dir.create(save_path)
 
 cdm %>% 
-  stow(path = save_path)
+  stow(path = save_path, format = "parquet")
 
 list.files(save_path)
 
