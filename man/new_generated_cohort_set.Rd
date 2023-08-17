@@ -3,20 +3,22 @@
 \name{new_generated_cohort_set}
 \alias{new_generated_cohort_set}
 \alias{newGeneratedCohortSet}
-\title{Low level constructor for GeneratedCohortSet objects for package developers}
+\title{Constructor for GeneratedCohortSet objects}
 \usage{
 new_generated_cohort_set(
   cohort_ref,
   cohort_set_ref = NULL,
   cohort_attrition_ref = NULL,
-  cohort_count_ref = NULL
+  cohort_count_ref = NULL,
+  overwrite = FALSE
 )
 
 newGeneratedCohortSet(
   cohortRef,
   cohortSetRef = NULL,
   cohortAttritionRef = NULL,
-  cohortCountRef = NULL
+  cohortCountRef = NULL,
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -36,6 +38,8 @@ table in a remote database with the first column being cohort_definition_id.}
 \item{cohort_count_ref, cohortCountRef}{A \code{tbl_sql} object that points to a cohort_count
 table in a remote database with columns cohort_definition_id, cohort_entries,
 cohort_subjects.}
+
+\item{overwrite}{Should tables be overwritten if they already exist? TRUE or FALSE (default)}
 }
 \value{
 A \code{generatedCohortSet} object that is a \code{tbl_sql} reference
@@ -43,9 +47,7 @@ to a cohort table in the write_schema of an OMOP CDM
 }
 \description{
 This constructor function is to be used by analytic package developers to
-create \code{generatedCohortSet} objects. Users should never need to call this
-function. The use of this function ensures that all \code{generatedCohortSet}
-have a valid structure.
+create \code{generatedCohortSet} objects.
 }
 \details{
 A \code{generatedCohort} is a set of person-time from an OMOP CDM database.
@@ -122,15 +124,16 @@ will be created if not supplied.
    cohort_attrition_ref <- dplyr::tbl(con, paste0(name, "_attrition"))
    cohort_count_ref <- dplyr::tbl(con, paste0(name, "_count"))
 
+   # add to the cdm
+   cdm[[name]] <- cohort_ref
+
    # create the generated cohort set object using the constructor
-   generatedCohortSet <- new_generated_cohort_set(
-      cohort_ref,
+   cdm[[name]] <- new_generated_cohort_set(
+      cdm[[name]],
       cohort_set_ref = cohort_set_ref,
       cohort_attrition_ref = cohort_attrition_ref,
       cohort_count_ref = cohort_count_ref)
 
-.   # Add the generatedCohortSet to the cdm and return the cdm
-   cdm[[name]] <- generatedCohortSet
    return(cdm)
  }
 }

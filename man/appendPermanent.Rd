@@ -28,7 +28,7 @@ Run a dplyr query and add the result set to an existing
 \dontrun{
 library(CDMConnector)
 
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 concept <- dplyr::tbl(con, "concept")
 
 # create a table
@@ -36,7 +36,7 @@ rxnorm_count <- concept \%>\%
   dplyr::filter(domain_id == "Drug") \%>\%
   dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) \%>\%
   dplyr::count(domain_id, isRxnorm) \%>\%
-  computeQu("rxnorm_count")
+  computeQuery("rxnorm_count")
 
 # append to an existing table
 rxnorm_count <- concept \%>\%

@@ -6,15 +6,31 @@
 \title{Create a CDM reference from a folder containing parquet, csv, or feather
 files}
 \usage{
-cdm_from_files(path, format = "auto", as_data_frame = TRUE)
+cdm_from_files(
+  path,
+  format = "auto",
+  cdm_version = "5.3",
+  cdm_name = NULL,
+  as_data_frame = TRUE
+)
 
-cdmFromFiles(path, format = "auto", asDataFrame = TRUE)
+cdmFromFiles(
+  path,
+  format = "auto",
+  cdmVersion = "5.3",
+  cdmName = NULL,
+  asDataFrame = TRUE
+)
 }
 \arguments{
 \item{path}{A folder where an OMOP CDM v5.4 instance is located.}
 
 \item{format}{What is the file format to be read in? Must be "auto"
 (default), "parquet", "csv", "feather".}
+
+\item{cdm_version, cdmVersion}{The version of the cdm (5.3 or 5.4)}
+
+\item{cdm_name, cdmName}{A name to use for the cdm.}
 
 \item{as_data_frame, asDataFrame}{TRUE (default) will read files into R as dataframes.
 FALSE will read files into R as Arrow Datasets.}

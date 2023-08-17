@@ -1,56 +1,56 @@
-#' Run a dplyr query and store the result in a permanent table
-#'
-#' This function has been superceded by `computeQuery` which should be used
-#' instead of `computePermanent`.
-#'
-#' `r lifecycle::badge("deprecated")`
-#'
-#' @param x A dplyr query
-#' @param name Name of the table to be created
-#' @param schema Schema to create the new table in
-#' Can be a length 1 or 2 vector.
-#' (e.g. schema = "my_schema", schema = c("my_schema", "dbo"))
-#' @param overwrite If the table already exists in the remote database
-#' should it be overwritten? (TRUE or FALSE)
-#'
-#' @return A dplyr reference to the newly created table
-#' @export
-computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
-  lifecycle::deprecate_warn("0.5.0", "computePermanent()", "computeQuery()")
-  .computePermanent(x, name, schema, overwrite)
-}
-
+# Run a dplyr query and store the result in a permanent table
+#
+# @param x A dplyr query
+# @param name Name of the table to be created
+# @param schema Schema to create the new table in
+# Can be a length 1 or 2 vector.
+# (e.g. schema = "my_schema", schema = c("my_schema", "dbo"))
+# @param overwrite If the table already exists in the remote database
+# should it be overwritten? (TRUE or FALSE)
+#
+# @return A dplyr reference to the newly created table
+#
+# internal function
 .computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
-
   checkmate::assertCharacter(schema, min.len = 1, max.len = 2, null.ok = TRUE)
+  schema <- unname(schema)
   checkmate::assertCharacter(name, len = 1)
   checkmate::assertClass(x, "tbl_sql")
   checkmate::assertLogical(overwrite, len = 1)
 
   fullNameQuoted <- getFullTableNameQuoted(x, name, schema)
-  existingTables <- CDMConnector::listTables(x$src$con, schema = schema)
+  existingTables <- listTables(x$src$con, schema = schema)
   if (name %in% existingTables) {
     if (overwrite) {
-      DBI::dbRemoveTable(x$src$con, DBI::SQL(fullNameQuoted))
+      # DBI::dbRemoveTable(x$src$con, DBI::SQL(fullNameQuoted))
+      DBI::dbRemoveTable(x$src$con, inSchema(schema, name, dbms = dbms(x$src$con)))
     } else {
       rlang::abort(paste(fullNameQuoted, "already exists.",
                          "Set overwrite = TRUE to recreate it."))
     }
   }
 
-  if (CDMConnector::dbms(x$src$con) == "spark" &&
+  if (dbms(x$src$con) == "spark" &&
       !rlang::is_installed("SqlRender", version = "1.8.0")) {
     rlang::abort("SqlRender version 1.8.0 or later is required
-                 to use computePermanent with spark.")
+                 to use .computePermanent with spark.")
   }
 
-  if (CDMConnector::dbms(x$src$con) %in% c("duckdb", "oracle")) {
-    sql <- dbplyr::build_sql("CREATE TABLE ",
-             if (!is.null(schema)) dbplyr::ident(schema),
-             if (!is.null(schema)) dbplyr::sql("."), dbplyr::ident(name),
-             " AS ", dbplyr::sql_render(x), con = x$src$con)
+  if (dbms(x$src$con) %in% c("duckdb", "oracle", "snowflake", "bigquery")) {
 
-  } else if (CDMConnector::dbms(x$src$con) == "spark") {
+    if (length(schema) == 2) {
+      sql <- dbplyr::build_sql("CREATE TABLE ",
+                               dbplyr::ident(schema[1]), dbplyr::sql("."),
+                               dbplyr::ident(schema[2]), dbplyr::sql("."), dbplyr::ident(name),
+                               " AS ", dbplyr::sql_render(x), con = x$src$con)
+    } else {
+      sql <- dbplyr::build_sql("CREATE TABLE ",
+               if (!is.null(schema)) dbplyr::ident(schema),
+               if (!is.null(schema)) dbplyr::sql("."), dbplyr::ident(name),
+               " AS ", dbplyr::sql_render(x), con = x$src$con)
+    }
+
+  } else if (dbms(x$src$con) == "spark") {
     sql <- dbplyr::build_sql("CREATE ",
              if (overwrite) dbplyr::sql("OR REPLACE "),  "TABLE ",
              if (!is.null(schema)) dbplyr::ident(schema),
@@ -60,29 +60,13 @@ computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
     sql <- glue::glue("SELECT * INTO {fullNameQuoted}
                       FROM ({dbplyr::sql_render(x)}) x")
     sql <- SqlRender::translate(sql,
-                                targetDialect = CDMConnector::dbms(x$src$con))
+                                targetDialect = dbms(x$src$con))
   }
 
   DBI::dbExecute(x$src$con, sql)
 
-  if (methods::is(x$src$con, "duckdb_connection")) {
-    ref <- dplyr::tbl(x$src$con, paste(c(schema, name), collapse = "."))
-  } else if (length(schema) == 2) {
-    ref <- dplyr::tbl(x$src$con,
-                      dbplyr::in_catalog(schema[[1]], schema[[2]], name))
-  } else if (length(schema) == 1) {
-    ref <- dplyr::tbl(x$src$con, dbplyr::in_schema(schema, name))
-  } else {
-    ref <- dplyr::tbl(x$src$con, name)
-  }
-  return(ref)
+  dplyr::tbl(x$src$con, inSchema(schema = schema, table = name, dbms = dbms(x$src$con)))
 }
-
-
-#' @rdname computePermanent
-#' @export
-compute_permanent <- computePermanent
-
 
 #' Run a dplyr query and add the result set to an existing
 #'
@@ -99,7 +83,7 @@ compute_permanent <- computePermanent
 #' \dontrun{
 #' library(CDMConnector)
 #'
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 #' concept <- dplyr::tbl(con, "concept")
 #'
 #' # create a table
@@ -107,7 +91,7 @@ compute_permanent <- computePermanent
 #'   dplyr::filter(domain_id == "Drug") %>%
 #'   dplyr::mutate(isRxnorm = (vocabulary_id == "RxNorm")) %>%
 #'   dplyr::count(domain_id, isRxnorm) %>%
-#'   computeQu("rxnorm_count")
+#'   computeQuery("rxnorm_count")
 #'
 #' # append to an existing table
 #' rxnorm_count <- concept %>%
@@ -124,30 +108,20 @@ appendPermanent <- function(x, name, schema = NULL) {
   checkmate::assertCharacter(name, len = 1)
   checkmate::assertClass(x, "tbl_sql")
 
+  # TODO try dbAppendTable
   fullNameQuoted <- getFullTableNameQuoted(x, name, schema)
-  existingTables <- CDMConnector::listTables(x$src$con, schema = schema)
+  existingTables <- listTables(x$src$con, schema = schema)
   if (!(tolower(name) %in% tolower(existingTables))) {
-    return(computePermanent(x = x,
-                            name = name,
-                            schema = schema,
-                            overwrite = FALSE))
+    return(.computePermanent(x = x,
+                             name = name,
+                             schema = schema,
+                             overwrite = FALSE))
   }
 
   sql <- glue::glue("INSERT INTO {fullNameQuoted} {dbplyr::sql_render(x)}")
-  sql <- SqlRender::translate(sql,
-                              targetDialect = CDMConnector::dbms(x$src$con))
-
+  sql <- SqlRender::translate(sql, targetDialect = dbms(x$src$con))
   DBI::dbExecute(x$src$con, sql)
-
-  if (length(schema) == 2) {
-    ref <- dplyr::tbl(x$src$con,
-                      dbplyr::in_catalog(schema[[1]], schema[[2]], name))
-  } else if (length(schema) == 1) {
-    ref <- dplyr::tbl(x$src$con, dbplyr::in_schema(schema, name))
-  } else {
-    ref <- dplyr::tbl(x$src$con, name)
-  }
-  return(ref)
+  dplyr::tbl(x$src$con, inSchema(schema, name, dbms = dbms(x$src$con)))
 }
 
 
@@ -191,7 +165,7 @@ unique_table_name <- uniqueTableName
 #' \dontrun{
 #' library(CDMConnector)
 #'
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 #' cdm <- cdm_from_con(con, "main")
 #'
 #' # create a temporary table in the remote database from a dplyr query
@@ -213,12 +187,44 @@ computeQuery <- function(x,
                          overwrite = FALSE,
                          ...) {
 
+  if (is.data.frame(x) || (methods::is(x, "Table") && methods::is(x, "ArrowTabular"))) {
+    return(x)
+  }
+
   checkmate::assertLogical(temporary, len = 1)
+  checkmate::assertLogical(overwrite, len = 1)
+
+  if (isFALSE(temporary)) {
+    checkmate::assertCharacter(schema, min.len = 1, max.len = 3)
+
+    # handle prefixes
+    if ("prefix" %in% names(schema)) {
+      checkmate::assertCharacter(schema["prefix"], len = 1, min.chars = 1, pattern = "[a-zA-Z1-9_]+")
+      name <- paste0(schema["prefix"], name)
+      schema <- schema[names(schema) != "prefix"]
+    }
+    checkmate::assertCharacter(schema, min.len = 1, max.len = 2)
+  }
 
   cdm_reference <- attr(x, "cdm_reference") # might be NULL
   con <- x$src$con
 
   if (temporary) {
+
+    # handle overwrite for temp tables
+    # TODO test overwrite of temp tables this across all dbms
+    if (name %in% list_tables(con)) {
+      if (isFALSE(overwrite)) {
+        rlang::abort(glue::glue("table {name} already exists and overwrite is FALSE!"))
+      }
+
+      if (dbms(con) %in% c("sql server")) {
+        DBI::dbExecute(con, glue::glue("DROP TABLE #{name};"))
+      } else {
+        DBI::dbRemoveTable(con, name)
+      }
+    }
+
     if (methods::is(con, "OraConnection") || methods::is(con, "Oracle")) {
       # https://github.com/tidyverse/dbplyr/issues/621#issuecomment-1362229669
       name <- paste0("ORA$PTT_", name)
@@ -242,17 +248,36 @@ computeQuery <- function(x,
       )
       DBI::dbExecute(con, sql)
       out <- dplyr::tbl(con, name)
+    } else if (dbms(con) == "bigquery" && methods::is(con, "BigQueryConnection")) {
+      sql <- dbplyr::build_sql(
+        "CREATE TABLE ", dbplyr::ident(name), " \n",
+        "OPTIONS(expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 DAY)) AS\n",
+        dbplyr::sql_render(x),
+        con = con
+      )
+      DBI::dbExecute(con, sql)
+      out <- dplyr::tbl(con, name)
+    } else if (dbms(con) == "sql server") {
+      suppressMessages({ # Suppress the "Created a temporary table named" message
+        out <- dplyr::compute(x, name = name, temporary = temporary, ...)
+      })
     } else {
       out <- dplyr::compute(x, name = name, temporary = temporary, ...)
     }
 
   } else {
+    # not temporary
     out <- .computePermanent(x, name = name, schema = schema, overwrite = overwrite)
   }
 
-  if (!is.null(cdm_reference)) {
-    attr(out, "cdm_reference") <- cdm_reference
+  # retain attributes
+  for (n in names(attributes(x))) {
+    if (!(n %in% names(attributes(out)))) {
+      attr(out, n) <- attr(x, n)
+    }
   }
+
+  class(out) <- class(x)
 
   return(out)
 }
@@ -285,7 +310,7 @@ compute_query <- computeQuery
 #' \dontrun{
 #' library(CDMConnector)
 #'
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomia_dir())
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 #' cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
 #'
 #' # create two temporary tables in the remote database from a query with a common prefix
@@ -320,7 +345,7 @@ dropTable <- function(cdm, name, verbose = FALSE) {
   con <- attr(cdm, "dbcon")
   checkmate::assertTRUE(DBI::dbIsValid(con))
 
-  allTables <- CDMConnector::listTables(con, schema = schema)
+  allTables <- listTables(con, schema = schema)
   names(allTables) <- allTables
   toDrop <- names(tidyselect::eval_select(rlang::enquo(name), data = allTables))
 
@@ -330,7 +355,7 @@ dropTable <- function(cdm, name, verbose = FALSE) {
       if (verbose) {
         message(paste0("Dropping: ", schema, ".", toDrop[i]))
       }
-      DBI::dbRemoveTable(con, inSchema(schema, toDrop[i]))
+      DBI::dbRemoveTable(con, inSchema(schema, toDrop[i], dbms = dbms(con)))
     }
 
     if (toDrop[i] %in% names(cdm)) {

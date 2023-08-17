@@ -1,20 +1,64 @@
-# Test the basics
+# Test DBI functions we rely on
 
-test_that("dbWriteTable works on redshift", {
-  skip_if(Sys.getenv("REDSHIFT_USER") == "")
-  con <- DBI::dbConnect(RPostgres::Redshift(),
-                        dbname   = Sys.getenv("REDSHIFT_DBNAME"),
-                        host     = Sys.getenv("REDSHIFT_HOST"),
-                        port     = Sys.getenv("REDSHIFT_PORT"),
-                        user     = Sys.getenv("REDSHIFT_USER"),
-                        password = Sys.getenv("REDSHIFT_PASSWORD"))
-
-  tablename <- "public.test"
-  df1 <- data.frame(logical = TRUE, chr = "a", int = 1L)
+test_dbi <- function(con, cdm_schema, write_schema) {
+  df <- data.frame(logical = TRUE, char = "a", int = 1L, float = 1.5, stringsAsFactors = FALSE)
   # df1 <- dplyr::tibble(logical = TRUE, chr = "a", int = 1L) # this gives a warning
-  DBI::dbWriteTable(con, DBI::SQL(tablename), df1)
-  df2 <- DBI::dbReadTable(con, DBI::SQL(tablename))
-  DBI::dbRemoveTable(con, DBI::SQL(tablename))
-  expect_true(all.equal(df1, df2))
-  DBI::dbDisconnect(con)
-})
+
+  if ("temp_test" %in% list_tables(con, write_schema)) {
+    DBI::dbRemoveTable(con, inSchema(schema = write_schema, table = "temp_test", dbms = dbms(con)))
+  }
+
+  # DBI::dbWriteTable(con, DBI::Id(schema = write_schema, table = "temp_test"), df)
+  DBI::dbWriteTable(con, inSchema(schema = write_schema, table = "temp_test", dbms = dbms(con)), df)
+  expect_true("temp_test" %in% list_tables(con, schema = write_schema))
+
+  db <- dplyr::tbl(con, inSchema(schema = write_schema, table = "temp_test", dbms = dbms(con))) %>%
+    dplyr::collect() %>%
+    as.data.frame() %>%
+    dplyr::select("logical", "char", "int", "float") # bigquery can return columns in any order apparently
+
+  # TODO: There is an issue with oracle's odbc type conversion
+  if (dbms(con) == "oracle") {
+    db$logical <- as.logical(db$logical)
+    db$int <- as.integer(db$int)
+  }
+
+  expect_true(all.equal(df, db))
+
+  # table names can be uppercase! (e.g. Oracle)
+  table_names <- listTables(con, cdm_schema)
+  person_table_name <- table_names[tolower(table_names) == "person"]
+  stopifnot(length(person_table_name) == 1)
+
+  person_tbl <- dplyr::tbl(con, inSchema(schema = cdm_schema, table = person_table_name, dbms = dbms(con))) %>%
+    head(1) %>%
+    dplyr::collect()
+
+  expect_true(nrow(person_tbl) == 1)
+
+  DBI::dbRemoveTable(con, inSchema(schema = write_schema, table = "temp_test", dbms = dbms(con)))
+  # DBI::dbRemoveTable(con, DBI::Id(schema = write_schema, table = "temp_test"))
+  expect_false("temp_test" %in% list_tables(con, schema = write_schema))
+}
+
+# dbToTest <- c(
+#   "duckdb"
+#   ,"postgres"
+#   ,"redshift"
+#   ,"sqlserver"
+#   ,"oracle"
+#   ,"snowflake"
+#   # ,"bigquery"
+#   )
+
+# dbtype = "bigquery"
+for (dbtype in dbToTest) {
+  test_that(glue::glue("{dbtype} - dbi"), {
+    write_schema <- get_write_schema(dbtype)
+    skip_if(write_schema == "")
+    con <- get_connection(dbtype)
+    cdm_schema <- get_cdm_schema(dbtype)
+    test_dbi(con, cdm_schema, write_schema)
+    disconnect(con)
+  })
+}

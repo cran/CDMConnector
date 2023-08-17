@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = tempdir())
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
@@ -9,26 +9,91 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## -----------------------------------------------------------------------------
 library(CDMConnector)
-library(dplyr)
+example_datasets()
 
-## ---- eval=FALSE--------------------------------------------------------------
-#  downloadEunomiaData(
-#    pathToData = here::here(), # change to the location you want to save the data
-#    overwrite = TRUE
-#  )
-#  # once downloaded, save path to your Renviron: EUNOMIA_DATA_FOLDER="......"
-#  # (and then restart R)
+con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("GiBleed"))
+DBI::dbListTables(con)
 
 ## -----------------------------------------------------------------------------
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 cdm <- cdm_from_con(con, cdm_schema = "main")
 cdm
+cdm$observation_period
 
 ## -----------------------------------------------------------------------------
 cdm$person %>% 
-  glimpse()
+  dplyr::glimpse()
+
+
+## ---- warning=FALSE-----------------------------------------------------------
+library(dplyr)
+library(ggplot2)
+
+cdm$person %>% 
+  group_by(year_of_birth, gender_concept_id) %>% 
+  summarize(n = n(), .groups = "drop") %>% 
+  collect() %>% 
+  mutate(sex = case_when(
+    gender_concept_id == 8532 ~ "Female",
+    gender_concept_id == 8507 ~ "Male"
+  )) %>% 
+  ggplot(aes(y = n, x = year_of_birth, fill = sex)) +
+  geom_histogram(stat = "identity", position = "dodge") +
+  labs(x = "Year of birth", 
+       y = "Person count", 
+       title = "Age Distribution",
+       subtitle = cdm_name(cdm),
+       fill = NULL) +
+  theme_bw()
+
+## ---- warning=FALSE-----------------------------------------------------------
+cdm$condition_occurrence %>% 
+  count(condition_concept_id, sort = T) %>% 
+  left_join(cdm$concept, by = c("condition_concept_id" = "concept_id")) %>% 
+  collect() %>% 
+  select("condition_concept_id", "concept_name", "n") 
+
+## ---- warning=FALSE-----------------------------------------------------------
+cdm$condition_occurrence %>% 
+  filter(condition_concept_id == 4112343) %>% 
+  distinct(person_id) %>% 
+  inner_join(cdm$drug_exposure, by = "person_id") %>% 
+  count(drug_concept_id, sort = TRUE) %>% 
+  left_join(cdm$concept, by = c("drug_concept_id" = "concept_id")) %>% 
+  collect() %>% 
+  select("concept_name", "n") 
+
+## ---- warning=FALSE-----------------------------------------------------------
+cdm$condition_occurrence %>% 
+  filter(condition_concept_id == 4112343) %>% 
+  distinct(person_id) %>% 
+  inner_join(cdm$drug_exposure, by = "person_id") %>% 
+  count(drug_concept_id, sort = TRUE) %>% 
+  left_join(cdm$concept, by = c("drug_concept_id" = "concept_id")) %>% 
+  show_query() 
+
+## -----------------------------------------------------------------------------
+
+DBI::dbExecute(con, "create schema scratch;")
+cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "scratch")
+
+## ---- warning=FALSE-----------------------------------------------------------
+
+drugs <- cdm$condition_occurrence %>% 
+  filter(condition_concept_id == 4112343) %>% 
+  distinct(person_id) %>% 
+  inner_join(cdm$drug_exposure, by = "person_id") %>% 
+  count(drug_concept_id, sort = TRUE) %>% 
+  left_join(cdm$concept, by = c("drug_concept_id" = "concept_id")) %>% 
+  compute_query(name = "test",
+                temporary = FALSE,
+                schema = "scratch",
+                overwrite = TRUE)
+
+drugs %>% show_query()
+
+drugs
 
 ## -----------------------------------------------------------------------------
 cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl("person", "observation_period") # quoted names
@@ -45,39 +110,55 @@ cdm_from_con(con, "main") %>% cdm_select_tbl(tbl_group("vocab"))
 ## -----------------------------------------------------------------------------
 tbl_group("default")
 
-## ---- echo=FALSE--------------------------------------------------------------
-cohort <- tibble(cohort_definition_id = 1L,
-                 subject_id = 1L:2L,
-                 cohort_start_date = c(Sys.Date(), as.Date("2020-02-03")),
-                 cohort_end_date = c(Sys.Date(), as.Date("2020-11-04")))
+## -----------------------------------------------------------------------------
+person_ids <- cdm$condition_occurrence %>% 
+  filter(condition_concept_id == 255848) %>% 
+  distinct(person_id) %>% 
+  pull(person_id)
 
-invisible(DBI::dbExecute(con, "create schema write_schema;"))
+length(person_ids)
 
-DBI::dbWriteTable(con, DBI::Id(schema = "write_schema", name = "cohort"), cohort)
+cdm_pneumonia <- cdm %>%
+  cdm_subset(person_id = person_ids)
+
+tally(cdm_pneumonia$person) %>% 
+  pull(n)
+
+cdm_pneumonia$condition_occurrence %>% 
+  distinct(person_id) %>% 
+  tally() %>% 
+  pull(n)
+
+## -----------------------------------------------------------------------------
+
+cdm_100person <- cdm_sample(cdm, n = 100)
+
+tally(cdm_100person$person) %>% pull("n")
 
 
 ## -----------------------------------------------------------------------------
-cdm <- cdm_from_con(con, 
-                    write_schema = "write_schema",
-                    cohort_tables = "cohort") 
-
-cdm$cohort
+cdm_flatten(cdm_pneumonia,
+            domain = c("condition", "drug", "measurement")) %>% 
+  collect()
 
 ## -----------------------------------------------------------------------------
-local_cdm <- cdm %>% 
+local_cdm <- cdm_100person %>% 
   collect()
 
 # The cdm tables are now dataframes
 local_cdm$person[1:4, 1:4] 
 
-## -----------------------------------------------------------------------------
-save_path <- file.path(tempdir(), "tmp")
-dir.create(save_path)
+## ---- eval=FALSE--------------------------------------------------------------
+#  save_path <- file.path(tempdir(), "tmp")
+#  dir.create(save_path)
+#  
+#  cdm %>%
+#    stow(path = save_path, format = "parquet")
+#  
+#  list.files(save_path)
 
-cdm %>% 
-  stow(path = save_path, format = "parquet")
-
-list.files(save_path)
+## ---- eval=FALSE--------------------------------------------------------------
+#  cdm <- cdm_from_files(save_path, cdm_name = "GI Bleed example data")
 
 ## -----------------------------------------------------------------------------
 DBI::dbDisconnect(con, shutdown = TRUE)

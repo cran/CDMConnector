@@ -17,7 +17,7 @@ generate_cohort_set(
   cdm,
   cohort_set,
   name = "cohort",
-  compute_attrition = FALSE,
+  compute_attrition = TRUE,
   overwrite = FALSE
 )
 }
@@ -31,7 +31,9 @@ as a prefix for the cohort attribute tables.}
 \item{overwrite}{Should the cohort table be overwritten if it already
 exists? TRUE or FALSE (default)}
 
-\item{cohort_set, cohortSet}{Either a cohortSet object created with \code{readCohortSet()} or a named list of Capr cohort definitions.}
+\item{cohort_set, cohortSet}{Can be a cohortSet object created with \code{readCohortSet()},
+a single Capr cohort definition,
+or a named list of Capr cohort definitions.}
 
 \item{compute_attrition, computeAttrition}{Should attrition be computed? TRUE (default) or FALSE}
 }
@@ -76,8 +78,8 @@ cdm <- generateCohortSet(cdm, cohortSet, name = "cohort")
 
 print(cdm$cohort)
 
-attrition(cdm$cohort)
-settings(cdm$cohort)
-cohortCounts(cdm$cohort)
+cohortAttrition(cdm$cohort)
+cohortSet(cdm$cohort)
+cohortCount(cdm$cohort)
 }
 }

@@ -1,3 +1,14 @@
+# CDMConnector 1.1.0
+
+* add `copy_cdm_to`, `copyCdmTo`
+* add `generate_concept_cohort_set`, `generateConceptCohortSet`
+* add more example CDM datasets
+* add `record_cohort_attrition`, `recordCohortAttrition`
+* improve database test coverage
+* update vignettes
+
+Released Aug 11, 2023
+
 # CDMConnector 1.0.0
 
 * remove `write_prefix` in `cdm_from_con` in favor of using the `write_schema` argument for prefixing
