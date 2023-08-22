@@ -20,8 +20,11 @@ knitr::opts_chunk$set(
 library(CDMConnector)
 library(dplyr)
 
+write_schema <- "main"
+cdm_schema <- "main"
+
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+cdm <- cdm_from_con(con, cdm_schema = cdm_schema, write_schema = write_schema)
 
 ## -----------------------------------------------------------------------------
 attr(cdm, "cdm_name")
@@ -42,10 +45,13 @@ DBI::dbListFields(attr(cdm, "dbcon"), "person")
 DBI::dbGetQuery(attr(cdm, "dbcon"), "SELECT * FROM person LIMIT 5")
 
 ## -----------------------------------------------------------------------------
+
+# debugonce(generateConceptCohortSet)
 cdm <- generateConceptCohortSet(cdm = cdm, 
                                 conceptSet = list("gi_bleed" = 192671,
                                                   "celecoxib" = 1118084), 
-                                name = "study_cohorts")
+                                name = "study_cohorts",
+                                overwrite = TRUE)
 
 cdm$study_cohorts %>% 
   glimpse()
@@ -82,7 +88,10 @@ cdm$GI_bleed <- cdm$condition_occurrence %>%
          condition_start_date, condition_end_date) %>% 
   rename("subject_id" = "person_id", 
          "cohort_start_date" = "condition_start_date", 
-         "cohort_end_date" = "condition_end_date")
+         "cohort_end_date" = "condition_end_date") %>% 
+  compute_query(temporary = FALSE,
+                schema = write_schema,
+                overwrite = TRUE)
 
 cdm$GI_bleed %>% 
   glimpse()

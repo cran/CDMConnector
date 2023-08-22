@@ -475,7 +475,7 @@ tables will go into the CDM’s <code>write_schema</code>.</p>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts</span>
 <span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts&gt; [?? x 4]</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae37a011c2.duckdb]</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d2a63c9bc.duckdb]</span></span>
 <span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
 <span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
 <span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  1                    1        264 1984-06-22        2011-11-18     </span></span>
@@ -554,7 +554,7 @@ definition with one inclusion criteria</p>
 <span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a></span>
 <span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed</span>
 <span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.gibleed&gt; [?? x 4]</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae37a011c2.duckdb]</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d2a63c9bc.duckdb]</span></span>
 <span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
 <span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
 <span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt;  1                    1        264 1984-06-22        2011-11-18     </span></span>
@@ -615,13 +615,79 @@ absence of OMOP standard concept IDs. We then manually applied an
 inclusion criteria and recorded a new attrition record in the cohort. To
 learn more about this approach to building cohorts check out the <a href="https://darwin-eu-dev.github.io/PatientProfiles/">PatientProfiles</a>
 R package.</p>
+<p>You can also create a generated cohort set using any method you
+choose. As long as the table is in the CDM database and has the four
+required columns it can be added to the CDM object as a generated cohort
+set.</p>
+<p>Suppose for example our cohort table is</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>cohort <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">cohort_definition_id =</span> 1L,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">subject_id =</span> 1L,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">cohort_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;1999-01-01&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2001-01-01&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>cohort</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 4</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
+<p>First make sure the table is in the database and create a dplyr table
+reference to it and add it to the CDM object.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con)), <span class="at">value =</span> cohort)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con))) </span></code></pre></div>
+<p>To make this a true generated cohort object use the
+<code>new_generated_cohort_set</code></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">new_generated_cohort_set</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<p>We can see that this cohort is now has the class “GeneratedCohortSet”
+as well as the various metadata tables.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">class</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GeneratedCohortSet&quot;    &quot;tbl_duckdb_connection&quot; &quot;tbl_dbi&quot;              </span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_sql&quot;               &quot;tbl_lazy&quot;              &quot;tbl&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;           </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Qualifying init…</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;dbl&gt;, excluded_subjects &lt;dbl&gt;</span></span></code></pre></div>
+<p>If you would like to override the attribute tables then pass
+additional dataframes into new_generated_cohort_set.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort2&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con)), <span class="at">value =</span> cohort)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort2&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con))) </span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">cohort_definition_id =</span> 1L,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>                         <span class="at">cohort_name =</span> <span class="st">&quot;made up cohort&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">new_generated_cohort_set</span>(cdm<span class="sc">$</span>cohort2,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>                                        <span class="at">cohort_set_ref =</span> cohort_set)</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort2)</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name   </span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;         </span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; 1                    1 made up cohort</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Cohort building is a fundamental building block of observational
 health analysis and CDMConnector supports different ways of creating
 cohorts. As long as your cohort table is has the required structure and
 columns you can add it to the cdm with the
 <code>new_generated_cohort_set</code> function and use it in any
 downstream OHDSI analytic packages.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div style="margin-bottom:3cm;">
+
+</div>
 </div>
 </div>
 

@@ -347,8 +347,11 @@ in duckdb.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>write_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>cdm_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> cdm_schema, <span class="at">write_schema =</span> write_schema)</span></code></pre></div>
 </div>
 <div id="cdm-reference-attributes" class="section level2">
 <h2>CDM reference attributes</h2>
@@ -383,7 +386,7 @@ the version of the cdm we have connected to.</p>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection 65760 driver=&lt;duckdb_driver d56d0 dbdir=&#39;/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae6cdb4452.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection c0b60 driver=&lt;duckdb_driver 65d30 dbdir=&#39;/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d5102cac.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
@@ -454,26 +457,29 @@ the result of a query</p>
 also have various attributes that can be useful for subsequent
 analysis.</p>
 <p>Here we create a cohort table with a single cohort.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generateConceptCohortSet</span>(<span class="at">cdm =</span> cdm, </span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                                <span class="at">conceptSet =</span> <span class="fu">list</span>(<span class="st">&quot;gi_bleed&quot;</span> <span class="ot">=</span> <span class="dv">192671</span>,</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                                                  <span class="st">&quot;celecoxib&quot;</span> <span class="ot">=</span> <span class="dv">1118084</span>), </span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                                <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts <span class="sc">%&gt;%</span> </span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae6cdb4452.duckdb]</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 260, 549, 787, 795, 962, 1076, 1099, 1112, 1158, …</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2010-04-04, 1987-12-28, 2017-04-02, 1982-09-03, …</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; 2017-08-05, 2018-10-04, 2019-05-28, 2018-12-17, …</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co"># debugonce(generateConceptCohortSet)</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generateConceptCohortSet</span>(<span class="at">cdm =</span> cdm, </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                                <span class="at">conceptSet =</span> <span class="fu">list</span>(<span class="st">&quot;gi_bleed&quot;</span> <span class="ot">=</span> <span class="dv">192671</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                                                  <span class="st">&quot;celecoxib&quot;</span> <span class="ot">=</span> <span class="dv">1118084</span>), </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                                <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                                <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts <span class="sc">%&gt;%</span> </span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d5102cac.duckdb]</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 260, 549, 787, 795, 962, 1076, 1099, 1112, 1158, …</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2010-04-04, 1987-12-28, 2017-04-02, 1982-09-03, …</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; 2017-08-05, 2018-10-04, 2019-05-28, 2018-12-17, …</span></span></code></pre></div>
 <p>We have a cohort set attribute that gives details on the settings
 associated with the cohorts (along with utility functions to make it
 easier to access this attribute).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_set&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts_set&gt; [2 x 2]</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae6cdb4452.duckdb]</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d5102cac.duckdb]</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1                    2 celecoxib  </span></span>
@@ -484,7 +490,7 @@ easier to access this attribute).</p>
 cohorts.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_count&quot;</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts_count&gt; [2 x 3]</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae6cdb4452.duckdb]</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d5102cac.duckdb]</span></span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
@@ -515,17 +521,20 @@ structure</p>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>         condition_start_date, condition_end_date) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;subject_id&quot;</span> <span class="ot">=</span> <span class="st">&quot;person_id&quot;</span>, </span>
 <span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>         <span class="st">&quot;cohort_start_date&quot;</span> <span class="ot">=</span> <span class="st">&quot;condition_start_date&quot;</span>, </span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>         <span class="st">&quot;cohort_end_date&quot;</span> <span class="ot">=</span> <span class="st">&quot;condition_end_date&quot;</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>cdm<span class="sc">$</span>GI_bleed <span class="sc">%&gt;%</span> </span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpxN0NZg/file57ae6cdb4452.duckdb]</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …</span></span></code></pre></div>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>         <span class="st">&quot;cohort_end_date&quot;</span> <span class="ot">=</span> <span class="st">&quot;condition_end_date&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  <span class="fu">compute_query</span>(<span class="at">temporary =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>                <span class="at">schema =</span> write_schema,</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>                <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>cdm<span class="sc">$</span>GI_bleed <span class="sc">%&gt;%</span> </span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 21.6.0:R 4.2.2//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpDgPYuU/file920d5102cac.duckdb]</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …</span></span></code></pre></div>
 <p>We can add the required attributes using the
 <code>newGeneratedCohortSet</code> function. The minimum requirement for
 this is that we also define the cohort set to associate with our set of
@@ -537,9 +546,9 @@ custom cohorts.</p>
 <span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>                                      <span class="at">cohortSetRef =</span> GI_bleed_cohort_ref, </span>
 <span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>                                      <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Now our custom cohort GI_bleed has the same attributes associated
-with it as if it had been created by generateConceptCohortSet. This will
-mean that it can be used by analytic packages designed to work with cdm
-cohorts.</p>
+with it as if it had been created by
+<code>generateConceptCohortSet</code>. This will mean that it can be
+used by analytic packages designed to work with cdm cohorts.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>GI_bleed)</span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
@@ -560,6 +569,9 @@ cohorts.</p>
 <span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt; # OMOP CDM reference (tbl_duckdb_connection)</span></span>
 <span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="co">#&gt; Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death, note, note_nlp, specimen, fact_relationship, location, care_site, provider, payer_plan_period, cost, drug_era, dose_era, condition_era, metadata, cdm_source, concept, vocabulary, domain, concept_class, concept_relationship, relationship, concept_synonym, concept_ancestor, source_to_concept_map, drug_strength, study_cohorts, GI_bleed</span></span></code></pre></div>
+<div style="margin-bottom:3cm;">
+
+</div>
 </div>
 </div>
 

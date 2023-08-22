@@ -100,5 +100,42 @@ cdm$gibleed2 <- cdm$gibleed2 %>%
 cohort_attrition(cdm$gibleed2) 
 
 ## -----------------------------------------------------------------------------
+cohort <- dplyr::tibble(
+  cohort_definition_id = 1L,
+  subject_id = 1L,
+  cohort_start_date = as.Date("1999-01-01"),
+  cohort_end_date = as.Date("2001-01-01")
+)
+
+cohort
+
+## -----------------------------------------------------------------------------
+DBI::dbWriteTable(con, inSchema("main", "cohort", dbms = dbms(con)), value = cohort)
+
+cdm$cohort <- tbl(con, inSchema("main", "cohort", dbms = dbms(con))) 
+
+## -----------------------------------------------------------------------------
+cdm$cohort <- new_generated_cohort_set(cdm$cohort)
+
+## -----------------------------------------------------------------------------
+class(cdm$cohort)
+cohort_count(cdm$cohort)
+cohort_set(cdm$cohort)
+cohort_attrition(cdm$cohort)
+
+## -----------------------------------------------------------------------------
+DBI::dbWriteTable(con, inSchema("main", "cohort2", dbms = dbms(con)), value = cohort)
+
+cdm$cohort2 <- tbl(con, inSchema("main", "cohort2", dbms = dbms(con))) 
+
+cohort_set <- data.frame(cohort_definition_id = 1L,
+                         cohort_name = "made up cohort")
+
+cdm$cohort2 <- new_generated_cohort_set(cdm$cohort2,
+                                        cohort_set_ref = cohort_set)
+
+cohort_set(cdm$cohort2)
+
+## -----------------------------------------------------------------------------
 DBI::dbDisconnect(con, shutdown = TRUE)
 
