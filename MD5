@@ -1,6 +1,6 @@
-0736c8afa9d13036fce86262da20184a *DESCRIPTION
+2a646455ed9ff7dbc3e82ec792a29c9b *DESCRIPTION
 cbd0c1e7e3e355605d39d546bd1d9c6d *NAMESPACE
-7a7411a6498cd92042dd145f2a3ae1dd *NEWS.md
+212e5f928ee03ac4626321b856a78acf *NEWS.md
 697a9e83c64846aa1dad52fdb40e7867 *R/CDMConnector-package.R
 5960390c013fea83fb38ba96ee8cafd9 *R/Eunomia.R
 936ac8c0d879cdb5b2c5dd8615a4edd0 *R/cdm.R
@@ -37,10 +37,10 @@ f58837994bfe55d04fa11d75dfd1b185 *inst/csv/OMOP_CDMv5.3_Field_Level.csv
 85d5120c8a6423cb32d9d458fb364b73 *inst/csv/OMOP_CDMv5.4_Table_Level.csv
 ee4ae45b21c409f7e220fa1aac949444 *inst/doc/a01_getting-started.R
 48827b5db2dc3760bd9b05b57180480f *inst/doc/a01_getting-started.Rmd
-2d63127a3d0e8529852149173f7d79e7 *inst/doc/a01_getting-started.html
+a6f569172bc6545c04d221bdb439e6b5 *inst/doc/a01_getting-started.html
 1501647b8030e6769c102ca764b20fc6 *inst/doc/a02_working_with_cohorts.R
 92634d1553612432a6c6ac51005b2e76 *inst/doc/a02_working_with_cohorts.Rmd
-48e30dfac9cd1baa51779eff923151c5 *inst/doc/a02_working_with_cohorts.html
+e786ae4e6bb8cc1be0f62943317bc639 *inst/doc/a02_working_with_cohorts.html
 5177cb5e9853605f8beb2fd3eab3e946 *inst/doc/a03_dbplyr.R
 3fdf8c5657636aa9473cdf6b0a1e333e *inst/doc/a03_dbplyr.Rmd
 53510462da27b3d7e3c7f6cf284b06c8 *inst/doc/a03_dbplyr.html
@@ -52,7 +52,7 @@ ee4ae45b21c409f7e220fa1aac949444 *inst/doc/a01_getting-started.R
 40b14ad0ac16f85fdd333f041e908a18 *inst/doc/a05_cdm_reference_backends.html
 bd39f0a177499382739b21172d7518ab *inst/doc/a06_using_cdm_attributes.R
 4dd1bc56fcc3bc44b4b1b327d6849031 *inst/doc/a06_using_cdm_attributes.Rmd
-32c2338e49dbd7edeae39077101eaf12 *inst/doc/a06_using_cdm_attributes.html
+49c17be405e912cb821369f9ea5dd463 *inst/doc/a06_using_cdm_attributes.html
 4a8c678e8c0b85d3c2630cda24cba041 *inst/example_cohorts/GIBleed_male.json
 48dc0b7fa83693b69bd389e0163dbaa7 *inst/example_cohorts/GiBleed_default.json
 750178c426077f6e1743e746caf45264 *inst/rds/gibleed.rds
@@ -143,7 +143,7 @@ dd8efdc4649dd66260221ca2b9554e5c *tests/testthat/test-db-casing.R
 7a99d3d6b55fdaf4ea0e9b4e26144325 *tests/testthat/test-db-copy_cdm_to.R
 35c51a79d58975661f01474a0cdbef3c *tests/testthat/test-db-dateadd.R
 c21d9c5b0cb7025b1bfb3073b7943c4b *tests/testthat/test-db-example-analysis.R
-90b2c6e0ed6ce3b958d8a3f018e0894e *tests/testthat/test-db-generateCohortSet.R
+5c65554a6315267c585cd773de2a1648 *tests/testthat/test-db-generateCohortSet.R
 8ba9ddfb4093d83d937df69677071198 *tests/testthat/test-db-generateConceptCohortSet.R
 72893724f02720f43ec13e557796cc41 *tests/testthat/test-db-newGeneratedCohortSet.R
 4bc215785ba95da795a8521285e11536 *tests/testthat/test-db-recordCohortAttrition.R
