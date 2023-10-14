@@ -377,11 +377,14 @@ verify_write_access <- function(con, write_schema, add = NULL) {
 
   tablename <- paste(c(sample(letters, 5, replace = TRUE), "_test_table"), collapse = "")
   df1 <- data.frame(chr_col = "a", numeric_col = 1, stringsAsFactors = FALSE)
+
   # Note: ROracle does not support integer round trip
-  DBI::dbWriteTable(con,
-                    name = inSchema(schema = write_schema, table = tablename, dbms = dbms(con)),
-                    value = df1,
-                    overwrite = TRUE)
+  suppressMessages(
+    DBI::dbWriteTable(con,
+                      name = inSchema(schema = write_schema, table = tablename, dbms = dbms(con)),
+                      value = df1,
+                      overwrite = TRUE)
+  )
 
   withr::with_options(list(databaseConnectorIntegerAsNumeric = FALSE), {
     df2 <- dplyr::tbl(con, inSchema(write_schema, tablename, dbms = dbms(con))) %>%
@@ -885,6 +888,26 @@ cdm_select_tbl <- function(cdm, ...) {
 
  attr(tbl, "cdm_reference") <- x
  return(tbl)
+}
+
+#' @export
+`[[<-.cdm_reference` <- function(obj, name, value) {
+  x <- class(obj)
+  attr(value, "cdm_reference") <- NULL
+  obj <- unclass(obj)
+  obj[[name]] <- value
+  class(obj) <- x
+  return(obj)
+}
+
+#' @export
+`$<-.cdm_reference` <- function(obj, name, value) {
+  x <- class(obj)
+  attr(value, "cdm_reference") <- NULL
+  obj <- unclass(obj)
+  obj[[name]] <- value
+  class(obj) <- x
+  return(obj)
 }
 
 

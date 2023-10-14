@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomia"))
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
@@ -14,12 +14,12 @@ knitr::opts_chunk$set(
 ## ----pressure, echo=FALSE, out.width = '80%'----------------------------------
 #  # knitr::include_graphics("locations.png")
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  library(CDMConnector)
 #  library(dplyr, warn.conflicts = FALSE)
 #  library(ggplot2)
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
 #  cdm <- cdm_from_con(con, cdm_schema = "main")
 #  
@@ -40,12 +40,12 @@ knitr::opts_chunk$set(
 #  
 #  cdm$person %>% tally()
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  dOut <- tempfile()
 #  dir.create(dOut)
 #  CDMConnector::stow(cdm, dOut, format = "parquet")
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  cdm_arrow <- cdm_from_files(dOut, as_data_frame = FALSE, cdm_name = "GiBleed")
 #  
 #  cdm_arrow$person %>%
@@ -55,12 +55,12 @@ knitr::opts_chunk$set(
 #    nrow()
 #  
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  cdm_arrow$result <- cdm_arrow$person %>%
 #    left_join(cdm_arrow$condition_occurrence, by = "person_id") %>%
 #    mutate(age_diag = year(condition_start_date) - year_of_birth)
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 #  result <- cdm_arrow$result %>%
 #    collect()
 #  

@@ -107,11 +107,20 @@ generateConceptCohortSet <- function(cdm,
                         cohort_name = names(conceptSet),
                         df = purrr::map(conceptSet, caprConceptToDataframe)) %>%
       tidyr::unnest(cols = df) %>%
-      dplyr::select("cohort_definition_id",
-                    "cohort_name",
-                    concept_id = "conceptId",
-                    include_descendants = "includeDescendants",
-                    is_excluded = "isExcluded")
+      dplyr::mutate(
+        "limit" = .env$limit,
+        "prior_observation" = .env$requiredObservation[1],
+        "future_observation" = .env$requiredObservation[2],
+        "end" = .env$end
+      ) %>%
+      dplyr::select(
+        "cohort_definition_id", "cohort_name", "concept_id" = "conceptId",
+        "include_descendants" = "includeDescendants",
+        "is_excluded" = "isExcluded",
+        dplyr::any_of(c(
+          "limit", "prior_observation", "future_observation", "end"
+        ))
+      )
 
   } else {
     # conceptSet must be a named list of integer-ish vectors
@@ -119,11 +128,19 @@ generateConceptCohortSet <- function(cdm,
 
     df <- dplyr::tibble(cohort_definition_id = seq_along(.env$conceptSet),
                         cohort_name = names(.env$conceptSet),
+                        limit = .env$limit,
+                        prior_observation = .env$requiredObservation[1],
+                        future_observation = .env$requiredObservation[2],
+                        end = .env$end,
                         concept_id = .env$conceptSet) %>%
       tidyr::unnest(cols = "concept_id") %>%
       dplyr::transmute(.data$cohort_definition_id,
                        .data$cohort_name,
                        .data$concept_id,
+                       .data$limit,
+                       .data$prior_observation,
+                       .data$future_observation,
+                       .data$end,
                        include_descendants = FALSE,
                        is_excluded = FALSE)
   }
@@ -148,21 +165,37 @@ generateConceptCohortSet <- function(cdm,
     { if (any(df$include_descendants)) {
       dplyr::filter(., .data$include_descendants) %>%
         dplyr::inner_join(cdm$concept_ancestor, by = c("concept_id" = "ancestor_concept_id")) %>%
-        dplyr::select("cohort_definition_id", "cohort_name", concept_id = "descendant_concept_id", "is_excluded") %>%
-        dplyr::union_all(dplyr::select(dplyr::tbl(attr(cdm, "dbcon"), inSchema(attr(cdm, "write_schema"), tempName, dbms = dbms(con))), "cohort_definition_id", "cohort_name", "concept_id", "is_excluded"))
+        dplyr::select(
+          "cohort_definition_id", "cohort_name",
+          "concept_id" = "descendant_concept_id", "is_excluded",
+          dplyr::any_of(c("limit", "prior_observation", "future_observation", "end"))
+        ) %>%
+        dplyr::union_all(
+          dplyr::tbl(
+            attr(cdm, "dbcon"),
+            inSchema(attr(cdm, "write_schema"), tempName, dbms = dbms(con))
+          ) %>%
+          dplyr::select(dplyr::any_of(c(
+            "cohort_definition_id", "cohort_name", "concept_id", "is_excluded",
+            "limit", "prior_observation", "future_observation", "end"
+          )))
+        )
     } else . } %>%
     dplyr::filter(.data$is_excluded == FALSE) %>%
     # Note that concepts that are not in the vocab will be silently ignored
     dplyr::inner_join(dplyr::select(cdm$concept, "concept_id", "domain_id"), by = "concept_id") %>%
-    dplyr::select("cohort_definition_id", "cohort_name", "concept_id", "domain_id") %>%
+    dplyr::select(
+      "cohort_definition_id", "cohort_name", "concept_id", "domain_id",
+      dplyr::any_of(c("limit", "prior_observation", "future_observation", "end"))
+    ) %>%
     dplyr::distinct() %>%
-    CDMConnector::computeQuery(temporary = TRUE)
+    CDMConnector::computeQuery(temporary = TRUE, overwrite = overwrite)
 
   DBI::dbRemoveTable(attr(cdm, "dbcon"), name = inSchema(attr(cdm, "write_schema"), tempName, dbms = dbms(con)))
 
   domains <- concepts %>% dplyr::distinct(.data$domain_id) %>% dplyr::pull() %>% tolower()
   domains <- domains[!is.na(domains)] # remove NAs
-  if (length(domains) == 0) rlang::abort("None of the input concept IDs are in the CDM concept table!")
+  if (length(domains) == 0) cli::cli_abort("None of the input concept IDs are in the CDM concept table!")
 
   # check we have references to all required tables ----
   missing_tables <- dplyr::setdiff(table_refs(domain_id = domains) %>% dplyr::pull("table_name"), names(cdm))
@@ -171,14 +204,20 @@ generateConceptCohortSet <- function(cdm,
     s <- ifelse(length(missing_tables) > 1, "s", "")
     is <- ifelse(length(missing_tables) > 1, "are", "is")
     missing_tables <- paste(missing_tables, collapse = ", ")
-    cli::cli_abort("Concept set includes concepts from the {missing_tables} table{s} which {is} not found in the cdm reference!")
+    cli::cli_warn("Concept set includes concepts from the {missing_tables} table{s} which {is} not found in the cdm reference and will be skipped.")
+
+    domains <- table_refs(domain_id = domains) %>%
+      dplyr::filter(!(.data$table_name %in% missing_tables)) %>%
+      dplyr::pull("domain_id")
   }
 
   # rowbind results from clinical data tables ----
   get_domain <- function(domain, cdm, concepts) {
     df <- table_refs(domain_id = domain)
 
-    CDMConnector::assert_tables(cdm, df$table_name, empty.ok = TRUE)
+    if (isFALSE(df$table_name %in% names(cdm))) {
+      return(NULL)
+    }
 
     by <- rlang::set_names("concept_id", df[["concept_id"]])
 
@@ -191,42 +230,70 @@ generateConceptCohortSet <- function(cdm,
                                                          !!dateadd(df$start_date, 1)))
   }
 
-  cohort <- purrr::map(domains, ~get_domain(., cdm = cdm, concepts = concepts)) %>%
-    purrr::reduce(dplyr::union_all)
+  if (length(domains) == 0) {
+    cohort <- NULL
+  } else {
+    cohort <- purrr::map(domains, ~get_domain(., cdm = cdm, concepts = concepts)) %>%
+      purrr::reduce(dplyr::union_all)
+  }
 
-  # drop any outside of an observation period
-  obs_period <- cdm[["observation_period"]] %>%
-    dplyr::select("subject_id" = "person_id",
-                  "observation_period_start_date",
-                  "observation_period_end_date")
 
-  cohort_start_date <- "cohort_start_date"
+  if (is.null(cohort)) {
+    # no domains included. Create empty cohort.
+    cohort <- dplyr::tibble(
+      cohort_definition_id = integer(),
+      subject_id = integer(),
+      cohort_start_date = as.Date(x = integer(0), origin = "1970-01-01"),
+      cohort_end_date = as.Date(x = integer(0), origin = "1970-01-01")
+    )
 
-  cohortRef <- cohort %>%
-    dplyr::inner_join(obs_period, by = "subject_id") %>%
-    # TODO fix dplyr::between sql translation, also pmin.
-    dplyr::filter(.data$observation_period_start_date <= .data$cohort_start_date  &
-                  .data$cohort_start_date <= .data$observation_period_end_date) %>%
-    {if (requiredObservation[1] > 0) dplyr::filter(., !!dateadd("observation_period_start_date", requiredObservation[1]) <=.data$cohort_start_date) else .} %>%
-    {if (requiredObservation[2] > 0) dplyr::filter(., !!dateadd("cohort_start_date", requiredObservation[2]) >= .data$observation_period_end_date) else .} %>%
-    {if (end == "observation_period_end_date") dplyr::mutate(., cohort_end_date = .data$observation_period_end_date) else .} %>%
-    {if (is.numeric(end)) dplyr::mutate(., cohort_end_date = !!dateadd("cohort_start_date", end)) else .} %>%
-    dplyr::mutate(cohort_end_date = dplyr::case_when(
-      .data$cohort_end_date > .data$observation_period_end_date ~ .data$observation_period_end_date,
-      TRUE ~ .data$cohort_end_date)) %>%
-    dplyr::select("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date") %>%
-    # TODO order_by = .data$cohort_start_date
-    {if (limit == "first") dplyr::slice_min(., n = 1, order_by = cohort_start_date, by = c("cohort_definition_id", "subject_id")) else .} %>%
-    cohort_collapse() %>%
-    dplyr::mutate(cohort_start_date = !!asDate(.data$cohort_start_date),
-                  cohort_end_date = !!asDate(.data$cohort_end_date)) %>%
-    computeQuery(temporary = FALSE,
-                 schema = attr(cdm, "write_schema"),
-                 name = name,
-                 overwrite = overwrite)
+    DBI::dbWriteTable(con, name = inSchema(attr(cdm, "write_schema"), name), value = cohort)
+    cohortRef <- dplyr::tbl(con, inSchema(attr(cdm, "write_schema"), name))
+  } else {
+
+    # drop any outside of an observation period
+    obs_period <- cdm[["observation_period"]] %>%
+      dplyr::select("subject_id" = "person_id",
+                    "observation_period_start_date",
+                    "observation_period_end_date")
+
+    # TODO remove this variable since it is confusing
+    cohort_start_date <- "cohort_start_date"
+
+    cohortRef <- cohort %>%
+      dplyr::inner_join(obs_period, by = "subject_id") %>%
+      # TODO fix dplyr::between sql translation, also pmin.
+      dplyr::filter(.data$observation_period_start_date <= .data$cohort_start_date  &
+                    .data$cohort_start_date <= .data$observation_period_end_date) %>%
+      {if (requiredObservation[1] > 0) dplyr::filter(., !!dateadd("observation_period_start_date",
+                                                                  requiredObservation[1]) <=.data$cohort_start_date) else .} %>%
+      {if (requiredObservation[2] > 0) dplyr::filter(., !!dateadd("cohort_start_date",
+                                                                  requiredObservation[2]) <= .data$observation_period_end_date) else .} %>%
+      {if (end == "observation_period_end_date") dplyr::mutate(., cohort_end_date = .data$observation_period_end_date) else .} %>%
+      {if (is.numeric(end)) dplyr::mutate(., cohort_end_date = !!dateadd("cohort_start_date", end)) else .} %>%
+      dplyr::mutate(cohort_end_date = dplyr::case_when(
+        .data$cohort_end_date > .data$observation_period_end_date ~ .data$observation_period_end_date,
+        TRUE ~ .data$cohort_end_date)) %>%
+      dplyr::select("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date") %>%
+      # TODO order_by = .data$cohort_start_date
+      {if (limit == "first") dplyr::slice_min(., n = 1, order_by = cohort_start_date, by = c("cohort_definition_id", "subject_id")) else .} %>%
+      cohort_collapse() %>%
+      dplyr::mutate(cohort_start_date = !!asDate(.data$cohort_start_date),
+                    cohort_end_date = !!asDate(.data$cohort_end_date)) %>%
+      computeQuery(temporary = FALSE,
+                   schema = attr(cdm, "write_schema"),
+                   name = name,
+                   overwrite = overwrite)
+    }
+
+
 
   cohortSetRef <- concepts %>%
-    dplyr::distinct(.data$cohort_definition_id, .data$cohort_name) %>%
+    dplyr::select(dplyr::any_of(c(
+      "cohort_definition_id", "cohort_name", "limit", "prior_observation",
+      "future_observation", "end"
+    ))) %>%
+    dplyr::distinct() %>%
     CDMConnector::computeQuery(temporary = getOption("CDMConnector.cohort_as_temp", FALSE),
                                schema = attr(cdm, "write_schema"),
                                name = paste0(name, "_set"),

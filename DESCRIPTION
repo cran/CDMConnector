@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: c(
     person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -26,14 +26,15 @@ Suggests: arrow, SqlRender, rJava, covr, knitr, rmarkdown, duckdb,
         3.0.0), DatabaseConnector, lubridate, tibble, zeallot
 Enhances: CirceR, Capr
 Config/testthat/edition: 3
+Config/testthat/parallel: true
 VignetteBuilder: knitr
 Additional_repositories: https://OHDSI.github.io/drat
 NeedsCompilation: no
-Packaged: 2023-08-22 20:00:01 UTC; adamblack
+Packaged: 2023-10-13 12:28:44 UTC; adamblack
 Author: Adam Black [aut, cre] (<https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
   Marti Catala Sabate [aut]
 Maintainer: Adam Black <black@ohdsi.org>
 Repository: CRAN
-Date/Publication: 2023-08-23 00:20:06 UTC
+Date/Publication: 2023-10-14 12:50:15 UTC

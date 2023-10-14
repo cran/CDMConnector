@@ -26,7 +26,7 @@ cdm$person %>%
   dplyr::glimpse()
 
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
 
@@ -47,14 +47,14 @@ cdm$person %>%
        fill = NULL) +
   theme_bw()
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 cdm$condition_occurrence %>% 
   count(condition_concept_id, sort = T) %>% 
   left_join(cdm$concept, by = c("condition_concept_id" = "concept_id")) %>% 
   collect() %>% 
   select("condition_concept_id", "concept_name", "n") 
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 cdm$condition_occurrence %>% 
   filter(condition_concept_id == 4112343) %>% 
   distinct(person_id) %>% 
@@ -64,7 +64,7 @@ cdm$condition_occurrence %>%
   collect() %>% 
   select("concept_name", "n") 
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 cdm$condition_occurrence %>% 
   filter(condition_concept_id == 4112343) %>% 
   distinct(person_id) %>% 
@@ -78,7 +78,7 @@ cdm$condition_occurrence %>%
 DBI::dbExecute(con, "create schema scratch;")
 cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "scratch")
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 
 drugs <- cdm$condition_occurrence %>% 
   filter(condition_concept_id == 4112343) %>% 
@@ -148,7 +148,7 @@ local_cdm <- cdm_100person %>%
 # The cdm tables are now dataframes
 local_cdm$person[1:4, 1:4] 
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  save_path <- file.path(tempdir(), "tmp")
 #  dir.create(save_path)
 #  
@@ -157,7 +157,7 @@ local_cdm$person[1:4, 1:4]
 #  
 #  list.files(save_path)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  cdm <- cdm_from_files(save_path, cdm_name = "GI Bleed example data")
 
 ## -----------------------------------------------------------------------------

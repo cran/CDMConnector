@@ -1,11 +1,11 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   # eval = FALSE,
   comment = "#>"
 )
 
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomia"))
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 library(CDMConnector)
 library(dplyr)
 
@@ -59,21 +59,21 @@ cdm$study_cohorts %>%
 ## -----------------------------------------------------------------------------
 attr(cdm$study_cohorts, "cohort_set")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  cohortSet(cdm$study_cohorts)
 #  cohort_set(cdm$study_cohorts)
 
 ## -----------------------------------------------------------------------------
 attr(cdm$study_cohorts, "cohort_count")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  cohortCount(cdm$study_cohorts)
 #  cohort_count(cdm$study_cohorts)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  attr(cdm$study_cohorts, "cohort_attrition")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  cohortAttrition(cdm$study_cohorts)
 #  cohort_attrition(cdm$study_cohorts)
 

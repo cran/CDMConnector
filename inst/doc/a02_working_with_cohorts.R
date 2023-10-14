@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -46,7 +46,7 @@ cohort_count(cdm$study_cohorts)
 cohort_attrition(cdm$study_cohorts)
 cohort_set(cdm$study_cohorts)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  cdm_gibleed <- cdm %>%
 #    cdm_subset_cohort(cohort_table = "study_cohorts")
 
@@ -110,7 +110,7 @@ cohort <- dplyr::tibble(
 cohort
 
 ## -----------------------------------------------------------------------------
-DBI::dbWriteTable(con, inSchema("main", "cohort", dbms = dbms(con)), value = cohort)
+DBI::dbWriteTable(con, inSchema("main", "cohort", dbms = dbms(con)), value = cohort, overwrite = TRUE)
 
 cdm$cohort <- tbl(con, inSchema("main", "cohort", dbms = dbms(con))) 
 
