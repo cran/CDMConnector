@@ -2,56 +2,59 @@
 # https://github.com/darwin-eu-dev/CDMConnector/issues/312
 # fixed in v1.1.3
 
-
 test_that("memory leak does not happen", {
 
   con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
   cdm <- cdm_from_con(con, "main", "main")
 
-  #2.1Mb
   conceptSet <- list(asthma = 317009)
+
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = conceptSet,
     name = "asthma_1"
   )
 
-  initial_size <- round(as.numeric(stringr::str_extract(format(object.size(cdm), units = "MB"), "[\\d\\.]+")))
-  #15Mb
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = conceptSet,
-    name = "asthma_1",
+    name = "asthma_2",
     overwrite = TRUE
   )
 
   # print(object.size(cdm), units = "MB")
-  #53Mb
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = conceptSet,
-    name = "asthma_1",
+    name = "asthma_3",
     overwrite = TRUE
   )
   # print(object.size(cdm), units = "MB")
-  #167Mb
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = conceptSet,
-    name = "asthma_1",
+    name = "asthma_4",
     overwrite = TRUE
   )
-  #510Mb
   # print(object.size(cdm), units = "MB")
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = conceptSet,
-    name = "asthma_1",
+    name = "asthma_5",
     overwrite = TRUE
   )
-  #1.5Gb
 
-  size <- round(as.numeric(stringr::str_extract(format(object.size(cdm), units = "MB"), "[\\d\\.]+")))
-  expect_equal(size, initial_size)
+  # in the memory leak we had an issue where subsequent cohort tables
+  # were much larger
+  # This was strange error. Also can use pryr::object_size() and waldo::compare() to investigate
+  expect_equal(object.size(cdm$asthma_1), object.size(cdm$asthma_5))
+
+  cdm2 <- cdmSubsetCohort(cdm = cdm, cohortTable = "asthma_5")
+  cdm2 <- unclass(cdm2)
+  for (nm in names(cdm2)) {
+    expect_false("cdm_reference" %in% names(attributes(cdm2[[nm]])))
+  }
+
   DBI::dbDisconnect(con, shutdown = TRUE)
 })
+
