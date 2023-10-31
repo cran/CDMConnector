@@ -386,7 +386,7 @@ the version of the cdm we have connected to.</p>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection edb10 driver=&lt;duckdb_driver 4f950 dbdir=&#39;/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmpqb0x6z/file67932c9f4042.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection 53e50 driver=&lt;duckdb_driver 3d390 dbdir=&#39;/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f5b79b0de.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
@@ -469,7 +469,7 @@ analysis.</p>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmpqb0x6z/file67932c9f4042.duckdb]</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f5b79b0de.duckdb]</span></span>
 <span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
 <span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 260, 549, 787, 795, 962, 1076, 1099, 1112, 1158, …</span></span>
 <span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2010-04-04, 1987-12-28, 2017-04-02, 1982-09-03, …</span></span>
@@ -478,8 +478,8 @@ analysis.</p>
 associated with the cohorts (along with utility functions to make it
 easier to access this attribute).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_set&quot;</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts_set&gt; [2 x 6]</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmpqb0x6z/file67932c9f4042.duckdb]</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;study_cohorts_set&gt; [2 x 6]</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f5b79b0de.duckdb]</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name limit prior_observation future_observation</span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;             &lt;dbl&gt;              &lt;dbl&gt;</span></span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1                    2 celecoxib   first                 0                  0</span></span>
@@ -490,8 +490,8 @@ easier to access this attribute).</p>
 <p>We have a cohort_count attribute with counts for each of the
 cohorts.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_count&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts_count&gt; [2 x 3]</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmpqb0x6z/file67932c9f4042.duckdb]</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;study_cohorts_count&gt; [2 x 3]</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f5b79b0de.duckdb]</span></span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
 <span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
@@ -531,7 +531,7 @@ structure</p>
 <span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmpqb0x6z/file67932c9f4042.duckdb]</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f5b79b0de.duckdb]</span></span>
 <span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
 <span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
 <span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>

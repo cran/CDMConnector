@@ -19,6 +19,7 @@ test_generate_concept_cohort_set <- function(con, cdm_schema, write_schema) {
     expect_gt(10)
 
   # default (no descendants) ----
+  # debugonce(generateConceptCohortSet)
   cdm <- generateConceptCohortSet(
     cdm = cdm,
     conceptSet = list(gibleed = 192671),
@@ -214,7 +215,8 @@ test_that("missing domains produce warning", {
     cdm_select_tbl(-drug_exposure)
 
   expect_warning({
-    cdm <- generateConceptCohortSet(cdm, conceptSet = list(celecoxib = 1118084))
+    cdm <- generateConceptCohortSet(cdm, name = "celecoxib",
+                                    conceptSet = list(celecoxib = 1118084))
   })
 
   DBI::dbDisconnect(con, shutdown = TRUE)
