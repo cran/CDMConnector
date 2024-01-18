@@ -34,6 +34,7 @@ test_cdm_from_con <- function(con, cdm_schema, write_schema) {
     dplyr::collect()
 
   expect_s3_class(df, "data.frame")
+
 }
 
 # dbToTest <- c(
@@ -50,8 +51,11 @@ test_cdm_from_con <- function(con, cdm_schema, write_schema) {
 # dbtype = "duckdb"
 for (dbtype in dbToTest) {
   test_that(glue::glue("{dbtype} - cdm_from_con"), {
-    if (dbtype != "duckdb") skip_on_ci()
+    if (!(dbtype %in% ciTestDbs)) skip_on_ci()
+    if (dbtype != "duckdb") skip_on_cran() else skip_if_not_installed("duckdb")
     con <- get_connection(dbtype)
+    cli::cat_rule(paste("running cdm test on ", dbtype))
+    cli::cat_line(paste("DBI::dbIsValid(con):", DBI::dbIsValid(con)))
     cdm_schema <- get_cdm_schema(dbtype)
     write_schema <- get_write_schema(dbtype)
     skip_if(any(write_schema == "") || any(cdm_schema == "") || is.null(con))
@@ -61,6 +65,7 @@ for (dbtype in dbToTest) {
 }
 
 test_that("Uppercase tables are stored as lowercase in cdm", {
+  skip_if_not_installed("duckdb")
   skip_if_not(eunomia_is_available())
   # create a test cdm with upppercase table names
   con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
@@ -80,4 +85,40 @@ test_that("Uppercase tables are stored as lowercase in cdm", {
   expect_true(all(names(cdm) == tolower(names(cdm))))
 
   DBI::dbDisconnect(con, shutdown = TRUE)
+})
+
+
+test_that("adding achilles", {
+  skip_if_not(eunomia_is_available())
+  skip_if_not_installed("duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
+  expect_error(cdm_from_con(con = con,
+                      cdm_schema =  "main",
+                      achilles_schema = "main"))
+  DBI::dbWriteTable(con, "achilles_analysis",
+                    tibble(analysis_id = 1,
+                           analysis_name = 1),
+                    overwrite = TRUE
+  )
+  DBI::dbWriteTable(con, "achilles_results",
+                    tibble(analysis_id = 1,
+                           stratum_1 = "a"),
+                    overwrite = TRUE
+  )
+  DBI::dbWriteTable(con, "achilles_results_dist",
+                    tibble(analysis_id = 1,
+                           count_value = 5),
+                    overwrite = TRUE
+  )
+ cdm <- cdm_from_con(con = con,
+               cdm_schema =  "main",
+               achilles_schema = "main")
+
+ expect_true(cdm$achilles_analysis %>% dplyr::pull("analysis_name") == 1)
+ expect_true(cdm$achilles_results %>% dplyr::pull("stratum_1") == "a")
+ expect_true(cdm$achilles_results_dist %>% dplyr::pull("count_value") == 5)
+
+
+ DBI::dbDisconnect(con, shutdown = TRUE)
+
 })

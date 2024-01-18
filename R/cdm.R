@@ -13,6 +13,8 @@
 #'   heuristics. Cohort tables must be in the write_schema.
 #' @param cdm_name,cdmName The name of the CDM. If NULL (default) the cdm_source_name
 #'.  field in the CDM_SOURCE table will be used.
+#' @param achilles_schema,achillesSchema An optional schema in the CDM database
+#' that contains achilles tables.
 #'
 #' @return A list of dplyr database table references pointing to CDM tables
 #' @importFrom dplyr all_of matches starts_with ends_with contains
@@ -22,13 +24,17 @@ cdm_from_con <- function(con,
                          write_schema = NULL,
                          cohort_tables = NULL,
                          cdm_version = "5.3",
-                         cdm_name = NULL) {
+                         cdm_name = NULL,
+                         achilles_schema = NULL) {
 
   cdm_tables <- tbl_group("all")
 
   checkmate::assert_true(methods::is(con, "DBIConnection") || methods::is(con, "Pool"))
 
   if (methods::is(con, "Pool")) {
+    if (!rlang::is_installed("pool")) {
+      rlang::abort("Please install the pool package.")
+    }
     con <- pool::localCheckout(con)
   }
 
@@ -44,7 +50,7 @@ cdm_from_con <- function(con,
 
   checkmate::assert_character(cdm_schema, min.len = 1, max.len = 3)
   checkmate::assert_character(write_schema, min.len = 1, max.len = 3, null.ok = TRUE)
-
+  checkmate::assert_character(achilles_schema, min.len = 1, max.len = 3, null.ok = TRUE)
   checkmate::assert_character(cohort_tables, null.ok = TRUE, min.len = 1)
   checkmate::assert_choice(cdm_version, choices = c("5.3", "5.4", "auto"))
   checkmate::assert_character(cdm_name, null.ok = TRUE)
@@ -82,15 +88,30 @@ cdm_from_con <- function(con,
   }
 
   # Handle uppercase table names in the database
-  if (all(dbTables == toupper(dbTables))) {
+  cdm_tables_in_db <- dbTables[which(tolower(dbTables) %in% cdm_tables)]
+  if (all(cdm_tables_in_db == toupper(cdm_tables_in_db))) {
     cdm_tables <- toupper(cdm_tables)
-  } else if (!all(dbTables == tolower(dbTables))) {
+  } else if (!all(cdm_tables_in_db == tolower(cdm_tables_in_db))) {
     rlang::abort("CDM database tables should be either all upppercase or all lowercase!")
   }
 
   cdm <- purrr::map(cdm_tables, ~dplyr::tbl(con, inSchema(cdm_schema, ., dbms(con)), check_from = FALSE) %>%
                     dplyr::rename_all(tolower)) %>%
     rlang::set_names(tolower(cdm_tables))
+
+  if (!is.null(achilles_schema)) {
+  achilles <- c("achilles_analysis", "achilles_results", "achilles_results_dist")
+  acTables <- listTables(con, schema = achilles_schema)
+  achilles_tables <- achilles[which(achilles %in% tolower(acTables))]
+  if (length(achilles_tables) != 3) {
+  cli::cli_abort("Achilles tables not found in {achilles_schema}!")
+  }
+  achilles <- purrr::map(achilles_tables,
+             ~dplyr::tbl(con, inSchema(achilles_schema, ., dbms(con)), check_from = FALSE) %>%
+               dplyr::rename_all(tolower)) %>%
+    rlang::set_names(tolower(achilles_tables))
+  cdm <- purrr::flatten(list(cdm, achilles))
+  }
 
   if (!is.null(write_schema)) {
     verify_write_access(con, write_schema = write_schema)
@@ -125,6 +146,7 @@ cdm_from_con <- function(con,
   class(cdm) <- "cdm_reference"
   attr(cdm, "cdm_schema") <- cdm_schema
   attr(cdm, "write_schema") <- write_schema
+  attr(cdm, "achilles_schema") <- achilles_schema
   attr(cdm, "dbcon") <- con
   attr(cdm, "cdm_version") <- cdm_version
   attr(cdm, "cdm_name") <- cdm_name
@@ -222,6 +244,7 @@ cdm_from_con <- function(con,
 cdmFromCon <- function(con,
                        cdmSchema = NULL,
                        writeSchema = NULL,
+                       achillesSchema = NULL,
                        cohortTables = NULL,
                        cdmVersion = "5.3",
                        cdmName = NULL) {
@@ -229,6 +252,7 @@ cdmFromCon <- function(con,
     con = con,
     cdm_schema = cdmSchema,
     write_schema = writeSchema,
+    achilles_schema = achillesSchema,
     cohort_tables = cohortTables,
     cdm_version = cdmVersion,
     cdm_name = cdmName
@@ -481,6 +505,9 @@ dbms <- function(con) {
   if (methods::is(con, "cdm_reference")) {
     con <- attr(con, "dbcon")
   } else if (methods::is(con, "Pool")) {
+    if (!rlang::is_installed("pool")) {
+      rlang::abort("Please install the pool package.")
+    }
     con <- pool::localCheckout(con)
   }
 
@@ -534,6 +561,10 @@ stow <- function(cdm, path, format = "parquet") {
   path <- path.expand(path)
   checkmate::assert_true(file.exists(path))
 
+  if (format %in% c("parquet", "feather")) {
+    rlang::check_installed("arrow")
+  }
+
   switch(
     format,
     parquet = purrr::walk2(
@@ -584,6 +615,7 @@ cdm_from_files <- function(path,
 
   checkmate::assert_choice(cdm_version, choices = c("5.3", "5.4"))
   checkmate::assert_character(cdm_name, null.ok = TRUE)
+  rlang::check_installed("arrow")
 
   path <- path.expand(path)
 

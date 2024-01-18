@@ -8,11 +8,13 @@
 generateConceptCohortSet(
   cdm,
   conceptSet = NULL,
-  name = "cohort",
+  name,
   limit = "first",
   requiredObservation = c(0, 0),
   end = "observation_period_end_date",
-  overwrite = FALSE
+  subsetCohort = NULL,
+  subsetCohortId = NULL,
+  overwrite = TRUE
 )
 
 generate_concept_cohort_set(
@@ -22,7 +24,9 @@ generate_concept_cohort_set(
   limit = "first",
   required_observation = c(0, 0),
   end = "observation_period_end_date",
-  overwrite = FALSE
+  subset_cohort = NULL,
+  subset_cohort_id = NULL,
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -48,7 +52,15 @@ required observation time prior to index and post index for an event to be inclu
 \item{"event_end_date"}: The event end date. If the event end date is not populated then the event start date will be used
 }}
 
-\item{overwrite}{Should the cohort table be overwritten if it already exists? TRUE or FALSE (default)}
+\item{subsetCohort, subset_cohort}{A cohort table containing the individuals for which to
+generate cohorts for. Only individuals in the cohort table will appear in
+the created generated cohort set.}
+
+\item{subsetCohortId, subset_cohort_id}{A set of cohort IDs from the cohort table for which
+to include. If none are provided, all cohorts in the cohort table will
+be included.}
+
+\item{overwrite}{Should the cohort table be overwritten if it already exists? TRUE (default) or FALSE.}
 }
 \value{
 A cdm reference object with the new generated cohort set table added

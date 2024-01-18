@@ -66,21 +66,10 @@ test_dbi <- function(con, cdm_schema, write_schema) {
 
 }
 
-# dbToTest <- c(
-#   "duckdb"
-#   ,"postgres"
-#   ,"redshift"
-#   ,"sqlserver"
-#   # ,"oracle" # ?? dbWriteTable failing with Error: Not compatible with requested type: [type=character; target=double].
-#   ,"snowflake"
-#   ,"bigquery"
-# )
-
-dbtype = "bigquery"
 for (dbtype in dbToTest) {
   test_that(glue::glue("{dbtype} - dbi"), {
-    if (dbtype == "duckdb") skip_if_not_installed("duckdb") else skip_on_ci()
-
+    if (!(dbtype %in% ciTestDbs)) skip_on_ci()
+    if (dbtype != "duckdb") skip_on_cran() else skip_if_not_installed("duckdb")
     write_schema <- get_write_schema(dbtype)
     cdm_schema <- get_cdm_schema(dbtype)
     con <- get_connection(dbtype)
@@ -91,7 +80,6 @@ for (dbtype in dbToTest) {
 }
 
 # TODO test dplyr::copy_to with temp and non-temp tables as well as the overwrite argument of dbWriteTable
-
 
 # DBI::dbexists table does not seem to work on snowflake with odbc using an Id
 

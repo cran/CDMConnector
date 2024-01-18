@@ -10,7 +10,27 @@ tryCatch({
 
 # functions used for the test matrix
 
-get_connection <- function(dbms) {
+get_connection <- function(dbms, DatabaseConnector = FALSE) {
+
+  if (DatabaseConnector) {
+    stop(dbms %in% c("postgres"), rlang::is_installed("DatabaseConnector"))
+
+
+    if (dbms == "postgres") {
+
+      DatabaseConnector::connect(dbms = "postgresql",
+                                 server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
+                                 user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+                                 password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
+
+    }
+
+    stop(paste("Testing", dbms, "with DatabaseConnector has not been implemented yet."))
+
+  }
+
+
+
   if (dbms == "duckdb") {
     return(DBI::dbConnect(duckdb::duckdb(), eunomia_dir()))
   }
@@ -40,9 +60,11 @@ get_connection <- function(dbms) {
                           password = Sys.getenv("CDM5_REDSHIFT_PASSWORD")))
   }
 
-  if (dbms == "sqlserver" && Sys.getenv("SQL_SERVER_DRIVER") != "") {
+  if (dbms == "sqlserver" && Sys.getenv("CDM5_SQL_SERVER_USER") != "") {
+    print(Sys.getenv("SQL_SERVER_DRIVER"))
     return(DBI::dbConnect(odbc::odbc(),
                           Driver   = Sys.getenv("SQL_SERVER_DRIVER"),
+                          # Driver   = "ODBC Driver 17 for SQL Server", #asdf
                           Server   = Sys.getenv("CDM5_SQL_SERVER_SERVER"),
                           Database = Sys.getenv("CDM5_SQL_SERVER_CDM_DATABASE"),
                           UID      = Sys.getenv("CDM5_SQL_SERVER_USER"),
@@ -66,9 +88,8 @@ get_connection <- function(dbms) {
     ))
   }
 
-  if (dbms == "snowflake" && "Snowflake" %in% odbc::odbcListDataSources()$name) {
-    # return(DBI::dbConnect(odbc::odbc(), "Snowflake",
-                          # pwd = Sys.getenv("SNOWFLAKE_PASSWORD")))
+  if (dbms == "snowflake" && Sys.getenv("SNOWFLAKE_USER") != "") {
+
     return(DBI::dbConnect(odbc::odbc(),
                           SERVER = Sys.getenv("SNOWFLAKE_SERVER"),
                           UID = Sys.getenv("SNOWFLAKE_USER"),
@@ -82,7 +103,7 @@ get_connection <- function(dbms) {
     return(DBI::dbConnect(odbc::odbc(), "Databricks", bigint = "numeric"))
   }
 
-  return(invisible(NULL))
+  rlang::abort("Could not create connection. Are some environment variables missing?")
 }
 
 get_cdm_schema <- function(dbms) {
@@ -102,7 +123,7 @@ get_cdm_schema <- function(dbms) {
   return(s)
 }
 
-get_write_schema <- function(dbms, prefix = NULL) {
+get_write_schema <- function(dbms, prefix = paste0("temp", floor(as.numeric(Sys.time())*100) %% 100000L, "_")) {
   s <- switch (dbms,
           "postgres" = Sys.getenv("CDM5_POSTGRESQL_SCRATCH_SCHEMA"),
           "local" = Sys.getenv("LOCAL_POSTGRESQL_SCRATCH_SCHEMA"),
@@ -138,16 +159,29 @@ disconnect <- function(con) {
   }
 }
 
+# databases supported on github actions
+ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake")
 
-dbToTest <- c(
-  "duckdb"
-  # ,"postgres"
-  # ,"redshift"
-  # ,"sqlserver"
-  # ,"snowflake"
+if (Sys.getenv("CI_TEST_DB") == "") {
 
-  # ,"spark"
-  # ,"oracle"
-  # ,
-  # ,"bigquery"
-)
+  dbToTest <- c(
+    "duckdb"
+    # ,
+    # "postgres"
+    # ,
+    # "redshift"
+    # ,
+    # "sqlserver"
+    # ,
+    #"snowflake"
+    # ,
+    # "spark"
+  )
+
+  } else {
+  checkmate::assert_choice(Sys.getenv("CI_TEST_DB"), choices = ciTestDbs)
+  dbToTest <- Sys.getenv("CI_TEST_DB")
+  print(paste("running CI tests on ", dbToTest))
+}
+
+

@@ -88,6 +88,8 @@ test_new_generated_cohort_set <- function(con, cdm_schema, write_schema) {
 # dbtype = "duckdb"
 for (dbtype in dbToTest) {
   test_that(glue::glue("{dbtype} - recordCohortAttrition"), {
+    if (!(dbtype %in% ciTestDbs)) skip_on_ci()
+    if (dbtype != "duckdb") skip_on_cran() else skip_if_not_installed("duckdb")
     con <- get_connection(dbtype)
     cdm_schema <- get_cdm_schema(dbtype)
     write_schema <- get_write_schema(dbtype)
@@ -100,7 +102,7 @@ for (dbtype in dbToTest) {
 
 
 test_that("error in newGeneratedCohortSet if cohort_ref has not been computed", {
-
+  skip_if_not_installed("duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
   cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
 
@@ -118,4 +120,76 @@ test_that("error in newGeneratedCohortSet if cohort_ref has not been computed", 
   expect_error(newGeneratedCohortSet(cohort_ref))
 
   DBI::dbDisconnect(con, shutdown = TRUE)
+})
+
+test_that("no error if cohort is empty", {
+  skip_if_not_installed("CirceR")
+  skip_if_not_installed("duckdb")
+  # if an empty cohort is passed return an empty GeneratedCohortSet object
+  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
+  cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+
+  inst_dir <- system.file(package = "CDMConnector", mustWork = TRUE)
+
+  withr::with_dir(inst_dir, {
+    cohortSet <- readCohortSet("cohorts2")
+  })
+
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "cohorts2",
+                           overwrite = TRUE,
+                           computeAttrition = TRUE)
+
+  expect_true("GeneratedCohortSet" %in% class(cdm$cohorts2))
+
+  cdm$cohort_3 <- cdm$cohorts2 %>%
+    dplyr::filter(cohort_start_date > "2030-01-01") %>%
+    compute_query()
+
+  cdm$cohort_3a <-  cdm$cohort_3 %>%
+    newGeneratedCohortSet(overwrite = TRUE)
+  expect_true("GeneratedCohortSet" %in% class(cdm$cohort_3a))
+  # we won't have cohort set or cohort count as we didn't provide the cohort set ref
+  expect_true(nrow(cohort_set(cdm$cohort_3a)) == 0)
+  expect_true(nrow(cohort_count(cdm$cohort_3a)) == 0)
+
+  c_Ref<- cohort_set(cdm$cohort_3)
+  cdm$cohort_3b <-  cdm$cohort_3 %>%
+    newGeneratedCohortSet(cohortSetRef = c_Ref,
+                            overwrite = TRUE)
+  expect_true("GeneratedCohortSet" %in% class(cdm$cohort_3b))
+  expect_false(nrow(cohort_set(cdm$cohort_3b)) == 0)
+  expect_false(nrow(cohort_count(cdm$cohort_3b)) == 0)
+
+  cdm_disconnect(cdm)
+})
+
+
+# issue: https://github.com/darwin-eu-dev/CDMConnector/issues/300
+test_that("newGeneratedCohortSet handles empty cohort tables", {
+  skip_if_not_installed("duckdb")
+  skip_if_not_installed("CirceR")
+
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+  cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+
+  cohortSet <- readCohortSet(system.file("cohorts2",
+                                         package = "CDMConnector",
+                                         mustWork = TRUE))
+  cdm <- generateCohortSet(cdm,
+                           cohortSet,
+                           name = "cohorts2",
+                           overwrite = TRUE,
+                           computeAttrition = TRUE)
+
+  expect_no_error({
+    cdm$cohort_3 <- cdm$cohorts2 %>%
+      dplyr::filter(cohort_start_date > "2099-01-01") %>%
+      compute_query() %>%
+      newGeneratedCohortSet()
+  })
+
+  expect_equal(nrow(dplyr::collect(cdm$cohort_3)), 0)
+  DBI::dbDisconnect(con, shutdown = T)
 })

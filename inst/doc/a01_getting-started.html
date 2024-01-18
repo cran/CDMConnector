@@ -425,7 +425,7 @@ CDM tables and is required. All other arguments are optional.</p>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death, note, note_nlp, specimen, fact_relationship, location, care_site, provider, payer_plan_period, cost, drug_era, dose_era, condition_era, metadata, cdm_source, concept, vocabulary, domain, concept_class, concept_relationship, relationship, concept_synonym, concept_ancestor, source_to_concept_map, drug_strength</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;observation_period&gt; [?? x 5]</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f9ab285f.duckdb]</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df7e832286.duckdb]</span></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
@@ -447,7 +447,7 @@ CDM tables and is required. All other arguments are optional.</p>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Columns: 18</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f9ab285f.duckdb]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df7e832286.duckdb]</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; $ person_id                   &lt;int&gt; 6, 123, 129, 16, 65, 74, 42, 187, 18, 111,…</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; $ gender_concept_id           &lt;int&gt; 8532, 8507, 8507, 8532, 8532, 8532, 8532, …</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $ year_of_birth               &lt;int&gt; 1963, 1950, 1974, 1971, 1967, 1972, 1909, …</span></span>
@@ -522,16 +522,16 @@ CDM.</p>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 80 × 3</span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;    condition_concept_id concept_name                                 n</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt; &lt;chr&gt;                                    &lt;dbl&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;  1              4112343 Acute viral pharyngitis                  10217</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;  2               192671 Gastrointestinal hemorrhage                479</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;  3                28060 Streptococcal sore throat                 2656</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;  4               378001 Concussion with no loss of consciousness  1013</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;  5               257012 Chronic sinusitis                          825</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;  6              4134304 Fracture subluxation of wrist              493</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;  7             40481087 Viral sinusitis                          17268</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;  8               372328 Otitis media                              3605</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;  9               260139 Acute bronchitis                          8184</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 10                78272 Sprain of wrist                            770</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;  1               378001 Concussion with no loss of consciousness  1013</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;  2              4134304 Fracture subluxation of wrist              493</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;  3               260139 Acute bronchitis                          8184</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;  4                78272 Sprain of wrist                            770</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;  5                80180 Osteoarthritis                            2694</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;  6              4116491 Escherichia coli urinary tract infection   482</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;  7               440448 Appendicitis                               157</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;  8                81151 Sprain of ankle                           1915</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;  9               195588 Cystitis                                   322</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 10              4109685 Laceration of foot                         484</span></span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 70 more rows</span></span></code></pre></div>
 <p>Let’s look at the most common drugs used by patients with “Acute
 viral pharyngitis”.</p>
@@ -547,15 +547,15 @@ viral pharyngitis”.</p>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    concept_name                                                                n</span></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 poliovirus vaccine, inactivated                                          7654</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 zoster vaccine, live                                                     2082</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 celecoxib                                                                1788</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Aspirin 81 MG Oral Tablet                                                4305</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 hepatitis A vaccine, adult dosage                                        3090</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Acetaminophen 325 MG Oral Tablet                                         9125</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Acetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / dox…  1934</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Amoxicillin 250 MG / Clavulanate 125 MG Oral Tablet                      3738</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Penicillin V Potassium 500 MG Oral Tablet                                1060</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 Phenazopyridine hydrochloride 100 MG Oral Tablet                          779</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 clopidogrel 75 MG Oral Tablet                                             356</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 12 HR Cefaclor 500 MG Extended Release Oral Tablet                         57</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Levothyroxine Sodium 0.075 MG Oral Tablet                                  31</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 21 DAY Ethinyl Estradiol 0.000625 MG/HR / Etonogestrel 0.005 MG/HR Vag…     5</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Donepezil hydrochloride 23 MG [Aricept]                                    23</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Donepezil hydrochloride 10 MG Oral Tablet                                  14</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 {28 (Norethindrone 0.35 MG Oral Tablet) } Pack [Errin 28 Day]               4</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Chlorpheniramine Maleate 2 MG/ML Oral Solution                             70</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 Levonorgestrel 0.00354 MG/HR Drug Implant                                  29</span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 103 more rows</span></span></code></pre></div>
 <p>To inspect the generated SQL use <code>show_query</code> from
 dplyr.</p>
@@ -660,19 +660,19 @@ Typically this should be a separate schema from the “cdm_schema”.</p>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>drugs</span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;test&gt; [?? x 11]</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 0.8.1 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpZ7wfr0/file820f9ab285f.duckdb]</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df7e832286.duckdb]</span></span>
 <span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;    drug_concept_id     n concept_name   domain_id vocabulary_id concept_class_id</span></span>
 <span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;              &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;           </span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  1        40213160  7654 poliovirus va… Drug      CVX           CVX             </span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  2        40213260  2082 zoster vaccin… Drug      CVX           CVX             </span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  3         1118084  1788 celecoxib      Drug      RxNorm        Ingredient      </span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  4        19059056  4305 Aspirin 81 MG… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  5        40213296  3090 hepatitis A v… Drug      CVX           CVX             </span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  6         1127433  9125 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt;  7        40229134  1934 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt;  8         1713671  3738 Amoxicillin 2… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt;  9        19133905  1060 Penicillin V … Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 10        40236824   779 Phenazopyridi… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  1        19133905  1060 Penicillin V … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  2        40173590   129 Alendronic ac… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  3        40220960   210 alteplase 100… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  4        19073183   188 Amoxicillin 2… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  5          920300   779 Nitrofurantoi… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  6        19126352   207 Nitroglycerin… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt;  7         1332419   179 Amlodipine 5 … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt;  8         1545959    57 atorvastatin … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt;  9        45892894    26 24 HR Donepez… Drug      RxNorm        Quant Clinical …</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 10         1519937     6 Etonogestrel … Drug      RxNorm        Clinical Drug   </span></span>
 <span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
 <span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; # ℹ 5 more variables: standard_concept &lt;chr&gt;, concept_code &lt;chr&gt;,</span></span>
 <span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; #   valid_start_date &lt;date&gt;, valid_end_date &lt;date&gt;, invalid_reason &lt;chr&gt;</span></span></code></pre></div>
@@ -777,16 +777,16 @@ number of persons and events.</p>
 <span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
 <span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1      3516                3006322 2008-08-15 2008-08-15            5001 measu…</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      2333                3006322 1945-01-18 1945-01-18            5001 measu…</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3      3516                3006322 1993-09-09 1993-09-09            5001 measu…</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4      2333                3006322 1921-12-27 1921-12-27            5001 measu…</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5      3516                3006322 1957-09-25 1957-09-25            5001 measu…</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6      2333                3006322 1966-02-24 1966-02-24            5001 measu…</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7      1162               40758406 1963-01-19 1963-01-19            5001 measu…</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8      3516                3006322 1946-06-25 1946-06-25            5001 measu…</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9      2333               40758406 1921-07-01 1921-07-01            5001 measu…</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10      3516                3006322 1979-04-13 1979-04-13            5001 measu…</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1      1162                4024958 1931-08-01 1931-08-01            5001 measu…</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      3109                3006322 1955-05-07 1955-05-07            5001 measu…</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3      5078                3006322 1952-12-07 1952-12-07            5001 measu…</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4         2                4133840 1996-07-02 1996-07-02            5001 measu…</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5      3179                4024958 1933-11-15 1933-11-15            5001 measu…</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6      3614                4133840 2009-12-13 2009-12-13            5001 measu…</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7      5081                3006322 1994-04-08 1994-04-08            5001 measu…</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8      2545                4052083 1959-11-12 1959-11-12            5001 measu…</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9         2                3006322 1985-07-26 1985-07-26            5001 measu…</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10      1954                4024958 1969-05-15 1969-05-15            5001 measu…</span></span>
 <span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
 <span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
 <div id="saving-a-local-copy-of-a-cdm" class="section level2">
@@ -804,10 +804,10 @@ this.</p>
 <span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 4</span></span>
 <span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt;   person_id gender_concept_id year_of_birth month_of_birth</span></span>
 <span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt;             &lt;int&gt;         &lt;int&gt;          &lt;int&gt;</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 1       160              8532          1961              7</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 2       120              8507          1978              1</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 3        99              8532          1958             10</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 4       310              8507          1949              6</span></span></code></pre></div>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 1        42              8532          1909             11</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 2        84              8532          1974              3</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 3       225              8532          1965              1</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 4       209              8532          1951              2</span></span></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>save_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;tmp&quot;</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">dir.create</span>(save_path)</span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a></span>

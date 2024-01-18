@@ -435,9 +435,17 @@ and names to use. If this file doesn’t exist IDs will be assigned
 automatically using alphabetical order of the filenames.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>path_to_cohort_json_files <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;cohorts1&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">list.files</span>(path_to_cohort_json_files)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="fu">file.path</span>(path_to_cohort_json_files, <span class="st">&quot;CohortsToCreate.csv&quot;</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;CohortsToCreate.csv&quot;                 </span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; [2] &quot;cerebralVenousSinusThrombosis01.json&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [3] &quot;deepVeinThrombosis01.json&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="fu">file.path</span>(path_to_cohort_json_files, <span class="st">&quot;CohortsToCreate.csv&quot;</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;   cohortId cohortName                      jsonPath                             </span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt; &lt;chr&gt;                           &lt;chr&gt;                                </span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; 1        1 cerebralVenousSinusThrombosis01 ./cerebralVenousSinusThrombosis01.js…</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; 2        2 deepVeinThrombosis01            ./deepVeinThrombosis01.json</span></span></code></pre></div>
 <div id="atlas-cohort-definitions" class="section level3">
 <h3>Atlas cohort definitions</h3>
 <p>First we need to create our CDM object. Note that we will need to
@@ -447,23 +455,69 @@ tables will go into the CDM’s <code>write_schema</code>.</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>path_to_cohort_json_files <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;example_cohorts&quot;</span>, </span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                                         <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">list.files</span>(path_to_cohort_json_files)</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(path_to_cohort_json_files)</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>cohort_set</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(cdm, </span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                           cohort_set,</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts</span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GIBleed_male.json&quot;    &quot;GiBleed_default.json&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(path_to_cohort_json_files)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>cohort_set</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name     cohort       json   cohort_name_snakecase</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;           &lt;list&gt;       &lt;list&gt; &lt;chr&gt;                </span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 1                    1 GIBleed_male    &lt;named list&gt; &lt;chr&gt;  gi_bleed_male        </span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; 2                    2 GiBleed_default &lt;named list&gt; &lt;chr&gt;  gi_bleed_default</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(cdm, </span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>                           cohort_set,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 2 cohorts</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/2) - GIBleed_male)</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/2) - GIBleed_male) [165ms]</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/2) - GiBleed_default)</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/2) - GiBleed_default) [128ms]</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;study_cohorts&gt; [?? x 4]</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df799cd9a3.duckdb]</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;  1                    1       5245 2016-01-31        2018-01-29     </span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;  2                    1       3767 2018-12-06        2019-06-29     </span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;  3                    1       3232 2004-07-15        2018-10-15     </span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;  4                    1       2075 2006-05-05        2019-04-15     </span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;  5                    1       3028 2000-08-07        2018-07-20     </span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;  6                    1        962 1995-07-09        2019-06-14     </span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;  7                    1       3216 1995-12-22        2018-10-05     </span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;  8                    1       4072 2012-01-09        2017-11-18     </span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;  9                    1       5251 1962-05-29        1980-03-17     </span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; 10                    1       1846 1987-12-07        2019-03-14     </span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
 <p>The generated cohort has some associated metadata tables.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 1                    2            479             479</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 7</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;           </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Qualifying init…</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237         2 Male            </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; 3                    1            237             237         3 30 days prior o…</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 4                    2            479             479         1 Qualifying init…</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;dbl&gt;, excluded_subjects &lt;dbl&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;          </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 1                    1 GIBleed_male   </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 2                    2 GiBleed_default</span></span></code></pre></div>
 <p>Note the this cohort table is still in the database so it can be
 quite large. We can also join it to other CDM table or subset the entire
 cdm to just the persons in the cohort.</p>
@@ -478,29 +532,57 @@ of similar cohort definitions. Below we create a single Cohort
 definition with one inclusion criteria</p>
 <p><code>generate_cohort_set</code> will accept a named list of Capr</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(Capr)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>gibleed_concept_set <span class="ot">&lt;-</span> <span class="fu">cs</span>(<span class="dv">192671</span>, <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>gibleed_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Loading required package: CirceR</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;Capr&#39;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:ggplot2&#39;:</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;     unit</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>gibleed_male_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set, <span class="fu">male</span>())</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>)</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co"># create a named list of Capr cohort definitions</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>cohort_set <span class="ot">=</span> <span class="fu">list</span>(<span class="at">gibleed =</span> gibleed_definition,</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>                  <span class="at">gibleed_male =</span> gibleed_male_definition)</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co"># generate cohorts</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  cdm,</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>  <span class="at">cohort_set =</span> cohort_set,</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span> <span class="co"># name for the cohort table in the cdm</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>)</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed</span></code></pre></div>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>gibleed_concept_set <span class="ot">&lt;-</span> <span class="fu">cs</span>(<span class="dv">192671</span>, <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>gibleed_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>)</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>gibleed_male_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set, <span class="fu">male</span>())</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co"># create a named list of Capr cohort definitions</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>cohort_set <span class="ot">=</span> <span class="fu">list</span>(<span class="at">gibleed =</span> gibleed_definition,</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>                  <span class="at">gibleed_male =</span> gibleed_male_definition)</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co"># generate cohorts</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>  cdm,</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>  <span class="at">cohort_set =</span> cohort_set,</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span> <span class="co"># name for the cohort table in the cdm</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>)</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 2 cohorts</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/2) - gibleed)</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/2) - gibleed) [43ms]</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/2) - gibleed_male)</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/2) - gibleed_male) [45ms]</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed</span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;gibleed&gt; [?? x 4]</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df799cd9a3.duckdb]</span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt;  1                    1       2273 2016-06-25        2018-09-12     </span></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt;  2                    1       2177 2005-07-04        2018-11-14     </span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt;  3                    1        675 1984-04-21        2019-06-07     </span></span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt;  4                    1       4100 1980-03-19        2019-05-15     </span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt;  5                    1       3117 2008-05-11        2018-09-19     </span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt;  6                    1       4113 1992-06-03        2019-06-10     </span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt;  7                    1        915 1995-09-17        2019-03-30     </span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt;  8                    1       4661 2018-04-27        2018-04-28     </span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt;  9                    1       4591 1995-04-10        2019-06-27     </span></span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt; 10                    1       5002 2019-05-25        2019-05-26     </span></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
 <p>We should get the exact same result from Capr and Atlas if the
 definitions are equivalent.</p>
 <p>Learn more about Capr at the package website <a href="https://ohdsi.github.io/Capr/" class="uri">https://ohdsi.github.io/Capr/</a>.</p>
@@ -535,7 +617,13 @@ criteria in the initial definition, additional criteria can be applied
 <span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
 <span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="fu">record_cohort_attrition</span>(<span class="at">reason =</span> <span class="st">&quot;Male&quot;</span>)</span>
 <span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  </span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>gibleed2) </span></code></pre></div>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>gibleed2) </span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;           </span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Qualifying init…</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237         2 Male            </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;dbl&gt;, excluded_subjects &lt;dbl&gt;</span></span></code></pre></div>
 <p>In the above example we built a cohort table from a concept set. The
 cohort essentially captures patient-time based off of the presence or
 absence of OMOP standard concept IDs. We then manually applied an
@@ -554,7 +642,11 @@ set.</p>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2001-01-01&quot;</span>)</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>)</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>cohort</span></code></pre></div>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>cohort</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 4</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
 <p>First make sure the table is in the database and create a dplyr table
 reference to it and add it to the CDM object.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con)), <span class="at">value =</span> cohort, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
@@ -566,9 +658,24 @@ reference to it and add it to the CDM object.</p>
 <p>We can see that this cohort is now has the class “GeneratedCohortSet”
 as well as the various metadata tables.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">class</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GeneratedCohortSet&quot;    &quot;tbl_duckdb_connection&quot; &quot;tbl_dbi&quot;              </span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_sql&quot;               &quot;tbl_lazy&quot;              &quot;tbl&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;           </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Qualifying init…</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;dbl&gt;, excluded_subjects &lt;dbl&gt;</span></span></code></pre></div>
 <p>If you would like to override the attribute tables then pass
 additional dataframes into new_generated_cohort_set.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="fu">inSchema</span>(<span class="st">&quot;main&quot;</span>, <span class="st">&quot;cohort2&quot;</span>, <span class="at">dbms =</span> <span class="fu">dbms</span>(con)), <span class="at">value =</span> cohort)</span>
@@ -581,7 +688,11 @@ additional dataframes into new_generated_cohort_set.</p>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">new_generated_cohort_set</span>(cdm<span class="sc">$</span>cohort2,</span>
 <span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>                                        <span class="at">cohort_set_ref =</span> cohort_set)</span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort2)</span></code></pre></div>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort2)</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name   </span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;         </span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; 1                    1 made up cohort</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Cohort building is a fundamental building block of observational
 health analysis and CDMConnector supports different ways of creating

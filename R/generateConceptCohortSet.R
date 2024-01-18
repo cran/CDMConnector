@@ -50,22 +50,31 @@ table_refs <- function(domain_id) {
 #'  \item{numeric scalar: A fixed number of days from the event start date}
 #'  \item{"event_end_date"}: The event end date. If the event end date is not populated then the event start date will be used
 #' }
-#' @param overwrite Should the cohort table be overwritten if it already exists? TRUE or FALSE (default)
+#' @param subsetCohort,subset_cohort  A cohort table containing the individuals for which to
+#' generate cohorts for. Only individuals in the cohort table will appear in
+#' the created generated cohort set.
+#' @param subsetCohortId,subset_cohort_id A set of cohort IDs from the cohort table for which
+#' to include. If none are provided, all cohorts in the cohort table will
+#' be included.
+#' @param overwrite Should the cohort table be overwritten if it already exists? TRUE (default) or FALSE.
 #'
 #' @return A cdm reference object with the new generated cohort set table added
 #' @export
 generateConceptCohortSet <- function(cdm,
                                      conceptSet = NULL,
-                                     name = "cohort",
+                                     name,
                                      limit = "first",
                                      requiredObservation = c(0,0),
                                      end = "observation_period_end_date",
-                                     overwrite = FALSE) {
+                                     subsetCohort = NULL,
+                                     subsetCohortId = NULL,
+                                     overwrite = TRUE) {
 
   # check cdm ----
   checkmate::assertClass(cdm, "cdm_reference")
   con <- attr(cdm, "dbcon")
   checkmate::assertTRUE(DBI::dbIsValid(attr(cdm, "dbcon")))
+  checkmate::assert_character(name, len = 1, min.chars = 1, any.missing = FALSE, pattern = "[a-zA-Z0-9_]+")
 
   assertTables(cdm, "observation_period", empty.ok = FALSE)
   assertWriteSchema(cdm)
@@ -145,6 +154,17 @@ generateConceptCohortSet <- function(cdm,
                        is_excluded = FALSE)
   }
 
+  # check target cohort -----
+  if(!is.null(subsetCohort)){
+    assertTables(cdm, subsetCohort)
+  }
+  if(!is.null(subsetCohort) && !is.null(subsetCohortId)){
+   if(!nrow(cohortSet(cdm[[subsetCohort]]) %>%
+      dplyr::filter(.data$cohort_definition_id %in% .env$subsetCohortId)) > 0){
+     cli::cli_abort("cohort_definition_id {subsetCohortId} not found in cohort set
+                    of {subsetCohort}")
+   }}
+
   # upload concept data to the database ----
   tempName <- paste0("tmp", as.integer(Sys.time()), "_")
 
@@ -195,6 +215,8 @@ generateConceptCohortSet <- function(cdm,
 
   domains <- concepts %>% dplyr::distinct(.data$domain_id) %>% dplyr::pull() %>% tolower()
   domains <- domains[!is.na(domains)] # remove NAs
+  domains <- domains[domains %in% c("condition", "drug", "procedure", "observation", "measurement", "visit", "device")]
+
   if (length(domains) == 0) cli::cli_abort("None of the input concept IDs are in the CDM concept table!")
 
   # check we have references to all required tables ----
@@ -257,6 +279,25 @@ generateConceptCohortSet <- function(cdm,
                     "observation_period_start_date",
                     "observation_period_end_date")
 
+    # subset to target cohort
+    if(!is.null(subsetCohort)){
+      if(is.null(subsetCohortId)){
+        obs_period <- obs_period %>%
+          dplyr::inner_join(cdm[[subsetCohort]] %>%
+                       dplyr::select("subject_id") %>%
+                       dplyr::distinct(),
+                     by = "subject_id")
+      } else {
+        obs_period <- obs_period %>%
+          dplyr::inner_join(cdm[[subsetCohort]] %>%
+                       dplyr::filter(.data$cohort_definition_id %in%
+                                       .env$subsetCohortId) %>%
+                       dplyr::select("subject_id") %>%
+                       dplyr::distinct(),
+                     by = "subject_id")
+      }
+    }
+
     # TODO remove this variable since it is confusing
     cohort_start_date <- "cohort_start_date"
 
@@ -317,13 +358,18 @@ generate_concept_cohort_set <- function(cdm,
                                         limit = "first",
                                         required_observation = c(0,0),
                                         end = "observation_period_end_date",
-                                        overwrite = FALSE) {
+                                        subset_cohort = NULL,
+                                        subset_cohort_id = NULL,
+                                        overwrite = TRUE) {
+
   generateConceptCohortSet(cdm = cdm,
                            conceptSet = concept_set,
                            name = name,
                            limit = limit,
                            requiredObservation = required_observation,
                            end = end,
+                           subsetCohort = subset_cohort,
+                           subsetCohortId = subset_cohort_id,
                            overwrite = overwrite)
 }
 

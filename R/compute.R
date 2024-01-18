@@ -11,7 +11,7 @@
 # @return A dplyr reference to the newly created table
 #
 # internal function
-.computePermanent <- function(x, name, schema = NULL, overwrite = FALSE) {
+.computePermanent <- function(x, name, schema = NULL, overwrite = TRUE) {
   checkmate::assertCharacter(schema, min.len = 1, max.len = 2, null.ok = TRUE)
   schema <- unname(schema)
   checkmate::assertCharacter(name, len = 1)
@@ -101,6 +101,10 @@ appendPermanent <- function(x, name, schema = NULL) {
   checkmate::assertClass(x, "tbl_sql")
 
   # TODO try dbAppendTable
+  if ("prefix" %in% names(schema)) {
+    name <- paste0(schema["prefix"], name)
+    schema <- schema[names(schema) != "prefix"]
+  }
   fullNameQuoted <- getFullTableNameQuoted(x, name, schema)
   existingTables <- listTables(x$src$con, schema = schema)
   if (!(tolower(name) %in% tolower(existingTables))) {
@@ -150,8 +154,8 @@ unique_table_name <- uniqueTableName
 #' @param temporary Should the table be temporary: TRUE (default) or FALSE
 #' @param schema The schema where the table should be created. Ignored if
 #'   temporary = TRUE.
-#' @param overwrite Should the table be overwritten if it already exists: TRUE
-#'   or FALSE (default) Ignored if temporary = TRUE.
+#' @param overwrite Should the table be overwritten if it already exists: TRUE (default)
+#'   or FALSE Ignored if temporary = TRUE.
 #' @param ... Further arguments passed on the `dplyr::compute`
 #'
 #' @return A `dplyr::tbl()` reference to the newly created table.
@@ -180,11 +184,15 @@ computeQuery <- function(x,
                          name = uniqueTableName(),
                          temporary = TRUE,
                          schema = NULL,
-                         overwrite = FALSE,
+                         overwrite = TRUE,
                          ...) {
 
   if (is.data.frame(x) || (methods::is(x, "Table") && methods::is(x, "ArrowTabular"))) {
     return(x)
+  }
+
+  if ("cdm_reference" %in% class(x)) {
+    rlang::abort("You passed a cdm object into computeQuery which only accepts single tables or lazy queries!")
   }
 
   checkmate::assertLogical(temporary, len = 1)
@@ -369,6 +377,69 @@ dropTable <- function(cdm, name, verbose = FALSE) {
 #' @rdname dropTable
 #' @export
 drop_table <- dropTable
+
+#' Add tables to a cdm object
+#'
+#'
+#' @param cdm A cdm reference
+#' @param name A character name with the name of the table.
+#' @param table Table to insert in the cdm object. It has to be a in R-memory
+#' table.
+#'
+#' @return Returns the cdm object with the new tables added
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' library(CDMConnector)
+#'
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+#' cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+#'
+#' cdm
+#'
+#' new_table <- dplyr::tibble(a = 1)
+#'
+#' cdm <- insertTable(cdm, "new_table", new_table)
+#'
+#' cdm
+#'
+#' cdm$new_table
+#'
+#' cdm_disconnect(cdm)
+#' }
+insertTable <- function(cdm, name, table) {
+  # initial checks
+  checkmate::assertClass(cdm, "cdm_reference")
+  checkmate::assertCharacter(name, len = 1, min.chars = 1, any.missing = FALSE)
+  checkmate::assertTibble(table)
+
+  if (length(cdm) == 0) {
+    cli::cli_abort("The cdm is empty, please use a cdm creation function to create a cdm object")
+  }
+
+  # insert table
+  con <- attr(cdm, "dbcon")
+  if (!is.null(con)) {
+    fullName <- inSchema(attr(cdm, "write_schema"), name)
+    DBI::dbWriteTable(con, fullName, table)
+    cdm[[name]] <- dplyr::tbl(con, fullName)
+  } else if ("ArrowTabular" %in% class(cdm[[1]])) {
+    # TODO
+    # do we want to insert it in files or the source, like we do with databases?
+    rlang::check_installed("arrow")
+    cdm[[name]] <- arrow::arrow_table(table)
+  } else {
+    cdm[[name]] <- table
+  }
+
+  return(cdm)
+}
+
+#' @rdname insertTable
+#' @export
+insert_table <- insertTable
 
 # Get the full table name consisting of the schema and table name.
 #
