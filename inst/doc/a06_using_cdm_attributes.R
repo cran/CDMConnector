@@ -18,31 +18,32 @@ knitr::opts_chunk$set(
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 library(CDMConnector)
+library(omopgenerics)
 library(dplyr)
 
 write_schema <- "main"
 cdm_schema <- "main"
 
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, cdm_schema = cdm_schema, write_schema = write_schema)
+cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = cdm_schema, write_schema = write_schema)
 
 ## -----------------------------------------------------------------------------
-attr(cdm, "cdm_name")
+#attr(cdm, "cdm_name")
 
 ## -----------------------------------------------------------------------------
 cdmName(cdm)
 cdm_name(cdm)
 
 ## -----------------------------------------------------------------------------
-attr(cdm, "cdm_version")
+#attr(cdm, "cdm_version")
 
 ## -----------------------------------------------------------------------------
-attr(cdm, "dbcon")
+#cdmCon(cdm)
 
 ## -----------------------------------------------------------------------------
-DBI::dbListTables(attr(cdm, "dbcon"))
-DBI::dbListFields(attr(cdm, "dbcon"), "person")
-DBI::dbGetQuery(attr(cdm, "dbcon"), "SELECT * FROM person LIMIT 5")
+#DBI::dbListTables(cdmCon(cdm))
+#DBI::dbListFields(cdmCon(cdm), "person")
+#DBI::dbGetQuery(cdmCon(cdm), "SELECT * FROM person LIMIT 5")
 
 ## -----------------------------------------------------------------------------
 
@@ -60,7 +61,7 @@ cdm$study_cohorts %>%
 attr(cdm$study_cohorts, "cohort_set")
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cohortSet(cdm$study_cohorts)
+#  settings(cdm$study_cohorts)
 #  cohort_set(cdm$study_cohorts)
 
 ## -----------------------------------------------------------------------------
@@ -81,32 +82,30 @@ attr(cdm$study_cohorts, "cohort_count")
 attr(cdm$study_cohorts, "cdm_reference")
 
 ## -----------------------------------------------------------------------------
-cdm$GI_bleed <- cdm$condition_occurrence %>% 
+cdm$gi_bleed <- cdm$condition_occurrence %>% 
   filter(condition_concept_id == 192671) %>% 
   mutate(cohort_definition_id = 1) %>% 
-  select(cohort_definition_id, person_id,
-         condition_start_date, condition_end_date) %>% 
-  rename("subject_id" = "person_id", 
-         "cohort_start_date" = "condition_start_date", 
-         "cohort_end_date" = "condition_end_date") %>% 
-  compute_query(temporary = FALSE,
-                schema = write_schema,
-                overwrite = TRUE)
+  select(
+    cohort_definition_id, 
+    subject_id = person_id, 
+    cohort_start_date = condition_start_date, 
+    cohort_end_date = condition_start_date
+  ) %>% 
+  compute(name = "gi_bleed", temporary = FALSE, overwrite = TRUE)
 
-cdm$GI_bleed %>% 
+cdm$gi_bleed %>% 
   glimpse()
 
 ## -----------------------------------------------------------------------------
-GI_bleed_cohort_ref <- data.frame(cohort_definition_id = 1,
-                                  cohort_name = "custom_gi_bleed")
+GI_bleed_cohort_ref <- tibble(cohort_definition_id = 1, cohort_name = "custom_gi_bleed")
 
-cdm$GI_bleed <- newGeneratedCohortSet(cohortRef = cdm$GI_bleed, 
-                                      cohortSetRef = GI_bleed_cohort_ref, 
-                                      overwrite = TRUE)
+cdm$gi_bleed <- omopgenerics::newCohortTable(
+  table = cdm$gi_bleed, cohortSetRef = GI_bleed_cohort_ref
+)
 
 ## -----------------------------------------------------------------------------
-cohort_set(cdm$GI_bleed)
-cohort_count(cdm$GI_bleed)
-cohort_attrition(cdm$GI_bleed)
-attr(cdm$GI_bleed, "cdm_reference")
+settings(cdm$gi_bleed)
+cohortCount(cdm$gi_bleed)
+cohortAttrition(cdm$gi_bleed)
+attr(cdm$gi_bleed, "cdm_reference")
 

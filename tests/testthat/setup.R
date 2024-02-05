@@ -32,7 +32,7 @@ get_connection <- function(dbms, DatabaseConnector = FALSE) {
 
 
   if (dbms == "duckdb") {
-    return(DBI::dbConnect(duckdb::duckdb(), eunomia_dir()))
+    return(DBI::dbConnect(duckdb::duckdb(dbdir =eunomia_dir())))
   }
 
   if (dbms == "postgres" && Sys.getenv("CDM5_POSTGRESQL_DBNAME") != "") {
@@ -173,7 +173,7 @@ if (Sys.getenv("CI_TEST_DB") == "") {
     # ,
     # "sqlserver"
     # ,
-    #"snowflake"
+    # "snowflake"
     # ,
     # "spark"
   )
@@ -185,3 +185,20 @@ if (Sys.getenv("CI_TEST_DB") == "") {
 }
 
 
+# make sure we're only trying to test on dbs we have connection details for
+if("postgres" %in% dbToTest & Sys.getenv("CDM5_POSTGRESQL_SERVER") == ""){
+  dbToTest <- dbToTest[dbToTest != "postgres"]
+  print(paste("CI tests not run on postgres - CDM5_POSTGRESQL_SERVER not found"))
+}
+if("redshift" %in% dbToTest & Sys.getenv("CDM5_REDSHIFT_DBNAME") == ""){
+  dbToTest <- dbToTest[dbToTest != "redshift"]
+  print(paste("CI tests not run on redshift - CDM5_REDSHIFT_DBNAME not found"))
+}
+if("sqlserver" %in% dbToTest & Sys.getenv("CDM5_SQL_SERVER_USER") == ""){
+  dbToTest <- dbToTest[dbToTest != "sqlserver"]
+  print(paste("CI tests not run on sqlserver - CDM5_SQL_SERVER_USER not found"))
+}
+if("snowflake" %in% dbToTest & Sys.getenv("SNOWFLAKE_USER") == ""){
+  dbToTest <- dbToTest[dbToTest != "snowflake"]
+  print(paste("CI tests not run on snowflake - SNOWFLAKE_USER not found"))
+}

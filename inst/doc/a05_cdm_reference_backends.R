@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 #  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-#  cdm <- cdm_from_con(con, cdm_schema = "main")
+#  cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
 #  
 #  # first filter to only those with condition_concept_id "4035415"
 #  cdm$condition_occurrence %>% tally()
@@ -34,11 +34,10 @@ knitr::opts_chunk$set(
 #  
 #  # then left_join person table
 #  cdm$person %>% tally()
-#  cdm$person <- cdm$condition_occurrence %>%
+#  cdm$condition_occurrence %>%
 #    select(person_id) %>%
-#    left_join(select(cdm$person, person_id, year_of_birth), by = "person_id")
-#  
-#  cdm$person %>% tally()
+#    left_join(select(cdm$person, person_id, year_of_birth), by = "person_id") %>%
+#    tally()
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 #  dOut <- tempfile()
@@ -56,14 +55,12 @@ knitr::opts_chunk$set(
 #  
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
-#  cdm_arrow$result <- cdm_arrow$person %>%
+#  result <- cdm_arrow$person %>%
 #    left_join(cdm_arrow$condition_occurrence, by = "person_id") %>%
-#    mutate(age_diag = year(condition_start_date) - year_of_birth)
+#    mutate(age_diag = year(condition_start_date) - year_of_birth) %>%
+#    collect()
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
-#  result <- cdm_arrow$result %>%
-#    collect()
-#  
 #  str(result)
 #  
 #  result %>%

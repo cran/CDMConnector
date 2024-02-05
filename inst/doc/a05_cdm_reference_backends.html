@@ -361,7 +361,7 @@ the condition_occurrence table with condition_concept_id “4035415”</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">warn.conflicts =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># first filter to only those with condition_concept_id &quot;4035415&quot;</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> <span class="fu">tally</span>()</span>
@@ -374,11 +374,10 @@ the condition_occurrence table with condition_concept_id “4035415”</p>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># then left_join person table</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>cdm<span class="sc">$</span>person <span class="sc">%&gt;%</span> <span class="fu">tally</span>()</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cdm<span class="sc">$</span>person <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="fu">select</span>(person_id) <span class="sc">%&gt;%</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(cdm<span class="sc">$</span>person, person_id, year_of_birth), <span class="at">by =</span> <span class="st">&quot;person_id&quot;</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>cdm<span class="sc">$</span>person <span class="sc">%&gt;%</span> <span class="fu">tally</span>()</span></code></pre></div>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(cdm<span class="sc">$</span>person, person_id, year_of_birth), <span class="at">by =</span> <span class="st">&quot;person_id&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="fu">tally</span>()</span></code></pre></div>
 <p>We can save these tables to file</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>dOut <span class="ot">&lt;-</span> <span class="fu">tempfile</span>()</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">dir.create</span>(dOut)</span>
@@ -392,18 +391,16 @@ the condition_occurrence table with condition_concept_id “4035415”</p>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>cdm_arrow<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span></span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div>
 <p>And create an age at diagnosis variable</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>cdm_arrow<span class="sc">$</span>result <span class="ot">&lt;-</span> cdm_arrow<span class="sc">$</span>person <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> cdm_arrow<span class="sc">$</span>person <span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">left_join</span>(cdm_arrow<span class="sc">$</span>condition_occurrence, <span class="at">by =</span> <span class="st">&quot;person_id&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_diag =</span> <span class="fu">year</span>(condition_start_date) <span class="sc">-</span> year_of_birth)</span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_diag =</span> <span class="fu">year</span>(condition_start_date) <span class="sc">-</span> year_of_birth) <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code></pre></div>
 <p>We can then bring in this result to R and make the histogram</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> cdm_arrow<span class="sc">$</span>result <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">str</span>(result)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>result <span class="sc">%&gt;%</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(age_diag)) <span class="sc">+</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">str</span>(result)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>result <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(age_diag)) <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">geom_histogram</span>()</span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <div style="margin-bottom:3cm;">
 

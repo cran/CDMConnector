@@ -17,7 +17,7 @@ library(ggplot2)
 
 ## -----------------------------------------------------------------------------
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, cdm_schema = "main")
+cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
 cdm
 
 ## ----message=FALSE------------------------------------------------------------

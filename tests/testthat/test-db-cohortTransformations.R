@@ -85,7 +85,6 @@ test_cohort_collapse <- function(con, write_schema) {
 
 
   # test every case (Allen's interval algebra) for two intervals and two people
-  require(dplyr)
   intervals <- tibble::tribble(
     ~relationship,  ~cohort_definition_id, ~subject_id, ~cohort_start_date, ~cohort_end_date,
     "reference",    1,                     1,           "2022-01-05",       "2022-01-10",
@@ -115,8 +114,8 @@ test_cohort_collapse <- function(con, write_schema) {
     DBI::dbWriteTable(con, nm, df, temporary = TRUE)
 
     db <- tbl(con, nm) %>%
-      mutate(cohort_start_date = TO_DATE(cohort_start_date, "YYYY-MM-DD")) %>%
-      mutate(cohort_end_date   = TO_DATE(cohort_end_date, "YYYY-MM-DD")) %>%
+      dplyr::mutate(cohort_start_date = TO_DATE(cohort_start_date, "YYYY-MM-DD")) %>%
+      dplyr::mutate(cohort_end_date   = TO_DATE(cohort_end_date, "YYYY-MM-DD")) %>%
       compute_query()
   } else {
     DBI::dbWriteTable(con, inSchema(write_schema, "tmp_intervals", dbms = dbms(con)), intervals, overwrite = TRUE)
@@ -183,7 +182,7 @@ test_cohort_collapse <- function(con, write_schema) {
     filter(relationship %in% c("reference", "finished_by")) %>%
     dplyr::select(-"relationship") %>%
     cohort_collapse() %>%
-    collect() %>%
+    dplyr::collect() %>%
     dplyr::select("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date") %>%
     dplyr::arrange(.data$subject_id, .data$cohort_start_date, .data$cohort_end_date)
 
@@ -200,7 +199,7 @@ test_cohort_collapse <- function(con, write_schema) {
     filter(relationship %in% c("reference", "contains")) %>%
     dplyr::select(-"relationship") %>%
     cohort_collapse() %>%
-    collect() %>%
+    dplyr::collect() %>%
     dplyr::select("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date") %>%
     dplyr::arrange(.data$subject_id, .data$cohort_start_date, .data$cohort_end_date)
 
@@ -217,7 +216,7 @@ test_cohort_collapse <- function(con, write_schema) {
     filter(relationship %in% c("reference", "starts")) %>%
     dplyr::select(-"relationship") %>%
     cohort_collapse() %>%
-    collect() %>%
+    dplyr::collect() %>%
     dplyr::select("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date") %>%
     dplyr::arrange(.data$subject_id, .data$cohort_start_date, .data$cohort_end_date)
 
@@ -234,8 +233,8 @@ test_cohort_collapse <- function(con, write_schema) {
     filter(relationship %in% c("reference", "equals")) %>%
     dplyr::select(-"relationship") %>%
     cohort_collapse() %>%
-    collect() %>%
-    arrange(subject_id)
+    dplyr::collect() %>%
+    dplyr::arrange(subject_id)
 
   expected <- tibble::tribble(
     ~cohort_definition_id, ~subject_id, ~cohort_start_date, ~cohort_end_date,

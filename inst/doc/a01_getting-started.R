@@ -17,7 +17,7 @@ con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("GiBleed"))
 DBI::dbListTables(con)
 
 ## -----------------------------------------------------------------------------
-cdm <- cdm_from_con(con, cdm_schema = "main")
+cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
 cdm
 cdm$observation_period
 
@@ -76,7 +76,7 @@ cdm$condition_occurrence %>%
 ## -----------------------------------------------------------------------------
 
 DBI::dbExecute(con, "create schema scratch;")
-cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "scratch")
+cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "scratch")
 
 ## ----warning=FALSE------------------------------------------------------------
 
@@ -86,26 +86,23 @@ drugs <- cdm$condition_occurrence %>%
   inner_join(cdm$drug_exposure, by = "person_id") %>% 
   count(drug_concept_id, sort = TRUE) %>% 
   left_join(cdm$concept, by = c("drug_concept_id" = "concept_id")) %>% 
-  compute_query(name = "test",
-                temporary = FALSE,
-                schema = "scratch",
-                overwrite = TRUE)
+  compute(name = "test", temporary = FALSE, overwrite = TRUE)
 
 drugs %>% show_query()
 
 drugs
 
 ## -----------------------------------------------------------------------------
-cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl("person", "observation_period") # quoted names
-cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(person, observation_period) # unquoted names 
-cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(starts_with("concept")) # tables that start with 'concept'
-cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(contains("era")) # tables that contain the substring 'era'
-cdm_from_con(con, cdm_schema = "main") %>% cdm_select_tbl(matches("person|period")) # regular expression
+cdm %>% cdm_select_tbl("person", "observation_period") # quoted names
+cdm %>% cdm_select_tbl(person, observation_period) # unquoted names 
+cdm %>% cdm_select_tbl(starts_with("concept")) # tables that start with 'concept'
+cdm %>% cdm_select_tbl(contains("era")) # tables that contain the substring 'era'
+cdm %>% cdm_select_tbl(matches("person|period")) # regular expression
 
 ## -----------------------------------------------------------------------------
 # pre-defined groups
-cdm_from_con(con, "main") %>% cdm_select_tbl(tbl_group("clinical")) 
-cdm_from_con(con, "main") %>% cdm_select_tbl(tbl_group("vocab")) 
+cdm %>% cdm_select_tbl(tbl_group("clinical")) 
+cdm %>% cdm_select_tbl(tbl_group("vocab")) 
 
 ## -----------------------------------------------------------------------------
 tbl_group("default")

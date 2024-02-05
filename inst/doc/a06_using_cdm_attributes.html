@@ -345,13 +345,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Let’s again load required packages and connect to our Eunomia dataset
 in duckdb.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>write_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>cdm_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> cdm_schema, <span class="at">write_schema =</span> write_schema)</span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>write_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>cdm_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> cdm_schema, <span class="at">write_schema =</span> write_schema)</span></code></pre></div>
 </div>
 <div id="cdm-reference-attributes" class="section level2">
 <h2>CDM reference attributes</h2>
@@ -364,89 +365,35 @@ packages on top of CDMConnector.</p>
 it. This is particularly useful for network studies so that we can
 associate results with a particular cdm. We can access this attribute
 like so</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">attr</span>(cdm, <span class="st">&quot;cdm_name&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Synthea synthetic health database&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co">#attr(cdm, &quot;cdm_name&quot;)</span></span></code></pre></div>
 <p>Because it is so regularly used, to make getting the cdm name even
 easier, we can also use <code>cdmName</code> (or it’s snake case
 equivalent <code>cdm_name</code>)</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">cdmName</span>(cdm)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Synthea synthetic health database&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;eunomia&quot;</span></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">cdm_name</span>(cdm)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Synthea synthetic health database&quot;</span></span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;eunomia&quot;</span></span></code></pre></div>
 </div>
 <div id="cdm-version" class="section level3">
 <h3>CDM version</h3>
 <p>The OMOP CDM has various versions. We also have an attribute giving
 the version of the cdm we have connected to.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">attr</span>(cdm, <span class="st">&quot;cdm_version&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;5.3&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">#attr(cdm, &quot;cdm_version&quot;)</span></span></code></pre></div>
 </div>
 <div id="database-connection" class="section level3">
 <h3>Database connection</h3>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection e3b80 driver=&lt;duckdb_driver b0be0 dbdir=&#39;/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df61b1c69b.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#cdmCon(cdm)</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
 through the connection, <code>dbListFields</code> to list the field
 names of a specific remote table, and <code>dbGetQuery</code> to returns
 the result of a query</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(<span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;care_site&quot;             &quot;cdm_source&quot;            &quot;concept&quot;              </span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;concept_ancestor&quot;      &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;concept_synonym&quot;       &quot;condition_era&quot;         &quot;condition_occurrence&quot; </span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [10] &quot;cost&quot;                  &quot;death&quot;                 &quot;device_exposure&quot;      </span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [13] &quot;domain&quot;                &quot;dose_era&quot;              &quot;drug_era&quot;             </span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [16] &quot;drug_exposure&quot;         &quot;drug_strength&quot;         &quot;fact_relationship&quot;    </span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [19] &quot;location&quot;              &quot;measurement&quot;           &quot;metadata&quot;             </span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; [22] &quot;note&quot;                  &quot;note_nlp&quot;              &quot;observation&quot;          </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [25] &quot;observation_period&quot;    &quot;payer_plan_period&quot;     &quot;person&quot;               </span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [28] &quot;procedure_occurrence&quot;  &quot;provider&quot;              &quot;relationship&quot;         </span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [31] &quot;source_to_concept_map&quot; &quot;specimen&quot;              &quot;visit_detail&quot;         </span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; [34] &quot;visit_occurrence&quot;      &quot;vocabulary&quot;</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListFields</span>(<span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>), <span class="st">&quot;person&quot;</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;person_id&quot;                   &quot;gender_concept_id&quot;          </span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;year_of_birth&quot;               &quot;month_of_birth&quot;             </span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;day_of_birth&quot;                &quot;birth_datetime&quot;             </span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;race_concept_id&quot;             &quot;ethnicity_concept_id&quot;       </span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;location_id&quot;                 &quot;provider_id&quot;                </span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; [11] &quot;care_site_id&quot;                &quot;person_source_value&quot;        </span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; [13] &quot;gender_source_value&quot;         &quot;gender_source_concept_id&quot;   </span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; [15] &quot;race_source_value&quot;           &quot;race_source_concept_id&quot;     </span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; [17] &quot;ethnicity_source_value&quot;      &quot;ethnicity_source_concept_id&quot;</span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(<span class="fu">attr</span>(cdm, <span class="st">&quot;dbcon&quot;</span>), <span class="st">&quot;SELECT * FROM person LIMIT 5&quot;</span>)</span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;   person_id gender_concept_id year_of_birth month_of_birth day_of_birth</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 1         6              8532          1963             12           31</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 2       123              8507          1950              4           12</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 3       129              8507          1974             10            7</span></span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 4        16              8532          1971             10           13</span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 5        65              8532          1967              3           31</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;   birth_datetime race_concept_id ethnicity_concept_id location_id provider_id</span></span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 1     1963-12-31            8516                    0          NA          NA</span></span>
-<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; 2     1950-04-12            8527                    0          NA          NA</span></span>
-<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; 3     1974-10-07            8527                    0          NA          NA</span></span>
-<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; 4     1971-10-13            8527                    0          NA          NA</span></span>
-<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; 5     1967-03-31            8516                    0          NA          NA</span></span>
-<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt;   care_site_id                  person_source_value gender_source_value</span></span>
-<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 1           NA 001f4a87-70d0-435c-a4b9-1425f6928d33                   F</span></span>
-<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; 2           NA 052d9254-80e8-428f-b8b6-69518b0ef3f3                   M</span></span>
-<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; 3           NA 054d32d5-904f-4df4-846b-8c08d165b4e9                   M</span></span>
-<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; 4           NA 00444703-f2c9-45c9-a247-f6317a43a929                   F</span></span>
-<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; 5           NA 02a3dad9-f9d5-42fb-8074-c16d45b4f5c8                   F</span></span>
-<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt;   gender_source_concept_id race_source_value race_source_concept_id</span></span>
-<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; 1                        0             black                      0</span></span>
-<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; 2                        0             white                      0</span></span>
-<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; 3                        0             white                      0</span></span>
-<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; 4                        0             white                      0</span></span>
-<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; 5                        0             black                      0</span></span>
-<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;   ethnicity_source_value ethnicity_source_concept_id</span></span>
-<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; 1            west_indian                           0</span></span>
-<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; 2                italian                           0</span></span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; 3                 polish                           0</span></span>
-<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt; 4               american                           0</span></span>
-<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt; 5              dominican                           0</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#DBI::dbListTables(cdmCon(cdm))</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#DBI::dbListFields(cdmCon(cdm), &quot;person&quot;)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#DBI::dbGetQuery(cdmCon(cdm), &quot;SELECT * FROM person LIMIT 5&quot;)</span></span></code></pre></div>
 </div>
 </div>
 <div id="cohort-attributes" class="section level2">
@@ -469,33 +416,28 @@ analysis.</p>
 <span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df61b1c69b.duckdb]</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1…</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 795, 2909, 3278, 4462, 5299, 759, 1588, 1670, 272…</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 1982-09-03, 1986-09-22, 1994-02-17, 1990-10-23, …</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; 2018-12-17, 2007-07-23, 2019-06-10, 2018-04-27, …</span></span></code></pre></div>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpVYlDWC/file16db19b6e603.duckdb]</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2…</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 304, 651, 807, 2005, 2256, 2674, 648, 2116, 2654,…</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 1998-05-03, 2012-06-08, 1994-11-04, 2010-02-12, …</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; 2019-06-17, 2018-12-06, 2019-03-19, 2019-05-25, …</span></span></code></pre></div>
 <p>We have a cohort set attribute that gives details on the settings
 associated with the cohorts (along with utility functions to make it
 easier to access this attribute).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_set&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;study_cohorts_set&gt; [2 x 6]</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df61b1c69b.duckdb]</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpVYlDWC/file16db19b6e603.duckdb]</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name limit prior_observation future_observation</span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;             &lt;dbl&gt;              &lt;dbl&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1                    2 celecoxib   first                 0                  0</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 2                    1 gi_bleed    first                 0                  0</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 1                    1 gi_bleed    first                 0                  0</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 2                    2 celecoxib   first                 0                  0</span></span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: end &lt;chr&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">cohortSet</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>study_cohorts)</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts) </span></code></pre></div>
 <p>We have a cohort_count attribute with counts for each of the
 cohorts.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cohort_count&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;study_cohorts_count&gt; [2 x 3]</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df61b1c69b.duckdb]</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; 2                    2           1800            1800</span></span></code></pre></div>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>study_cohorts)</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
 <p>And we also have an attribute, cohort attrition, with a summary of
@@ -507,69 +449,90 @@ attrition when creating the cohorts.</p>
 the cohorts. This is particularly useful when developing analytic
 packages on top of CDMConnector.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>study_cohorts, <span class="st">&quot;cdm_reference&quot;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; # OMOP CDM reference (tbl_duckdb_connection)</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death, note, note_nlp, specimen, fact_relationship, location, care_site, provider, payer_plan_period, cost, drug_era, dose_era, condition_era, metadata, cdm_source, concept, vocabulary, domain, concept_class, concept_relationship, relationship, concept_synonym, concept_ancestor, source_to_concept_map, drug_strength, study_cohorts</span></span></code></pre></div>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; • cohort tables: study_cohorts</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 </div>
 <div id="creating-a-bespoke-cohort" class="section level3">
 <h3>Creating a bespoke cohort</h3>
 <p>Say we create a custom GI bleed cohort with the standard cohort
 structure</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>cdm<span class="sc">$</span>GI_bleed <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>cdm<span class="sc">$</span>gi_bleed <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">filter</span>(condition_concept_id <span class="sc">==</span> <span class="dv">192671</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="fu">select</span>(cohort_definition_id, person_id,</span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>         condition_start_date, condition_end_date) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">&quot;subject_id&quot;</span> <span class="ot">=</span> <span class="st">&quot;person_id&quot;</span>, </span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>         <span class="st">&quot;cohort_start_date&quot;</span> <span class="ot">=</span> <span class="st">&quot;condition_start_date&quot;</span>, </span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>         <span class="st">&quot;cohort_end_date&quot;</span> <span class="ot">=</span> <span class="st">&quot;condition_end_date&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  <span class="fu">compute_query</span>(<span class="at">temporary =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>                <span class="at">schema =</span> write_schema,</span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>                <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>cdm<span class="sc">$</span>GI_bleed <span class="sc">%&gt;%</span> </span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//Rtmp82siT4/file18df61b1c69b.duckdb]</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
-<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
-<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
-<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …</span></span></code></pre></div>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>    cohort_definition_id, </span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>    <span class="at">subject_id =</span> person_id, </span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>    <span class="at">cohort_start_date =</span> condition_start_date, </span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>    <span class="at">cohort_end_date =</span> condition_start_date</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;gi_bleed&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>cdm<span class="sc">$</span>gi_bleed <span class="sc">%&gt;%</span> </span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v0.9.2 [root@Darwin 23.0.0:R 4.3.1//var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T//RtmpVYlDWC/file16db19b6e603.duckdb]</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt; $ cohort_end_date      &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span></code></pre></div>
 <p>We can add the required attributes using the
 <code>newGeneratedCohortSet</code> function. The minimum requirement for
 this is that we also define the cohort set to associate with our set of
 custom cohorts.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>GI_bleed_cohort_ref <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1</span>,</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>                                  <span class="at">cohort_name =</span> <span class="st">&quot;custom_gi_bleed&quot;</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>cdm<span class="sc">$</span>GI_bleed <span class="ot">&lt;-</span> <span class="fu">newGeneratedCohortSet</span>(<span class="at">cohortRef =</span> cdm<span class="sc">$</span>GI_bleed, </span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>                                      <span class="at">cohortSetRef =</span> GI_bleed_cohort_ref, </span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>                                      <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>GI_bleed_cohort_ref <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1</span>, <span class="at">cohort_name =</span> <span class="st">&quot;custom_gi_bleed&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>cdm<span class="sc">$</span>gi_bleed <span class="ot">&lt;-</span> omopgenerics<span class="sc">::</span><span class="fu">newCohortTable</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">table =</span> cdm<span class="sc">$</span>gi_bleed, <span class="at">cohortSetRef =</span> GI_bleed_cohort_ref</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Now our custom cohort GI_bleed has the same attributes associated
 with it as if it had been created by
 <code>generateConceptCohortSet</code>. This will mean that it can be
 used by analytic packages designed to work with cdm cohorts.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>GI_bleed)</span>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>gi_bleed)</span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt; &lt;chr&gt;          </span></span>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; 1                    1 custom_gi_bleed</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>GI_bleed)</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>gi_bleed)</span>
 <span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
 <span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
 <span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
-<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>GI_bleed)</span>
-<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt;          &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;           </span></span>
-<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Qualifying init…</span></span>
-<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;dbl&gt;, excluded_subjects &lt;dbl&gt;</span></span>
-<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>GI_bleed, <span class="st">&quot;cdm_reference&quot;</span>)</span>
-<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt; # OMOP CDM reference (tbl_duckdb_connection)</span></span>
-<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="co">#&gt; Tables: person, observation_period, visit_occurrence, visit_detail, condition_occurrence, drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death, note, note_nlp, specimen, fact_relationship, location, care_site, provider, payer_plan_period, cost, drug_era, dose_era, condition_era, metadata, cdm_source, concept, vocabulary, domain, concept_class, concept_relationship, relationship, concept_synonym, concept_ancestor, source_to_concept_map, drug_strength, study_cohorts, GI_bleed</span></span></code></pre></div>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="fu">cohortAttrition</span>(cdm<span class="sc">$</span>gi_bleed)</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; Warning: `cohortAttrition()` was deprecated in CDMConnector 1.3.</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `attrition()` instead.</span></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Initial qualify…</span></span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a><span class="fu">attr</span>(cdm<span class="sc">$</span>gi_bleed, <span class="st">&quot;cdm_reference&quot;</span>)</span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb17-27"><a href="#cb17-27" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
+<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
+<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
+<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
+<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
+<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a><span class="co">#&gt; • cohort tables: study_cohorts, gi_bleed</span></span>
+<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <div style="margin-bottom:3cm;">
 
 </div>
