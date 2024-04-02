@@ -6,6 +6,7 @@ if (!eunomia_is_available()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
+  eval = rlang::is_installed("duckdb"),
   comment = "#>"
 )
 

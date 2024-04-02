@@ -2,7 +2,7 @@
 
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = rlang::is_installed("CirceR") && rlang::is_installed("Capr"),
+  eval = rlang::is_installed("CirceR") & rlang::is_installed("Capr") & rlang::is_installed("duckdb"),
   comment = "#>"
 )
 

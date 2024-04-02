@@ -85,8 +85,7 @@ test_generate_concept_cohort_set <- function(con, cdm_schema, write_schema) {
   })
 
   # default (with descendants) ----
-  if (FALSE) {
-    # if (rlang::is_installed("Capr")) { # failing for some reason. gives different results.
+    if (rlang::is_installed("Capr")) {
     # we need Capr to include descendants
     cdm <- generateConceptCohortSet(
       cdm = cdm,
@@ -111,13 +110,16 @@ test_generate_concept_cohort_set <- function(con, cdm_schema, write_schema) {
       dplyr::arrange(.data$cohort_definition_id, .data$subject_id, .data$cohort_start_date, .data$cohort_end_date) %>%
       dplyr::mutate_if(~ "integer64" %in% class(.), as.integer)
 
-    # setdiff(unique(expected$subject_id), unique(actual$subject_id))
-    # setdiff(unique(actual$subject_id), unique(expected$subject_id))
+    setdiff(unique(expected$subject_id), unique(actual$subject_id))
+    setdiff(unique(actual$subject_id), unique(expected$subject_id))
     expect_true(nrow(expected) > 0)
     expect_true(nrow(actual) == nrow(expected))
 
+    # note cohort table should be the same
+    # but some attributes might differ (e.g. cohort attrition)
     expect_setequal(unique(expected$subject_id), unique(actual$subject_id))
-    expect_equal(actual, expected)
+    expect_equal(cohortCount(cdm$gibleed),
+                 cohortCount(cdm$gibleed2))
   }
 
   # all occurrences (no descendants) ----
@@ -203,6 +205,25 @@ test_generate_concept_cohort_set <- function(con, cdm_schema, write_schema) {
   attr(actual, 'cohort_set') <- attr(expected, 'cohort_set') <- NULL
   expect_equal(actual, expected)
 
+  # multiple cohort generation ------
+  cohort <- readCohortSet(system.file("cohorts3", package = "CDMConnector"))
+  cdm <- generateCohortSet(cdm, cohortSet = cohort, name = "gibleed2",
+                             overwrite = TRUE)
+
+  cdm <- generateConceptCohortSet(
+    cdm = cdm,
+    conceptSet = list("acetaminophen_1" = 1127433,
+                      "acetaminophen_2" = 1127433),
+    name = "acetaminophen",
+    limit = "all",
+    end = "event_end_date",
+    overwrite = TRUE
+  )
+  # should have two identical cohorts
+  expect_equal(length(cohortCount(cdm$acetaminophen)  %>%
+    dplyr::select("number_records") |>
+    dplyr::distinct() |>
+    dplyr::pull()), 1)
 
   # cohort generation with a cohort subset ------
   # create our main cohort of interest
@@ -291,6 +312,7 @@ for (dbtype in dbToTest) {
 
 
 test_that("missing domains produce warning", {
+  skip_on_cran()
   skip_if_not_installed("duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(eunomia_dir()))
   cdm <- cdm_from_con(
@@ -307,6 +329,7 @@ test_that("missing domains produce warning", {
 })
 
 test_that("Regimen domain does not cause error", {
+  skip_on_cran()
   skip_if_not_installed("duckdb")
   con <- DBI::dbConnect(duckdb::duckdb(eunomia_dir()))
 
@@ -328,5 +351,33 @@ test_that("Regimen domain does not cause error", {
   expect_s3_class(cdm$cohort, "GeneratedCohortSet")
 
   DBI::dbDisconnect(con, shutdown = TRUE)
+})
+
+test_that("Eunomia", {
+  skip_on_cran()
+  skip_if_not_installed("duckdb")
+  skip_if_not(eunomia_is_available())
+
+  # edge case with overlaps (issue 420)
+  db <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
+  cdm <- cdm_from_con(
+    con = db,
+    cdm_schema = "main",
+    write_schema = "main"
+  )
+
+ expect_no_error(cdm <- cdm %>%
+    generate_concept_cohort_set(concept_set = list("acetaminophen" = c(1125315,
+                                                                       1127078,
+                                                                       1127433,
+                                                                       40229134,
+                                                                       40231925,
+                                                                       40162522,
+                                                                       19133768)),
+                                limit = "all",
+                                end = "event_end_date",
+                                name = "acetaminophen",
+                                overwrite = TRUE))
+
 })
 

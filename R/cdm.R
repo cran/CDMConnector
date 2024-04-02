@@ -15,6 +15,8 @@
 #'.  field in the CDM_SOURCE table will be used.
 #' @param achilles_schema,achillesSchema An optional schema in the CDM database
 #' that contains achilles tables.
+#' @param .soft_validation,.softValidation If TRUE fewer validation checks will
+#' be performed.
 #'
 #' @return A list of dplyr database table references pointing to CDM tables
 #' @importFrom dplyr all_of matches starts_with ends_with contains
@@ -25,7 +27,8 @@ cdm_from_con <- function(con,
                          cohort_tables = NULL,
                          cdm_version = "5.3",
                          cdm_name = NULL,
-                         achilles_schema = NULL) {
+                         achilles_schema = NULL,
+                         .soft_validation = FALSE) {
 
   if (!DBI::dbIsValid(con)) {
     cli::cli_abort("The connection is not valid. Is the database connection open?")
@@ -44,7 +47,7 @@ cdm_from_con <- function(con,
   checkmate::assert_character(achilles_schema, min.len = 1, max.len = 3, any.missing = F, null.ok = TRUE)
   checkmate::assert_choice(cdm_version, choices = c("5.3", "5.4", "auto"), null.ok = TRUE)
 
-  # create source object and validate connecion
+  # create source object and validate connection
   src <- dbSource(con = con, writeSchema = write_schema)
   con <- attr(src, "dbcon")
 
@@ -86,7 +89,7 @@ cdm_from_con <- function(con,
   if (!is.null(achilles_schema)) {
     achillesReqTables <- omopgenerics::achillesTables()
     acTables <- listTables(con, schema = achilles_schema)
-    achilles_tables <- achillesReqTables[which(achillesReqTables %in% tolower(acTables))]
+    achilles_tables <- acTables[which(tolower(acTables) %in% achillesReqTables)]
     if (length(achilles_tables) != 3) {
       cli::cli_abort("Achilles tables not found in {achilles_schema}!")
     }
@@ -124,7 +127,8 @@ cdm_from_con <- function(con,
     cdm[[cohort_table]] <- cdm[[cohort_table]] |>
       omopgenerics::newCohortTable(
         cohortSetRef = x[[2]],
-        cohortAttritionRef = x[[3]]
+        cohortAttritionRef = x[[3]],
+        .softValidation = .soft_validation
       )
   }
 
@@ -180,7 +184,8 @@ cdmFromCon <- function(con,
                        cohortTables = NULL,
                        cdmVersion = "5.3",
                        cdmName = NULL,
-                       achillesSchema = NULL) {
+                       achillesSchema = NULL,
+                       .softValidation = FALSE) {
   cdm_from_con(
     con = con,
     cdm_schema = cdmSchema,
@@ -188,7 +193,8 @@ cdmFromCon <- function(con,
     cohort_tables = cohortTables,
     cdm_version = cdmVersion,
     cdm_name = cdmName,
-    achilles_schema = achillesSchema
+    achilles_schema = achillesSchema,
+    .soft_validation = .softValidation
   )
 }
 
@@ -338,6 +344,10 @@ verify_write_access <- function(con, write_schema, add = NULL) {
   })
 
   DBI::dbRemoveTable(con, inSchema(write_schema, tablename, dbms = dbms(con)))
+
+  if (tablename %in% list_tables(con, write_schema)) {
+    cli::cli_inform("Write access verified but temp table `{name}` was not properly dropped!")
+  }
 
   if (!isTRUE(all.equal(df1, df2))) {
     msg <- paste("Write access to schema", write_schema, "could not be verified.")
