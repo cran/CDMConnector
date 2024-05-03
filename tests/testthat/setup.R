@@ -165,7 +165,7 @@ ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake")
 if (Sys.getenv("CI_TEST_DB") == "") {
 
   dbToTest <- c(
-    "duckdb"
+     "duckdb"
     # ,
     # "postgres"
     # ,
@@ -206,3 +206,4 @@ if (!rlang::is_installed("duckdb")) {
   dbToTest <- dbToTest[dbToTest != "duckdb"]
   print("CI tests not run on snowflake - duckdb package is not installed")
 }
+

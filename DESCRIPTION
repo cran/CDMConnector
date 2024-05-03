@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 1.3.2
+Version: 1.4.0
 Authors@R: c(
     person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -21,27 +21,29 @@ Depends: R (>= 4.0)
 Imports: dplyr, DBI (>= 0.3.0), checkmate, dbplyr (>= 2.4.0), cli,
         purrr, rlang, tidyselect, readr, glue, waldo, methods, withr,
         lifecycle, jsonlite, stringr, stringi, fs, generics, tidyr,
-        omopgenerics (>= 0.0.2)
-Suggests: SqlRender, rJava, covr, knitr, rmarkdown, duckdb, RSQLite,
-        RPostgres, odbc, ggplot2, bigrquery, DatabaseConnector,
-        lubridate, tibble, testthat (>= 3.0.0), pool, snakecase, visR
-Enhances: arrow, CirceR, Capr
+        omopgenerics (>= 0.1.2)
+Suggests: SqlRender, CirceR, rJava, covr, knitr, rmarkdown, duckdb,
+        RSQLite, RPostgres, odbc, ggplot2, bigrquery,
+        DatabaseConnector, lubridate, tibble, testthat (>= 3.0.0),
+        pool, snakecase, visR, palmerpenguins, tictoc
+Enhances: arrow, Capr
 Config/testthat/edition: 3
 Config/testthat/parallel: false
 VignetteBuilder: knitr
 Additional_repositories: https://OHDSI.github.io/drat
-Collate: 'CDMConnector-package.R' 'Eunomia.R' 'cdm.R' 'cdmSubset.R'
-        'cdm_from_environment.R' 'cohortTransformations.R'
-        'cohort_ddl.R' 'compute.R' 'copy_cdm_to.R' 'dateadd.R'
-        'dbSource.R' 'reexports-omopgenerics.R' 'generateCohortSet.R'
+Collate: 'CDMConnector-package.R' 'Eunomia.R' 'benchmarkCDMConnector.R'
+        'cdm.R' 'cdmSubset.R' 'cdm_from_environment.R'
+        'cohortTransformations.R' 'cohort_ddl.R' 'compute.R'
+        'copy_cdm_to.R' 'dateadd.R' 'dbSource.R'
+        'reexports-omopgenerics.R' 'generateCohortSet.R'
         'generateConceptCohortSet.R' 'summariseQuantile.R' 'utils.R'
         'validate.R' 'zzz-deprecated.R'
 NeedsCompilation: no
-Packaged: 2024-04-30 15:12:40 UTC; adamblack
+Packaged: 2024-05-03 10:17:59 UTC; adamblack
 Author: Adam Black [aut, cre] (<https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
   Marti Catala Sabate [aut]
 Maintainer: Adam Black <black@ohdsi.org>
 Repository: CRAN
-Date/Publication: 2024-05-01 14:32:08 UTC
+Date/Publication: 2024-05-03 12:50:07 UTC

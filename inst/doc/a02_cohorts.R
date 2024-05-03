@@ -110,7 +110,6 @@ cdm$cohort_subset <- cdm$cohort %>%
 
 cohort_count(cdm$cohort_subset)
 
-
 ## -----------------------------------------------------------------------------
 days_in_cohort <- cdm$cohort %>% 
   filter(cohort_definition_id %in% c(1,5)) %>% 
