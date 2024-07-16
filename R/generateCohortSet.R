@@ -123,9 +123,7 @@ readCohortSet <- read_cohort_set
 #'   specified.
 #' @param name Name of the cohort table to be created. This will also be used
 #' as a prefix for the cohort attribute tables.
-#' @param cohort_set,cohortSet Can be a cohortSet object created with `readCohortSet()`,
-#' a single Capr cohort definition,
-#' or a named list of Capr cohort definitions.
+#' @param cohort_set,cohortSet Can be a cohortSet object created with `readCohortSet()`
 #' @param compute_attrition,computeAttrition Should attrition be computed? TRUE (default) or FALSE
 #' @param overwrite Should the cohort table be overwritten if it already
 #' exists? TRUE (default) or FALSE
@@ -155,27 +153,33 @@ generateCohortSet <- function(cdm,
   rlang::check_installed("CirceR")
   rlang::check_installed("SqlRender")
 
+
   if (!is.data.frame(cohortSet)) {
-    if (!is.list(cohortSet)) {
-      rlang::abort("cohortSet must be a dataframe or a named list of Capr cohort definitions")
-    }
-
-    checkmate::assertList(cohortSet,
-                          types = "Cohort",
-                          min.len = 1,
-                          names = "strict",
-                          any.missing = FALSE)
-
-    cohortSet <- dplyr::tibble(
-      cohort_definition_id = seq_along(cohortSet),
-      cohort_name = names(cohortSet),
-      cohort = purrr::map(cohortSet, ~jsonlite::fromJSON(generics::compile(.), simplifyVector = FALSE)),
-      json = purrr::map_chr(cohortSet, generics::compile)
-    )
-    class(cohortSet) <- c("CohortSet", class(cohortSet))
+    rlang::abort("`cohortSet` must be a dataframe from the output of `readCohortSet()`.")
   }
 
+  # if (!is.data.frame(cohortSet)) {
+  #   if (!is.list(cohortSet)) {
+  #     rlang::abort("cohortSet must be a dataframe or a named list of Capr cohort definitions")
+  #   }
+  #
+  #   checkmate::assertList(cohortSet,
+  #                         types = "Cohort",
+  #                         min.len = 1,
+  #                         names = "strict",
+  #                         any.missing = FALSE)
+  #
+  #   cohortSet <- dplyr::tibble(
+  #     cohort_definition_id = seq_along(cohortSet),
+  #     cohort_name = names(cohortSet),
+  #     cohort = purrr::map(cohortSet, ~jsonlite::fromJSON(generics::compile(.), simplifyVector = FALSE)),
+  #     json = purrr::map_chr(cohortSet, generics::compile)
+  #   )
+  #   class(cohortSet) <- c("CohortSet", class(cohortSet))
+  # }
+
   checkmate::assertDataFrame(cohortSet, min.rows = 1, col.names = "named")
+  stopifnot(all(c("cohort_definition_id", "cohort_name", "cohort", "json") %in% names(cohortSet)))
 
   cli::cli_alert_info("Generating {nrow(cohortSet)} cohort{?s}")
   withr::local_options(list("cli.progress_show_after" = 0, "cli.progress_clear" = FALSE))
@@ -185,9 +189,6 @@ generateCohortSet <- function(cdm,
   con <- cdmCon(cdm)
   checkmate::assertTRUE(DBI::dbIsValid(con))
   checkmate::assert_character(name, len = 1, min.chars = 1, any.missing = FALSE, pattern = "[a-zA-Z0-9_]+")
-
-  assert_write_schema(cdm)
-
   checkmate::assertLogical(computeAttrition, len = 1)
   checkmate::assertLogical(overwrite, len = 1)
 
@@ -203,8 +204,6 @@ generateCohortSet <- function(cdm,
   } else {
     prefix <- ""
   }
-
-
 
   # Handle OHDSI cohort sets
   if ("cohortId" %in% names(cohortSet) && !("cohort_definition_id" %in% names(cohortSet))) {
@@ -241,7 +240,7 @@ generateCohortSet <- function(cdm,
   for (x in paste0(name, c("", "_count", "_set", "_attrition"))) {
     if (x %in% existingTables) {
       if (overwrite) {
-        DBI::dbRemoveTable(con, inSchema(write_schema, x, dbms = dbms(con)))
+        DBI::dbRemoveTable(con, .inSchema(write_schema, x, dbms = dbms(con)))
       } else {
         cli::cli_abort("The cohort table {paste0(prefix, name)} already exists.\nSpecify overwrite = TRUE to overwrite it.")
       }
@@ -364,18 +363,40 @@ generateCohortSet <- function(cdm,
     # --([^\n])*?\n => match strings starting with -- followed by anything except a newline
     sql <- stringr::str_replace_all(sql, "--([^\n])*?\n", "\n")
 
-    sql <- SqlRender::translate(sql,
-                                targetDialect = CDMConnector::dbms(con),
-                                tempEmulationSchema = "SQL ERROR")
+    if (dbms(con) != "spark") {
+      sql <- SqlRender::translate(sql,
+                                  targetDialect = CDMConnector::dbms(con),
+                                  tempEmulationSchema = "SQL ERROR")
 
-    if (stringr::str_detect(sql, "SQL ERROR")) {
-      cli::cli_abort("sqlRenderTempEmulationSchema being used for cohort generation!
+      if (stringr::str_detect(sql, "SQL ERROR")) {
+        cli::cli_abort("sqlRenderTempEmulationSchema being used for cohort generation!
         Please open a github issue at {.url https://github.com/darwin-eu/CDMConnector/issues} with your cohort definition.")
+      }
+    } else {
+      # we need temp emulation on spark as there are no temp tables
+
+      if ("schema" %in% names(write_schema)) {
+        s <- unname(write_schema["schema"])
+      } else if (length(write_schema) == 1) {
+        s <- unname(write_schema)
+      } else {
+        s <- unname(write_schema[2])
+      }
+
+      sql <- SqlRender::translate(sql,
+                                  targetDialect = CDMConnector::dbms(con),
+                                  tempEmulationSchema = s)
     }
 
     if (dbms(con) == "duckdb") {
       # hotfix for duckdb sql translation https://github.com/OHDSI/SqlRender/issues/340
       sql <- gsub("'-1 \\* (\\d+) day'", "'-\\1 day'", sql)
+    }
+
+    if (dbms(con) == "spark") {
+      # issue with date add translation on spark
+      sql <- stringr::str_replace_all(sql, "date_add", "dateadd")
+      sql <- stringr::str_replace_all(sql, "DATE_ADD", "DATEADD")
     }
 
     sql <- stringr::str_replace_all(sql, "\\s+", " ")
@@ -384,6 +405,15 @@ generateCohortSet <- function(cdm,
       stringr::str_trim() %>%
       stringr::str_c(";") %>% # remove empty statements
       stringr::str_subset("^;$", negate = TRUE)
+
+    # drop temp tables if they already exist
+    drop_statements <- stringr::str_subset(sql, "DROP TABLE") %>%
+      stringr::str_replace("DROP TABLE", "DROP TABLE IF EXISTS") %>%
+      purrr::map_chr(~SqlRender::translate(., dbms(con)))
+
+    for (k in seq_along(drop_statements)) {
+      DBI::dbExecute(con, drop_statements[k], immediate = TRUE)
+    }
 
     for (k in seq_along(sql)) {
       # cli::cat_rule(glue::glue("sql {k} with {nchar(sql[k])} characters."))
@@ -402,7 +432,7 @@ generateCohortSet <- function(cdm,
     generate(i)
   }
 
-  cohort_ref <- dplyr::tbl(con, inSchema(write_schema, name, dbms = dbms(con)))
+  cohort_ref <- dplyr::tbl(con, .inSchema(write_schema, name, dbms = dbms(con)))
 
   # Create attrition attribute ----
   if (computeAttrition) {
@@ -710,14 +740,14 @@ computeAttritionTable <- function(cdm,
 
   if (paste0(cohortStem, "_attrition") %in% listTables(con, schema = schema)) {
     if (overwrite) {
-      DBI::dbRemoveTable(con, inSchema(schema, paste0(cohortStem, "_attrition"), dbms = dbms(con)))
+      DBI::dbRemoveTable(con, .inSchema(schema, paste0(cohortStem, "_attrition"), dbms = dbms(con)))
     } else {
       rlang::abort(paste0(cohortStem, "_attrition already exists in the database. Set overwrite = TRUE."))
     }
   }
 
   # Bring the inclusion result table to R memory
-  inclusionResult <- dplyr::tbl(con, inSchema(schema, inclusionResultTableName, dbms(con))) %>%
+  inclusionResult <- dplyr::tbl(con, .inSchema(schema, inclusionResultTableName, dbms(con))) %>%
     dplyr::collect() %>%
     dplyr::rename_all(tolower) %>%
     dplyr::mutate(inclusion_rule_mask = as.numeric(.data$inclusion_rule_mask))
@@ -744,13 +774,13 @@ computeAttritionTable <- function(cdm,
       cohortTableName <- cohortStem
       attrition <- dplyr::tibble(
         cohort_definition_id = id,
-        number_records = dplyr::tbl(con, inSchema(schema, cohortTableName, dbms(con))) %>%
+        number_records = dplyr::tbl(con, .inSchema(schema, cohortTableName, dbms(con))) %>%
           dplyr::rename_all(tolower) %>%
           dplyr::filter(.data$cohort_definition_id == id) %>%
           dplyr::tally() %>%
           dplyr::pull("n") %>%
           as.numeric(),
-        number_subjects = dplyr::tbl(con, inSchema(schema, cohortTableName, dbms(con))) %>%
+        number_subjects = dplyr::tbl(con, .inSchema(schema, cohortTableName, dbms(con))) %>%
           dplyr::rename_all(tolower) %>%
           dplyr::filter(.data$cohort_definition_id == id) %>%
           dplyr::select("subject_id") %>%
@@ -812,10 +842,10 @@ computeAttritionTable <- function(cdm,
 
   # upload attrition table to database
   DBI::dbWriteTable(con,
-                    name = inSchema(schema, paste0(cohortStem, "_attrition"), dbms = dbms(con)),
+                    name = .inSchema(schema, paste0(cohortStem, "_attrition"), dbms = dbms(con)),
                     value = attrition)
 
-  dplyr::tbl(con, inSchema(schema, paste0(cohortStem, "_attrition"), dbms(con))) %>%
+  dplyr::tbl(con, .inSchema(schema, paste0(cohortStem, "_attrition"), dbms(con))) %>%
     dplyr::rename_all(tolower)
 }
 

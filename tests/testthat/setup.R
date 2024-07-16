@@ -13,15 +13,16 @@ tryCatch({
 get_connection <- function(dbms, DatabaseConnector = FALSE) {
 
   if (DatabaseConnector) {
-    stop(dbms %in% c("postgres"), rlang::is_installed("DatabaseConnector"))
+    stopifnot(dbms %in% c("postgres"), rlang::is_installed("DatabaseConnector"))
 
 
     if (dbms == "postgres") {
 
-      DatabaseConnector::connect(dbms = "postgresql",
-                                 server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-                                 user = Sys.getenv("CDM5_POSTGRESQL_USER"),
-                                 password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
+      return(DatabaseConnector::connect(
+        dbms = "postgresql",
+        server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
+        user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+        password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
 
     }
 
@@ -99,8 +100,16 @@ get_connection <- function(dbms, DatabaseConnector = FALSE) {
                           DRIVER = Sys.getenv("SNOWFLAKE_DRIVER")))
   }
 
-  if (dbms == "spark" && "Databricks" %in% odbc::odbcListDataSources()$name) {
-    return(DBI::dbConnect(odbc::odbc(), "Databricks", bigint = "numeric"))
+  if (dbms == "spark" && Sys.getenv("DATABRICKS_HTTPPATH") != "") {
+    # requires two other environment variables: DATABRICKS_HOST and DATABRICKS_TOKEN
+    message("connecting to databricks")
+    con <- DBI::dbConnect(
+      odbc::databricks(),
+      httpPath = Sys.getenv("DATABRICKS_HTTPPATH"),
+      useNativeQuery = FALSE,
+      bigint = "numeric"
+    )
+    return(con)
   }
 
   rlang::abort("Could not create connection. Are some environment variables missing?")
@@ -116,7 +125,7 @@ get_cdm_schema <- function(dbms) {
           "duckdb" = "main",
           "bigquery" = Sys.getenv("BIGQUERY_CDM_SCHEMA"),
           "snowflake" = strsplit(Sys.getenv("SNOWFLAKE_CDM_SCHEMA"), "\\.")[[1]],
-          "spark" = Sys.getenv("SPARK_CDM_SCHEMA"),
+          "spark" = Sys.getenv("DATABRICKS_CDM_SCHEMA"),
           NULL
   )
   if (length(s) == 0) s <- ""
@@ -133,7 +142,7 @@ get_write_schema <- function(dbms, prefix = paste0("temp", floor(as.numeric(Sys.
           "duckdb" = "main",
           "bigquery" = Sys.getenv("BIGQUERY_SCRATCH_SCHEMA"),
           "snowflake" = strsplit(Sys.getenv("SNOWFLAKE_SCRATCH_SCHEMA"), "\\.")[[1]],
-          "spark" = Sys.getenv("SPARK_SCRATCH_SCHEMA"),
+          "spark" = Sys.getenv("DATABRICKS_SCRATCH_SCHEMA"),
           NULL
   )
   if (length(s) == 0) s <- ""
@@ -184,6 +193,7 @@ if (Sys.getenv("CI_TEST_DB") == "") {
   print(paste("running CI tests on ", dbToTest))
 }
 
+testUsingDatabaseConnector <- FALSE
 
 # make sure we're only trying to test on dbs we have connection details for
 if ("postgres" %in% dbToTest & Sys.getenv("CDM5_POSTGRESQL_SERVER") == "") {
@@ -206,4 +216,7 @@ if (!rlang::is_installed("duckdb")) {
   dbToTest <- dbToTest[dbToTest != "duckdb"]
   print("CI tests not run on snowflake - duckdb package is not installed")
 }
-
+if ("spark" %in% dbToTest & Sys.getenv("DATABRICKS_HTTPPATH") == "") {
+  dbToTest <- dbToTest[dbToTest != "spark"]
+  print("CI tests not run on spark/databricks - DATABRICKS_HTTPPATH not found")
+}

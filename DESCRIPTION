@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 1.4.0
+Version: 1.5.0
 Authors@R: c(
     person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -18,19 +18,18 @@ BugReports: https://github.com/darwin-eu/CDMConnector/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Depends: R (>= 4.0)
-Imports: dplyr, DBI (>= 0.3.0), checkmate, dbplyr (>= 2.4.0), cli,
+Imports: dplyr, dbplyr (>= 2.5.0), DBI (>= 0.3.0), checkmate, cli,
         purrr, rlang, tidyselect, readr, glue, waldo, methods, withr,
         lifecycle, jsonlite, stringr, stringi, fs, generics, tidyr,
         omopgenerics (>= 0.1.2)
 Suggests: SqlRender, CirceR, rJava, covr, knitr, rmarkdown, duckdb,
         RSQLite, RPostgres, odbc, ggplot2, bigrquery,
-        DatabaseConnector, lubridate, tibble, testthat (>= 3.0.0),
-        pool, snakecase, visR, palmerpenguins, tictoc
-Enhances: arrow, Capr
+        DatabaseConnector, lubridate, clock, tibble, testthat (>=
+        3.0.0), pool, snakecase, palmerpenguins, tictoc
+Enhances: arrow
 Config/testthat/edition: 3
 Config/testthat/parallel: false
 VignetteBuilder: knitr
-Additional_repositories: https://OHDSI.github.io/drat
 Collate: 'CDMConnector-package.R' 'Eunomia.R' 'benchmarkCDMConnector.R'
         'cdm.R' 'cdmSubset.R' 'cdm_from_environment.R'
         'cohortTransformations.R' 'cohort_ddl.R' 'compute.R'
@@ -39,11 +38,11 @@ Collate: 'CDMConnector-package.R' 'Eunomia.R' 'benchmarkCDMConnector.R'
         'generateConceptCohortSet.R' 'summariseQuantile.R' 'utils.R'
         'validate.R' 'zzz-deprecated.R'
 NeedsCompilation: no
-Packaged: 2024-05-03 10:17:59 UTC; adamblack
+Packaged: 2024-07-16 07:51:27 UTC; adamblack
 Author: Adam Black [aut, cre] (<https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
   Marti Catala Sabate [aut]
 Maintainer: Adam Black <black@ohdsi.org>
 Repository: CRAN
-Date/Publication: 2024-05-03 12:50:07 UTC
+Date/Publication: 2024-07-16 08:40:02 UTC

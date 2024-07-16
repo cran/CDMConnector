@@ -12,11 +12,11 @@ test_cdm_from_con <- function(con, cdm_schema, write_schema) {
   expect_true(cdmVersion(cdm) %in% c("5.3", "5.4"))
   expect_s3_class(snapshot(cdm), "data.frame")
   expect_true("concept" %in% names(cdm))
-  expect_s3_class(collect(head(cdm$concept)), "data.frame")
+  expect_s3_class(dplyr::collect(head(cdm$concept)), "data.frame")
 
   cdm <- cdm_from_con(con, cdm_schema = cdm_schema, write_schema = write_schema)
   expect_s3_class(cdm, "cdm_reference")
-  expect_error(assert_write_schema(cdm), NA)
+  # expect_error(assert_write_schema(cdm), NA)
   expect_true("concept" %in% names(cdm))
   expect_s3_class(collect(head(cdm$concept)), "data.frame")
   expect_equal(dbms(cdm), dbms(attr(cdm, "dbcon")))
@@ -43,7 +43,7 @@ for (dbtype in dbToTest) {
   test_that(glue::glue("{dbtype} - cdm_from_con"), {
     if (!(dbtype %in% ciTestDbs)) skip_on_ci()
     if (dbtype != "duckdb") skip_on_cran() else skip_if_not_installed("duckdb")
-    con <- get_connection(dbtype)
+    con <- get_connection(dbtype, DatabaseConnector = testUsingDatabaseConnector)
     cdm_schema <- get_cdm_schema(dbtype)
     write_schema <- get_write_schema(dbtype)
     skip_if(any(write_schema == "") || any(cdm_schema == "") || is.null(con))
@@ -215,4 +215,42 @@ test_that("adding achilles", {
                              .softValidation = TRUE)) # passes without validation
 
   DBI::dbDisconnect(con, shutdown = TRUE)
+})
+
+test_that("write_schema argument specification and cdm_disconnect works", {
+  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
+  cdm <- cdm_from_con(con, "main", "main", write_prefix = "tmp_")
+
+  expect_equal(attr(cdm, "write_schema"), c(schema = "main", prefix = "tmp_"))
+
+  cdm_disconnect(cdm)
+})
+
+test_that("schema specification with . works", {
+  skip("manual test")
+  con <- DBI::dbConnect(odbc::odbc(),
+                        SERVER = Sys.getenv("SNOWFLAKE_SERVER"),
+                        UID = Sys.getenv("SNOWFLAKE_USER"),
+                        PWD = Sys.getenv("SNOWFLAKE_PASSWORD"),
+                        DATABASE = Sys.getenv("SNOWFLAKE_DATABASE"),
+                        WAREHOUSE = Sys.getenv("SNOWFLAKE_WAREHOUSE"),
+                        DRIVER = Sys.getenv("SNOWFLAKE_DRIVER"))
+
+  cdm_schema <- Sys.getenv("SNOWFLAKE_CDM_SCHEMA")
+  write_schema <- Sys.getenv("SNOWFLAKE_SCRATCH_SCHEMA")
+
+  cdm <- cdm_from_con(con, cdm_schema, write_schema, write_prefix = "tmp_", cdm_name = "test")
+
+  write_schema_split <- stringr::str_split(write_schema, "\\.")[[1]] %>%
+    purrr::set_names("catalog", "schema") %>%
+    c(., prefix = "tmp_")
+
+  cdm_schema_split <- stringr::str_split(cdm_schema, "\\.")[[1]] %>%
+    purrr::set_names("catalog", "schema")
+
+  expect_equal(attr(cdm, "write_schema"), write_schema_split)
+  expect_equal(attr(cdm, "cdm_schema"), cdm_schema_split)
+
+  DBI::dbDisconnect(con)
+
 })

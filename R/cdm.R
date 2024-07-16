@@ -31,11 +31,75 @@
 #'.  field in the CDM_SOURCE table will be used.
 #' @param achilles_schema,achillesSchema An optional schema in the CDM database
 #' that contains achilles tables.
-#' @param .soft_validation,.softValidation If TRUE fewer validation checks will
-#' be performed.
+#' @param .soft_validation,.softValidation Normally the observation period table should not
+#' have overlapping observation periods for a single person. If `.softValidation` is `TRUE` the
+#' validation check that looks for overlapping observation periods will be skipped.
+#' Other analytic packages may break or produce incorrect results if `softValidation` is `TRUE` and
+#' the observation period table contains overlapping observation periods.
+#'
+#' @param write_prefix,writePrefix A prefix that will be added to all tables created in the write_schema. This
+#' can be used to create namespace in your database write_schema for your tables.
 #'
 #' @return A list of dplyr database table references pointing to CDM tables
+#'
+#' @details
+#' cdm_from_con / cdmFromCon creates a new cdm reference object from a DBI compliant database connection.
+#' In addition to the connection the user needs to pass in the schema in the database where the cdm data can
+#' be found as well as another schema where the user has write access to create tables. Nearly all
+#' downstream analytic packages need the ability to create temporary data in the database so the
+#' write_schema is required.
+#'
+#' Some database systems have the idea of a catalog or a compound schema with two components.
+#' See examples below for how to pass in catalogs and schemas.
+#'
+#' You can also specify a `write_prefix`. This is a short character string that will be added
+#' to any tables created in the `write_schema` effectively a namespace in the schema just for your
+#' analysis. This makes it easy to ensure you do not overwrite someone elses tables if the write_schema is shared
+#' and allows you to easily clean up tables by dropping all tables that start with the prefix.
+#' The prefix is considered part of the write_schema since it is effectively a sub-schema. See examples.
+#'
+#' @examples
+#' \dontrun{
+#' library(CDMConnector)
+#' con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
+#'
+#' # minimal example
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = "main",
+#'                     write_schema = "scratch")
+#'
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = "main",
+#'                     write_schema = "scratch",
+#'                     write_prefix = "tmp_")
+#'
+#' # There are a few differen options for using catalogs
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = "catalog.main",
+#'                     write_schema = "catalog.scratch",
+#'                     write_prefix = "tmp_")
+#'
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = c(catalog = "catalog", schema = "main"),
+#'                     write_schema = c(catalog = "catalog", schema = "scratch"))
+#'
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = c("catalog", "main"),
+#'                     write_schema = c("catalog", "scratch"))
+#'
+#' cdm <- cdm_from_con(con,
+#'                     cdm_schema = c(catalog = "catalog", schema = "main"),
+#'                     write_schema = c(catalog = "catalog",
+#'                                      schema = "scratch",
+#'                                      prefix = "tmp_"))
+#'
+#'  DBI::dbDisconnect(con)
+#'
+#' }
+#'
+#'
 #' @importFrom dplyr all_of matches starts_with ends_with contains
+#' @importFrom stats rpois
 #' @export
 cdm_from_con <- function(con,
                          cdm_schema,
@@ -44,7 +108,8 @@ cdm_from_con <- function(con,
                          cdm_version = "5.3",
                          cdm_name = NULL,
                          achilles_schema = NULL,
-                         .soft_validation = FALSE) {
+                         .soft_validation = FALSE,
+                         write_prefix = NULL) {
 
   if (!DBI::dbIsValid(con)) {
     cli::cli_abort("The connection is not valid. Is the database connection open?")
@@ -62,6 +127,33 @@ cdm_from_con <- function(con,
   checkmate::assert_character(cohort_tables, null.ok = TRUE, min.len = 1)
   checkmate::assert_character(achilles_schema, min.len = 1, max.len = 3, any.missing = F, null.ok = TRUE)
   checkmate::assert_choice(cdm_version, choices = c("5.3", "5.4", "auto"), null.ok = TRUE)
+  checkmate::assert_character(write_prefix, min.chars = 1, any.missing = FALSE, len = 1, null.ok = TRUE)
+
+  # users can give write_schema = "catalog.schema"
+  if (length(write_schema) == 1 && stringr::str_detect(write_schema, "\\.")) {
+    if (stringr::str_count(write_schema, "\\.") != 1) cli::cli_abort("`write_schema` can only have one .")
+    write_schema <- stringr::str_split(write_schema, "\\.")[[1]] %>% purrr::set_names(c("catalog", "schema"))
+  }
+
+  if (length(cdm_schema) == 1 && stringr::str_detect(cdm_schema, "\\.")) {
+    if (stringr::str_count(cdm_schema, "\\.") != 1) cli::cli_abort("`cdm_schema` can only have one .")
+    cdm_schema <- stringr::str_split(cdm_schema, "\\.")[[1]] %>% purrr::set_names(c("catalog", "schema"))
+  }
+
+  if (!is.null(write_prefix)) {
+    if (!rlang::is_named(write_schema)) {
+      if (length(write_schema) == 1) {
+        write_schema <- c("schema" = write_schema)
+      } else if (length(write_schema) == 2) {
+        write_schema <- c("catalog" = write_schema[1], "schema" = write_schema[2])
+      } else {
+        rlang::abort("If `write_schema` is unnamed then it should be length 1 `c(schema)` or 2 `c(catalog, schema)`")
+      }
+    }
+    write_schema["prefix"] <- write_prefix
+  }
+
+
 
   # create source object and validate connection
   src <- dbSource(con = con, writeSchema = write_schema)
@@ -86,34 +178,29 @@ cdm_from_con <- function(con,
   ) %>%
     rlang::set_names(tolower(omop_tables))
 
-  if(is.null(cdm_name)){
-  if("cdm_source" %in% names(cdmTables)){
+  if (is.null(cdm_name) && ("cdm_source" %in% names(cdmTables))) {
     cdm_name <- cdmTables$cdm_source %>%
     utils::head(1) %>%
     dplyr::pull("cdm_source_name")
   }
-  }
 
-  if(is.null(cdm_name) ||
-     length(cdm_name) != 1 ||
-     is.na(cdm_name))  {
-     cli::cli_alert_warning("cdm name not specified and could not be inferred from the cdm source table")
+  if (is.null(cdm_name) || length(cdm_name) != 1 || is.na(cdm_name)) {
+    cli::cli_alert_warning("cdm name not specified and could not be inferred from the cdm source table")
     cdm_name <- "An OMOP CDM database"
-      }
-
+  }
 
   if (!is.null(achilles_schema)) {
     achillesReqTables <- omopgenerics::achillesTables()
     acTables <- listTables(con, schema = achilles_schema)
     achilles_tables <- acTables[which(tolower(acTables) %in% achillesReqTables)]
+
     if (length(achilles_tables) != 3) {
       cli::cli_abort("Achilles tables not found in {achilles_schema}!")
     }
-    achillesTables <- purrr::map(
-      achilles_tables,
-      ~ dplyr::tbl(src = src, schema = achilles_schema, .)
-    ) %>%
+
+    achillesTables <- purrr::map(achilles_tables, ~dplyr::tbl(src = src, schema = achilles_schema, .)) %>%
       rlang::set_names(tolower(achilles_tables))
+
   } else {
     achillesTables <- list()
   }
@@ -121,12 +208,18 @@ cdm_from_con <- function(con,
   cdm <- omopgenerics::newCdmReference(
     tables = c(cdmTables, achillesTables),
     cdmName = cdm_name,
-    cdmVersion = cdm_version
+    cdmVersion = cdm_version,
+    .softValidation = .soft_validation
   )
 
+  # on spark we use permanent tables prefixed with this whenever the user asks for temp tables
+  attr(cdm, "temp_emulation_prefix") <- paste0(
+    "temp", Sys.getpid() + stats::rpois(1, as.integer(Sys.time())) %% 1e6, "_")
+
   write_schema_tables <- listTables(con, schema = write_schema)
+
   for (cohort_table in cohort_tables) {
-    nms <- paste0(cohort_table, c("", "_set", "_attrition"))
+    nms <- paste0(cohort_table, c("", "_set", "_attrition", "_codelist"))
     x <- purrr::map(nms, function(nm) {
       if (nm %in% write_schema_tables) {
         dplyr::tbl(src = src, schema = write_schema, name = nm)
@@ -144,6 +237,7 @@ cdm_from_con <- function(con,
       omopgenerics::newCohortTable(
         cohortSetRef = x[[2]],
         cohortAttritionRef = x[[3]],
+        cohortCodelistRef = x[[4]],
         .softValidation = .soft_validation
       )
   }
@@ -184,7 +278,7 @@ cdm_from_con <- function(con,
 #' @importFrom dplyr tbl
 tbl.db_cdm <- function(src, schema, name, ...) {
   con <- attr(src, "dbcon")
-  fullName <- inSchema(schema = schema, table = name, dbms = dbms(con))
+  fullName <- .inSchema(schema = schema, table = name, dbms = dbms(con))
   x <- dplyr::tbl(src = con, fullName) |>
     dplyr::rename_all(tolower) |>
     omopgenerics::newCdmTable(src = src, name = tolower(name))
@@ -201,7 +295,8 @@ cdmFromCon <- function(con,
                        cdmVersion = "5.3",
                        cdmName = NULL,
                        achillesSchema = NULL,
-                       .softValidation = FALSE) {
+                       .softValidation = FALSE,
+                       writePrefix = NULL) {
   cdm_from_con(
     con = con,
     cdm_schema = cdmSchema,
@@ -226,7 +321,7 @@ detect_cdm_version <- function(con, cdm_schema = NULL) {
   }
 
   cdm <- purrr::map(
-    cdm_tables, ~dplyr::tbl(con, inSchema(cdm_schema, ., dbms(con))) %>%
+    cdm_tables, ~dplyr::tbl(con, .inSchema(cdm_schema, ., dbms(con))) %>%
                       dplyr::rename_all(tolower)) %>%
     rlang::set_names(tolower(cdm_tables))
 
@@ -347,20 +442,20 @@ verify_write_access <- function(con, write_schema, add = NULL) {
   # Note: ROracle does not support integer round trip
   suppressMessages(
     DBI::dbWriteTable(con,
-                      name = inSchema(schema = write_schema, table = tablename, dbms = dbms(con)),
+                      name = .inSchema(schema = write_schema, table = tablename, dbms = dbms(con)),
                       value = df1,
                       overwrite = TRUE)
   )
 
   withr::with_options(list(databaseConnectorIntegerAsNumeric = FALSE), {
-    df2 <- dplyr::tbl(con, inSchema(write_schema, tablename, dbms = dbms(con))) %>%
+    df2 <- dplyr::tbl(con, .inSchema(write_schema, tablename, dbms = dbms(con))) %>%
       dplyr::collect() %>%
       as.data.frame() %>%
       dplyr::rename_all(tolower) %>% # dbWriteTable can create uppercase column names on snowflake
       dplyr::select("chr_col", "numeric_col") # bigquery can reorder columns
   })
 
-  DBI::dbRemoveTable(con, inSchema(write_schema, tablename, dbms = dbms(con)))
+  DBI::dbRemoveTable(con, .inSchema(write_schema, tablename, dbms = dbms(con)))
 
   if (tablename %in% list_tables(con, write_schema)) {
     cli::cli_inform("Write access verified but temp table `{name}` was not properly dropped!")
@@ -745,6 +840,11 @@ snapshot <- function(cdm) {
 
 #' Disconnect the connection of the cdm object
 #'
+#' This function will disconnect from the database as well as drop
+#' "temporary" tables that were created on database systems that do not support
+#' actual temporary tables. Currently temp tables are emulated on
+#' Spark/Databricks systems.
+#'
 #' @param cdm cdm reference
 #'
 #' @export
@@ -752,7 +852,19 @@ cdmDisconnect <- function(cdm) {
   if (!("cdm_reference" %in% class(cdm))) {
     cli::cli_abort("cdm should be a cdm_reference")
   }
-  DBI::dbDisconnect(cdmCon(cdm), shutdown = TRUE)
+
+  con <- cdmCon(cdm)
+  on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
+
+  if (dbms(con) == "spark") {
+    schema <- attr(cdm, "write_schema")
+    tbls <- list_tables(con, schema = schema)
+    tempEmulationTablesToDrop <- stringr::str_subset(tbls, attr(cdm, "temp_emulation_prefix"))
+    # try to drop the temp emulation tables
+    purrr::walk(tempEmulationTablesToDrop,
+                ~tryCatch(DBI::dbRemoveTable(con, .inSchema(schema, ., dbms = dbms(con))),
+                          error = function(e) invisible(NULL)))
+  }
 }
 
 #' @rdname cdmDisconnect

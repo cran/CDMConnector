@@ -437,68 +437,68 @@ automatically using alphabetical order of the filenames.</p>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">list.files</span>(path_to_cohort_json_files)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;CohortsToCreate.csv&quot;                     </span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; [2] &quot;cerebral_venous_sinus_thrombosis_01.json&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [3] &quot;deep_vein_thrombosis_01.json&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="fu">file.path</span>(path_to_cohort_json_files, <span class="st">&quot;CohortsToCreate.csv&quot;</span>),</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;   cohortId cohortName                          jsonPath                         </span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt; &lt;chr&gt;                               &lt;chr&gt;                            </span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; 1        1 cerebral_venous_sinus_thrombosis_01 cerebral_venous_sinus_thrombosis…</span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; 2        2 deep_vein_thrombosis_01             deep_vein_thrombosis_01.json</span></span></code></pre></div>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; [3] &quot;deep_vein_thrombosis_01.json&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="fu">file.path</span>(path_to_cohort_json_files, <span class="st">&quot;CohortsToCreate.csv&quot;</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   cohortId cohortName                          jsonPath                         </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt; &lt;chr&gt;                               &lt;chr&gt;                            </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; 1        1 cerebral_venous_sinus_thrombosis_01 cerebral_venous_sinus_thrombosis…</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; 2        2 deep_vein_thrombosis_01             deep_vein_thrombosis_01.json</span></span></code></pre></div>
 <div id="atlas-cohort-definitions" class="section level3">
 <h3>Atlas cohort definitions</h3>
 <p>First we need to create our CDM object. Note that we will need to
 specify a <code>write_schema</code> when creating the object. Cohort
 tables will go into the CDM’s <code>write_schema</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>path_to_cohort_json_files <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;example_cohorts&quot;</span>, </span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                                         <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">list.files</span>(path_to_cohort_json_files)</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GIBleed_male.json&quot;    &quot;GiBleed_default.json&quot;</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>cohort_details <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(path_to_cohort_json_files) <span class="sc">|&gt;</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_name =</span> snakecase<span class="sc">::</span><span class="fu">to_snake_case</span>(cohort_name))</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>cohort_details</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name     cohort       json   cohort_name_snakecase</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;           &lt;list&gt;       &lt;list&gt; &lt;chr&gt;                </span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; 1                    1 gibleed_male    &lt;named list&gt; &lt;chr&gt;  gibleed_male         </span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; 2                    2 gibleed_default &lt;named list&gt; &lt;chr&gt;  gibleed_default</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="at">cdm =</span> cdm, </span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">cohort_set =</span> cohort_details,</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)</span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 2 cohorts</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/2) - gibleed_male</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/2) - gibleed_male [190ms]</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/2) - gibleed_default</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/2) - gibleed_default [47ms]</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts</span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts&gt; [?? x 4]</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.10.1 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmpez5HHt/file182a24bee056d.duckdb]</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;  1                    1        432 1973-01-24        2018-07-16     </span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;  2                    1       3178 1994-10-06        2018-09-16     </span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;  3                    1       3928 2012-09-11        2017-02-27     </span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;  4                    1       3547 2014-07-17        2018-08-06     </span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt;  5                    1       4435 2000-11-16        2018-11-19     </span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;  6                    1       1433 1995-11-08        2019-04-08     </span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt;  7                    1       1685 2016-01-14        2019-01-20     </span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt;  8                    1       3865 1990-06-09        2018-10-11     </span></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt;  9                    1       4466 2008-04-25        2017-08-25     </span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt; 10                    1       1821 1982-11-03        2019-03-11     </span></span>
-<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>path_to_cohort_json_files <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;example_cohorts&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                                         <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">list.files</span>(path_to_cohort_json_files)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;GIBleed_male.json&quot;    &quot;GiBleed_default.json&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>cohort_details <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(path_to_cohort_json_files) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_name =</span> snakecase<span class="sc">::</span><span class="fu">to_snake_case</span>(cohort_name))</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>cohort_details</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name     cohort       json   cohort_name_snakecase</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;           &lt;list&gt;       &lt;list&gt; &lt;chr&gt;                </span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 1                    1 gibleed_male    &lt;named list&gt; &lt;chr&gt;  gibleed_male         </span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; 2                    2 gibleed_default &lt;named list&gt; &lt;chr&gt;  gibleed_default</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">cdm =</span> cdm, </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">cohort_set =</span> cohort_details,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;study_cohorts&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 2 cohorts</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/2) - gibleed_male</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/2) - gibleed_male [213ms]</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/2) - gibleed_default</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/2) - gibleed_default [65ms]</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>cdm<span class="sc">$</span>study_cohorts</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.study_cohorts&gt; [?? x 4]</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.0.0 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmp4kNTM3/file1b3b1be84ff2.duckdb]</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;  1                    1       3804 2003-07-05        2018-08-23     </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;  2                    1       4509 2007-01-25        2018-09-04     </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;  3                    1       4633 1992-09-27        2019-01-23     </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;  4                    1       3950 2015-01-14        2018-10-25     </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;  5                    1        579 1999-11-06        2018-10-10     </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  6                    1       4051 2009-10-14        2018-12-24     </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  7                    1       5333 1986-09-06        2002-11-18     </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  8                    1       2075 2006-05-05        2019-04-15     </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  9                    1       3077 1992-05-08        2018-09-13     </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 10                    1       4391 1978-08-14        2018-07-13     </span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
 <p>The generated cohort has associated metadata tables. We can access
 these with utility functions.</p>
 <ul>
@@ -509,104 +509,37 @@ name</li>
 <li><code>attrition</code> table contains the attrition information
 (persons, and records dropped at each sequential inclusion rule)</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 1                    1            237             237</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 2                    2            479             479</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; Warning: `cohort_set()` was deprecated in CDMConnector 1.3.</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `settings()` instead.</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;          </span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 1                    1 gibleed_male   </span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 2                    2 gibleed_default</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 7</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Qualifying init…</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237         2 Male            </span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; 3                    1            237             237         3 30 days prior o…</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; 4                    2            479             479         1 Qualifying init…</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 1                    1            237             237</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; 2                    2            479             479</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; Warning: `cohort_set()` was deprecated in CDMConnector 1.3.</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `settings()` instead.</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;          </span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 1                    1 gibleed_male   </span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 2                    2 gibleed_default</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 7</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Qualifying init…</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237         2 Male            </span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 3                    1            237             237         3 30 days prior o…</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 4                    2            479             479         1 Qualifying init…</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
 <p>Note the this cohort table is still in the database so it can be
 quite large. We can also join it to other CDM table or subset the entire
 cdm to just the persons in the cohort.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>cdm_gibleed <span class="ot">&lt;-</span> cdm <span class="sc">%&gt;%</span> </span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">cdm_subset_cohort</span>(<span class="at">cohort_table =</span> <span class="st">&quot;study_cohorts&quot;</span>)</span></code></pre></div>
-</div>
-<div id="capr-cohort-definitions" class="section level3">
-<h3>Capr cohort definitions</h3>
-<p>Capr allows us to use R code to create the same cohorts that can be
-created in Atlas. This is helpful when you need to create a large number
-of similar cohort definitions. Below we create a single Cohort
-definition with one inclusion criteria</p>
-<p><code>generate_cohort_set</code> will accept a named list of Capr</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(Capr)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Loading required package: CirceR</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;Capr&#39;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:ggplot2&#39;:</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;     unit</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:CDMConnector&#39;:</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;     attrition</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>gibleed_concept_set <span class="ot">&lt;-</span> <span class="fu">cs</span>(<span class="dv">192671</span>, <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>gibleed_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set)</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>)</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>gibleed_male_definition <span class="ot">&lt;-</span> <span class="fu">cohort</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  <span class="at">entry =</span> <span class="fu">conditionOccurrence</span>(gibleed_concept_set, <span class="fu">male</span>())</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>)</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co"># create a named list of Capr cohort definitions</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>cohort_details <span class="ot">=</span> <span class="fu">list</span>(<span class="at">gibleed =</span> gibleed_definition,</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>                  <span class="at">gibleed_male =</span> gibleed_male_definition)</span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co"># generate cohorts</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(</span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>  cdm,</span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>  <span class="at">cohort_set =</span> cohort_details,</span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed&quot;</span> <span class="co"># name for the cohort table in the cdm</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>)</span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 2 cohorts</span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/2) - gibleed</span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/2) - gibleed [43ms]</span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/2) - gibleed_male</span></span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/2) - gibleed_male [44ms]</span></span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed</span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.gibleed&gt; [?? x 4]</span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.10.1 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmpez5HHt/file182a24bee056d.duckdb]</span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt;  1                    1        518 2007-05-21        2019-03-26     </span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt;  2                    1       3259 1999-11-21        2018-11-16     </span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt;  3                    1       5207 1995-05-04        2018-10-24     </span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt;  4                    1        285 2006-08-16        2018-06-18     </span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt;  5                    1        720 2000-11-02        2019-05-21     </span></span>
-<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt;  6                    1       1934 2000-09-08        2019-03-09     </span></span>
-<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt;  7                    1       4045 2015-07-17        2018-03-04     </span></span>
-<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt;  8                    1       2358 2007-10-15        2018-10-16     </span></span>
-<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt;  9                    1       3536 2000-02-18        2019-05-23     </span></span>
-<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a><span class="co">#&gt; 10                    1       3553 1966-11-08        2012-10-07     </span></span>
-<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
-<p>We should get the exact same result from Capr and Atlas if the
-definitions are equivalent.</p>
-<p>Learn more about Capr at the package website <a href="https://ohdsi.github.io/Capr/" class="uri">https://ohdsi.github.io/Capr/</a>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>cdm_gibleed <span class="ot">&lt;-</span> cdm <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">cdm_subset_cohort</span>(<span class="at">cohort_table =</span> <span class="st">&quot;study_cohorts&quot;</span>)</span></code></pre></div>
 </div>
 <div id="subset-a-cohort" class="section level3">
 <h3>Subset a cohort</h3>
@@ -614,108 +547,108 @@ definitions are equivalent.</p>
 new cohort that is a subset of the first. This can be done using the</p>
 <p>First we will generate an example cohort set and then create a new
 cohort based on filtering the Atlas cohort.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>())</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(<span class="fu">system.file</span>(<span class="st">&quot;cohorts3&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>))</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(cdm, cohort_set, <span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>) </span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 5 cohorts</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/5) - gibleed_all</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/5) - gibleed_all [43ms]</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/5) - gibleed_all_end_10</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/5) - gibleed_all_end_10 [43ms]</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (3/5) - gibleed_default</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (3/5) - gibleed_default [44ms]</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (4/5) - gibleed_default_with_descendants</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (4/5) - gibleed_default_with_descendants [45ms]</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (5/5) - gibleed_end_10</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (5/5) - gibleed_end_10 [44ms]</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>cdm<span class="sc">$</span>cohort</span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.cohort&gt; [?? x 4]</span></span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.10.1 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmpez5HHt/file182a21fc13148.duckdb]</span></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt;  1                    1       1201 2008-01-19        2018-10-31     </span></span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt;  2                    1       4295 2007-12-11        2019-03-13     </span></span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt;  3                    1       4390 1994-11-21        2019-04-26     </span></span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt;  4                    1        558 2002-03-22        2018-12-20     </span></span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt;  5                    1       3403 2008-09-05        2019-04-02     </span></span>
-<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a><span class="co">#&gt;  6                    1       4521 1958-11-18        2009-05-07     </span></span>
-<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a><span class="co">#&gt;  7                    1       1088 2011-09-10        2018-08-19     </span></span>
-<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a><span class="co">#&gt;  8                    1       1935 2009-04-10        2019-03-05     </span></span>
-<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a><span class="co">#&gt;  9                    1       3246 2017-02-16        2017-03-06     </span></span>
-<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a><span class="co">#&gt; 10                    1       3791 1947-12-25        2018-08-04     </span></span>
-<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
-<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a></span>
-<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 3</span></span>
-<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
-<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a><span class="co">#&gt; 2                    2            479             479</span></span>
-<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a><span class="co">#&gt; 3                    3            479             479</span></span>
-<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a><span class="co">#&gt; 4                    4            479             479</span></span>
-<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a><span class="co">#&gt; 5                    5            479             479</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>())</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">read_cohort_set</span>(<span class="fu">system.file</span>(<span class="st">&quot;cohorts3&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CDMConnector&quot;</span>))</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_cohort_set</span>(cdm, cohort_set, <span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>) </span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; ℹ Generating 5 cohorts</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (1/5) - gibleed_all</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (1/5) - gibleed_all [61ms]</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (2/5) - gibleed_all_end_10</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (2/5) - gibleed_all_end_10 [69ms]</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (3/5) - gibleed_default</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (3/5) - gibleed_default [59ms]</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (4/5) - gibleed_default_with_descendants</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (4/5) - gibleed_default_with_descendants [66ms]</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; ℹ Generating cohort (5/5) - gibleed_end_10</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; ✔ Generating cohort (5/5) - gibleed_end_10 [65ms]</span></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>cdm<span class="sc">$</span>cohort</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.cohort&gt; [?? x 4]</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.0.0 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmp4kNTM3/file1b3b5ec33315.duckdb]</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;dbl&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;  1                    1       1259 1981-10-16        2019-01-03     </span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;  2                    1       2631 1993-01-08        2017-05-15     </span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt;  3                    1        432 1973-01-24        2018-07-16     </span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;  4                    1        893 1993-11-09        2019-05-06     </span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt;  5                    1       2836 2019-03-21        2019-03-22     </span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt;  6                    1       3178 1994-10-06        2018-09-16     </span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt;  7                    1       3928 2012-09-11        2017-02-27     </span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt;  8                    1        651 2012-06-08        2018-12-06     </span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt;  9                    1       1618 2013-06-07        2019-06-05     </span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; 10                    1       3533 2001-01-13        2019-01-10     </span></span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 3</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 2                    2            479             479</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 3                    3            479             479</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; 4                    4            479             479</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 5                    5            479             479</span></span></code></pre></div>
 <p>As an example we will take only people in the cohort that have a
 cohort duration that is longer than 4 weeks. Using dplyr we can write
 this query and save the result in a new table in the cdm.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="co"># only keep persons who are in the cohort at least 28 days</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="co"># optionally you can modify the cohort_id</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">100</span> <span class="sc">+</span> cohort_definition_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;cohort_subset&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">new_generated_cohort_set</span>()</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; Warning: `new_generated_cohort_set()` was deprecated in CDMConnector 1.3.</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `newCohortTable()` instead.</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort_subset)</span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 1                  101            466             466</span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 2                  103            466             466</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 3                  104            466             466</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="co"># only keep persons who are in the cohort at least 28 days</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="co"># optionally you can modify the cohort_id</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">100</span> <span class="sc">+</span> cohort_definition_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;cohort_subset&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  <span class="fu">new_generated_cohort_set</span>()</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; Warning: `new_generated_cohort_set()` was deprecated in CDMConnector 1.3.</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `newCohortTable()` instead.</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt; generated.</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort_subset)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 1                  101            466             466</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 2                  103            466             466</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 3                  104            466             466</span></span></code></pre></div>
 <p>In this case we can see that cohorts 1 and 5 were dropped completely
 and some patients were dropped from cohorts 2, 3, and 4.</p>
 <p>Let’s confirm that everyone in cohorts 1 and 5 were in the cohort for
 less than 28 days.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>days_in_cohort <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">filter</span>(cohort_definition_id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">5</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">days_in_cohort =</span> <span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">count</span>(cohort_definition_id, days_in_cohort) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>days_in_cohort</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; # A tibble: 465 × 3</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id days_in_cohort     n</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;          &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt;  1                    1           6334     1</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt;  2                    1           7823     1</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;  3                    1           6592     1</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;  4                    1          12395     1</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;  5                    1          10163     1</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;  6                    1           4131     1</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt;  7                    1           7127     1</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;  8                    1           6432     1</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;  9                    1          12495     1</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 10                    1           5147     1</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 455 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>days_in_cohort <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">filter</span>(cohort_definition_id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">5</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">days_in_cohort =</span> <span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="fu">count</span>(cohort_definition_id, days_in_cohort) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>days_in_cohort</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt; # A tibble: 465 × 3</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id days_in_cohort     n</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;          &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt;  1                    1           8746     1</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt;  2                    1           1102     1</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt;  3                    1           6572     1</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt;  4                    1          13277     1</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt;  5                    1           8643     1</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt;  6                    1           4240     1</span></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co">#&gt;  7                    1           7647     1</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="co">#&gt;  8                    1           7831     1</span></span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="co">#&gt;  9                    1          11563     2</span></span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a><span class="co">#&gt; 10                    1          13911     1</span></span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 455 more rows</span></span></code></pre></div>
 <p>We have confirmed that everyone in cohorts 1 and 5 were in the cohort
 less than 10 days.</p>
 <p>Now suppose we would like to create a new cohort table with three
@@ -724,41 +657,41 @@ keep persons who are in the cohort at 2 weeks, 3 weeks, and 4 weeks. We
 can simply write some custom dplyr to create the table and then call
 <code>new_generated_cohort_set</code> just like in the previous
 example.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">14</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">10</span> <span class="sc">+</span> cohort_definition_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">union_all</span>(</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>    cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">21</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">100</span> <span class="sc">+</span> cohort_definition_id)</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="fu">union_all</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>    cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1000</span> <span class="sc">+</span> cohort_definition_id)</span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;cohort_subset&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>  <span class="fu">new_generated_cohort_set</span>() <span class="co"># this function creates the cohort object and metadata</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="sc">%&gt;%</span> </span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">days_in_cohort =</span> <span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>  <span class="fu">group_by</span>(cohort_definition_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_days_in_cohort =</span> <span class="fu">mean</span>(days_in_cohort, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>  <span class="fu">arrange</span>(mean_days_in_cohort)</span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; # A tibble: 9 × 2</span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id mean_days_in_cohort</span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt;               &lt;dbl&gt;</span></span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; 1                   14               7586.</span></span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; 2                   11               7586.</span></span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; 3                   13               7586.</span></span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; 4                  101               7602.</span></span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; 5                 1004               7602.</span></span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; 6                 1001               7602.</span></span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; 7                  103               7602.</span></span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; 8                  104               7602.</span></span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; 9                 1003               7602.</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="ot">&lt;-</span> cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">14</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">10</span> <span class="sc">+</span> cohort_definition_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="fu">union_all</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>    cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">21</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">100</span> <span class="sc">+</span> cohort_definition_id)</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>  <span class="fu">union_all</span>(</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>    cdm<span class="sc">$</span>cohort <span class="sc">%&gt;%</span> </span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>) <span class="sc">&gt;=</span> <span class="dv">28</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">cohort_definition_id =</span> <span class="dv">1000</span> <span class="sc">+</span> cohort_definition_id)</span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a>  <span class="fu">compute</span>(<span class="at">name =</span> <span class="st">&quot;cohort_subset&quot;</span>, <span class="at">temporary =</span> <span class="cn">FALSE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>  <span class="fu">new_generated_cohort_set</span>() <span class="co"># this function creates the cohort object and metadata</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a>cdm<span class="sc">$</span>cohort_subset <span class="sc">%&gt;%</span> </span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">days_in_cohort =</span> <span class="sc">!!</span><span class="fu">datediff</span>(<span class="st">&quot;cohort_start_date&quot;</span>, <span class="st">&quot;cohort_end_date&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a>  <span class="fu">group_by</span>(cohort_definition_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_days_in_cohort =</span> <span class="fu">mean</span>(days_in_cohort, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a>  <span class="fu">arrange</span>(mean_days_in_cohort)</span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a><span class="co">#&gt; # A tibble: 9 × 2</span></span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id mean_days_in_cohort</span></span>
+<span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt;               &lt;dbl&gt;</span></span>
+<span id="cb17-27"><a href="#cb17-27" tabindex="-1"></a><span class="co">#&gt; 1                   11               7586.</span></span>
+<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a><span class="co">#&gt; 2                   13               7586.</span></span>
+<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a><span class="co">#&gt; 3                   14               7586.</span></span>
+<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a><span class="co">#&gt; 4                 1001               7602.</span></span>
+<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a><span class="co">#&gt; 5                  104               7602.</span></span>
+<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a><span class="co">#&gt; 6                 1003               7602.</span></span>
+<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a><span class="co">#&gt; 7                  101               7602.</span></span>
+<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a><span class="co">#&gt; 8                 1004               7602.</span></span>
+<span id="cb17-35"><a href="#cb17-35" tabindex="-1"></a><span class="co">#&gt; 9                  103               7602.</span></span></code></pre></div>
 <p>This is an example of creating new cohorts from existing cohorts
 using CDMConnector. There is a lot of flexibility with this approach.
 Next we will look at completely custom cohort creation which is quite
@@ -776,54 +709,31 @@ a named list of concept sets and will create cohorts based on those
 concept sets. While this function does not allow for inclusion/exclusion
 criteria in the initial definition, additional criteria can be applied
 “manually” after the initial generation.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">warn.conflicts =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_concept_cohort_set</span>(</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  cdm, </span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">concept_set =</span> <span class="fu">list</span>(<span class="at">gibleed =</span> <span class="dv">192671</span>), </span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed2&quot;</span>, <span class="co"># name of the cohort table</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">limit =</span> <span class="st">&quot;all&quot;</span>, <span class="co"># use all occurrences of the concept instead of just the first</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">end =</span> <span class="dv">10</span> <span class="co"># set explicit cohort end date 10 days after start</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>)</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed2 <span class="ot">&lt;-</span> cdm<span class="sc">$</span>gibleed2 <span class="sc">%&gt;%</span> </span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="fu">semi_join</span>(</span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>    <span class="fu">filter</span>(cdm<span class="sc">$</span>person, gender_concept_id <span class="sc">==</span> <span class="dv">8507</span>), </span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span> <span class="ot">=</span> <span class="st">&quot;person_id&quot;</span>)</span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  <span class="fu">record_cohort_attrition</span>(<span class="at">reason =</span> <span class="st">&quot;Male&quot;</span>)</span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  </span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>gibleed2) </span>
-<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; An object of class &quot;CohortAttrition&quot;</span></span>
-<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; Slot &quot;rules&quot;:</span></span>
-<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
-<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; # Source:   SQL [?? x 4]</span></span>
-<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.10.1 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmpez5HHt/file182a21fc13148.duckdb]</span></span>
-<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="co">#&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a><span class="co">#&gt;                   &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a><span class="co">#&gt;  1                    1       3804 2003-07-05        2003-07-15     </span></span>
-<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt;  2                    1       4509 2007-01-25        2007-02-04     </span></span>
-<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="co">#&gt;  3                    1       4633 1992-09-27        1992-10-07     </span></span>
-<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a><span class="co">#&gt;  4                    1       3822 1986-11-13        1986-11-23     </span></span>
-<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a><span class="co">#&gt;  5                    1       4006 1995-01-10        1995-01-20     </span></span>
-<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a><span class="co">#&gt;  6                    1       4487 1988-03-26        1988-04-05     </span></span>
-<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a><span class="co">#&gt;  7                    1       3259 1999-11-21        1999-12-01     </span></span>
-<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a><span class="co">#&gt;  8                    1        432 1973-01-24        1973-02-03     </span></span>
-<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a><span class="co">#&gt;  9                    1       3178 1994-10-06        1994-10-16     </span></span>
-<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a><span class="co">#&gt; 10                    1       3928 2012-09-11        2012-09-21     </span></span>
-<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
-<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a><span class="co">#&gt; Slot &quot;expressionLimit&quot;:</span></span>
-<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a><span class="co">#&gt; [1] &quot;First&quot;</span></span></code></pre></div>
-<p>We could visualise attrition using a package like VisR</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">library</span>(visR)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>gibleed2_attrition <span class="ot">&lt;-</span> CDMConnector<span class="sc">::</span><span class="fu">attrition</span>(cdm<span class="sc">$</span>gibleed2)  <span class="sc">%&gt;%</span> </span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">Criteria =</span> <span class="st">&quot;reason&quot;</span>, <span class="st">`</span><span class="at">Remaining N</span><span class="st">`</span> <span class="ot">=</span> <span class="st">&quot;number_subjects&quot;</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">class</span>(gibleed2_attrition) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;attrition&quot;</span>, <span class="fu">class</span>(gibleed2_attrition))</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">visr</span>(gibleed2_attrition)</span></code></pre></div>
-<p><img src="data:image/png;base64,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AIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVYK6stXVVdtVVV6VHH300TZo0qWuvHwkQINCfwFNPPZVWXnnltMIKK/RXgLMIECBAIJvALAugDzzwQNp0000F0GxDrSICs7fAI488km6//XYBdPYeZr0jQGA2EZhlATRWPidPnpzmnHPO2YRSNwgQmJUCjz322KysXt0ECBAgUEPAPaA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHIoAQIECBAgQIBAcwEBtLmhEggQIECAAAECBGoICKA1sBxKgAABAgQIECDQXEAAbW6oBAIECBAgQIAAgRoCAmgNLIcSIECAAAECBAg0FxBAmxsqgQABAgQIECBAoIaAAFoDy6EECBAgQIAAAQLNBQTQ5oZKIECAAAECBAgQqCEggNbAcigBAgQIECBAgEBzAQG0uaESCBAgQIAAAQIEaggIoDWwHEqAAAECBAgQINBcQABtbqgEAgQIECBAgACBGgICaA0shxIgQIAAAQIECDQXEECbGyqBAAECBAgQIECghoAAWgPLoQQIECBAgAABAs0FBNDmhkogQIAAAQIECBCoISCA1sByKAECBAgQIECAQHMBAbS5oRIIECBAgAABAgRqCAigNbAcSoAAAQIECBAg0FxAAG1uqAQCBAgQIECAAIEaAgJoDSyHEiBAgAABAgQINBcQQJsbKoEAAQIECBAgQKCGgABaA8uhBAgQIECAAAECzQUE0OaGSiBAgAABAgQIEKghIIDWwHJoXoEHH3ww3X777enpp5/OW7HaCBAgQIAAgYEKCKAD5f134auttlraeeed/71jBn5aeOGF0+c///mxI6+44or0y1/+cuz38Z+PfTDBDz/4wQ/SpEmT0t133z3BEfl277bbbmmzzTarKrzooouqdt16663V7yMjI+mtb31rWmSRRdIKK6yQot/T2safP61jZ5fPnnvuuXTMMcekJ554Ynbpkn4QIECAQEECAmiLB3vXXXdNL3vZy6oWPvPMM2mTTTZJf/rTn8Za3P352M4h/GGppZZKe+21V3r+859ftf76669Pp512WjrssMNShNKNNtpomr0af/40D55NPgyffffdNz377LOzSY90gwABAgRKEpirpM4OW1+/+tWvjjU5VgXjq3vr/rx7/7D9vPrqq6cTTjhhrNn/+Mc/qp933333agV07IMJfhh//gSHzVa7YwXURoAAAQIEhlXACugsGrlPfepT6dBDD00nn3xyWnfddVNcTt92223TX/7yl7EWveY1r0knnnhieuyxx8ZWAT/5yU+mPfbYozqm83nnhNtuuy3ttNNOafnll69WE9dbb72q/M7nM/L9zjvvTHvuuWdaYokl0stf/vJ0wQUXVGWefvrp1emxKvnud797iqJ+9rOfpfXXXz898MADY/vPPvvstOmmm1aX0V/84hen7bbbLt18881jn3f/cOWVV1bn/+1vf6suK++3337Vx29605vSe9/73rTlllumI444ovuU6tLzxhtvnH74wx+m7vPjoBmxjePOO++8ql1xqX+rrbZKl1xySdWOuO90ou3RRx+tVh7j1oBFF1007bDDDumOO+6oDr/44our87vHMD449dRT0ytf+cr05JNPVsf9/ve/T6997Wsrm1VWWSUdcsghU9znOr32R5//3//7f1VZcRvDt7/97erno48+Or3kJS9JCyywQFpnnXXSkUceWe33HwIECBAg0DYBAXQWjUiElG9961vp4IMPTm94wxuqy82XX355evOb3zzWot/+9rfV/ZrzzDNPFXrigy222GLsmM7nsf/hhx9OETjj/s6Pfexj6Utf+lKK8+Iy/Q033BCHTHeLgBQB9ne/+1365je/mT7wgQ9UYfTCCy9M9957b3V+hNzxQTIeFrrmmmtS3CYQ2xlnnJF23HHHtOaaa6bjjz8+7bPPPunaa6+tyq4OGPefaHucH/XH5fbwiC2CdpQTgTrCVff2ox/9KF199dUpQmj3+XHMjNpGX1/0ohdVfY17dCMkRzsef/zx7qrGfo4V6AjDEcbDNe7BvO+++9IGG2xQhe9XvOIVlU0nrHdODIPFF188TZ48ufo8jovzvvjFL6YDDjggfe1rX6ucO8dPr/3R1giwsb3nPe+p/gFz7rnnpgju0af4R83mm2+ePvShD1VzrFOu7wQIECBAoC0CLsHPwpGIS8033XRTilWw2CLgHHjggSkC3UILLTTWsrnmmiu94x3vSO9617uqVcXXv/71Y591fvjVr36VFlxwwSp8LLfcctXuWCFdddVV02WXXZbWWGONzqETfv/Od76TfvOb31T3XS6zzDLVcfPNN19629veNuE5vT6IlcRYzT322GOrjyMURfiKFd/xfRt/fqwGR9iNAB0PbUVfIkh/4xvfSFdddVUV9uKcWFWMVctYhey1Tc92//33TyuttFI66aSTqtPf+MY3pn/961/TDGwRLOOBqAh7r3vd66rzIrRGG6K9n/70p6vAHMfFOMYW7fjFL36Rvve971W/xwpymMZ4zTvvvNW+OD/+4XHQQQdVK5ed8yaaGzFfXvWqV1XBNR7mihXPWCmP/Z/5zGeqMqM/MW/mnHPO6nf/IUCAAAECbRKwAjoLR2PppZceC5/RjAiLscWKXt0tAl+sTkZgiyejr7vuuhSXxueYY47qEv6MlBcrqnHpthM+45wIRnPPPfeMnD52TFz6jRXK2GKlLwLpLbfcUv0etxPU3V796lensIoHb2KLy+ARAt/+9rdPWNS0bCPox4psBNjubXpBO/oRIT8CY6yUxleExAjNEShji0D461//OnUu43//+99Pz3ve81LnHw0R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7wEdvPFsW0P8icz3vve96cc//nH2Pj766KPpne98Zxq/grn++uunZ599dor2xN9LP/LII9Nmm21W7X/kkUfSq171qurvp3/xi1+s/grS4Ycfnt761rem888/P80555xTnO8XAgQIECBAYOYKCKAz17Oo0hZbbLF04YUXpu985ztpt912y9r3j3zkI2m++eabqs5tt902xVf39q53vSutscYa6aijjqp2x5/2/Otf/5ouuuiitOWWW1b74mX7K664YjruuOPS+973vu7T/UyAAAECBAjMZAEBdCaDllRcrCI+99xzaf/990/bbLNNir9YNCPbww8/nD772c9OeGhcKu+sVvY66Gc/+1k65ZRTqr/b3gmQvY6LfRdffHGKwPnzn/88zT///NVhv//979Oiiy6aXvOa14ydFpfh11prrfSTn/xEAB1T8QMBAgQIEBiMgAA6GNdiSo1VxdVWWy0dcMAB6aSTTpqhfsel+wiQE22xEjlRAP3Xv/5VXXo/4ogjpvt34Z955pm0zz77pB122KG65N6pb5555klPP/10dam+c7k9LuXfe++9ad555+0c5jsBAgQIECAwIAEPIQ0ItpRil1xyyWo189vf/nZ1SXtG+r3EEkuk22+/fcKvd7/73RMWc+CBB6aVV1457b333hMe0/kg7uf805/+lPbdd9/Orur7uuuum+K+0HPPPXds/+WXX57uuuuu9NBDD43t8wMBAgQIECAwGAEBdDCuRZUaDyJttNFG1QNJjz/++MD6Hvdsnnzyyen444+foTpiRXb55ZdPW2yxxRTH77777umlL31p9dDRrrvuWl1yj/tG11tvvTR58uQpjvULAQIECBAgMPMFBNCZb1pciXPMMUcVCu+88870iU98Yrr9v+eee1I8rT7RVzzUNH6Ly/ax6vmWt7wl/eMf/0hXXHFFuu6666rDbrzxxhT3dXZv8Uqlc845p7pcH6+E6t7iEny8ummXXXZJl112WYpXMn3ve9+rbiVYcMEFuw/1MwECBAgQIDAAAfeADgC1xCLXXHPNdNBBB6UvfOELaaWVVpomwdxzz53WWWedCY+Jp+vHbxE6I+DGA0Xx1b3FU+sbbLBB+vWvfz22+8wzz0xPPvlk2muvvcb2df8QDyHFbQPd28c//vEUl+dtBAgQIECAwGAFBNDB+hZV+mGHHZZOO+20dPDBB0+z3wsvvHD6+te/Ps1jxn+49NJLpxtuuGGK3bfeemvafvvt04knnjjVQ0vXXnttWmaZZVKcN36L1dO4bSBeIdUJu7EKGi/QP+SQQ8Yf7ncCBAgQIEBgJgsIoDMZtOTi4gnyY489duzdmuNfEt/EJlZNV1999SmK6Fxaj/s84zVK3dvNN99cvfuze1/n51gtjafpDz300OoBqrhcH+8x3WmnndIb3/jGzmG+EyBAgAABAgMScA/ogGBLLTYe+Nljjz1mefcjgI4PrJ1GxauXjjnmmHTTTTelxRdfvLoXNQJshGcbAQIECBAgMHiBSaOrVCODr2bqGuKJ5s0339yfPZyaxp6MAnFvadwSEA8m2YZb4L777ktxW0ascNsIECBAoN0CLsG3e3y0bsACsQJqI0CAAAECBPIKuASf11ttBAgQIECAAIHiBQTQ4qcAAAIECBAgQIBAXgEBNK+32ggQIECAAAECxQsIoMVPAQAECBAgQIAAgbwCAmheb7URIECAAAECBIoXEECLnwIACBAgQIAAAQJ5BQTQvN5qI0CAAAECBAgULyCAFj8FABAgQIAAAQIE8goIoHm91UaAAAECBAgQKF5AAC1+CgAgQIAAAQIECOQVEEDzequNAAECBAgQIFC8gABa/BQAQIAAAQIECBDIKyCA5vVWGwECBAgQIECgeAEBtPgpAIAAAQIECBAgkFdAAM3rrTYCBAgQIECAQPECAmjxUwAAAQIECBAgQCCvgACa11ttBAgQIECAAIHiBQTQ4qcAAAIECBAgQIBAXgEBNK+32ggQIECAAAECxQsIoMVPAQAECBAgQIAAgbwCAmheb7URIECAAAECBIoXEECLnwIACBAgQIAAAQJ5BQTQvN5qI0CAAAECBAgULyCAFj8FABAgQIAAAQIE8goIoHm91UaAAAECBAgQKF5AAC1+CgAgQIAAAQIECOQVEEDzequNAAECBAgQIFC8gABa/BQAQIAAAQIECBDIKyCA5vVWGwECBAgQIECgeAEBtPgpAIAAAQIECBAgkFdAAM3rrTYCBAgQIECAQPECAmjxUwAAAQIECBAgQCCvgACa11ttBAgQIECAAIHiBQTQ4qcAAAIECBAgQIBAXgEBNK+32ggQIECAAAECxQsIoMVPAQAECBAgQIAAgbwCAmheb7URIECAAAECBIoXEECLnwIACBAgQIAAAQJ5BQTQvN5qI0CAAAECBAgULyCAFj8FABAgQIAAAQIE8goIoHm91UaAAAECBAgQKF5AAC1+CgAgQIAAAQIECOQVmCtvdWojQIAAgX4EnnjiiXTnnXf2c6pzCBAg0FNg0UUXTQsttFDPzwa9UwAdtLDyCRAgMBMErrvuurTgggumueeeeyaUpggCBEoXGBkZSZdffnnadtttZwmFADpL2FVKgACBegJzzDFHitWKF77whfVOdDQBAgR6CDz77LPptttu6/FJnl3uAc3jrBYCBAgQIECAAIH/ExBATQUCBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCoggGblVhkBAgQIECBAgIAAag4QIECAAAECBAhkFRBAs3KrjAABAgQIECBAQAA1BwgQIECAAAECBLIKCKBZuVVGgAABAgQIECAggJoDBAgQIECAAAECWQUE0KzcKiNAgAABAgQIEBBAzQECBAgQIECAAIGsAgJoVm6VESBAgAABAgQICKDmAAECBAgQIECAQFYBATQrt8oIECBAgAABAgQEUHOAAAECBAgQIEAgq4AAmpVbZQQIECBAgAABAgKoOUCAAAECBAgQIJBVQADNyq0yAgQIECBAgAABAdQcIECAAAECBAgQyCowV9bauip79tln069+9as0adKkrr1+JDC1wB//+Me06qqrTv2BPQS6BOL/pyy00EJde/xIgAABAm0VmGUBdJtttmmriXa1TOD0009Pe++9d8tapTkECBAgQIBAvwIuwfcr5zwCBAgQIECAAIG+BATQvticRIAAAQIECBAg0K+AANqvnPMIECBAgAABAgT6EhBA+2JzEgECBAgQIECAQL8CAmi/cs4jQIAAAQIECBDoS0AA7YvNSQQIECBAgAABAv0KCKD9yjmPAAECBAgQIECgLwEBtC82JxEgQIAAAQIECPQrIID2K+c8AgQIECBAgACBvgQE0L7YnESAAAECBAgQINCvgADar5zzCBAgQIAAAQIE+hIQQPticxIBAgQIECBAgEC/AgJov3LOI0CAAAECBAgQ6EtAAO2LzUkECBAgQIAAAQL9Cgig/co5jwABAgQIECBAoC8BAbQvNicRIECAAAECBAj0KyCA9ivnPAIECBAgQIAAgb4EBNC+2JxEgAABAgQIECDQr4AA2q+c8wgQIECAAAECBPoSEED7YnMSAQIECBAgQIBAvwICaL9yziNAgAABAgQIEOhLQADti81JBAgQIECAAAEC/QoIoP3KOY8AAQIECBAgQKAvAQG0LzYnESBAgAABAgQI9CsggPYr5zwCBAgQIECAAIG+BATQvticRIAAAQIECBAg0K+AANqvnPMIECBAgAABAgT6EhBA+2JzEgECBAgQIECAQL8CAmi/cs4jQIAAAQIECBDoS0AA7YvNSQQIECBAgAABAv0KCKD9yjmPAAECBAgQIECgLwEBtC82JxEgQIAAAQIECPQrIID2K+c8AgQIECBAgACBvgQE0L7YnESAAAECBAgQINCvgADar5zzCBAgQIAAAQIE+hIQQPticxIBAgQIECBAgEC/AgJov3LOI0CAAAECBAgQ6EtAAO2LzUkECBAgQIAAAQL9Cgig/co5jwABAgQIECBAoC8BAbQvNicRIECAAAECBAj0KyCA9ivnPAIECBAgQIAAgb4EBNC+2JxEgAABAgQIECDQr4AA2q+c8wgQIECAAAECBPoSEED7YnMSAQIECBAgQIBAvwICaL9yziNAgAABAgQIEOhLQADti81JBAgQIECAAAEC/QoIoP3KOY8AAQIECBAgQKAvAQG0LzYnESBAgAABAgQI9CsggPYr5zwCBAgQIECAAIG+BATQvticRIAAAQIECBAg0K+AANqvnPMIECBAgAABAgT6EhBA+2JzEgECBAgQIECAQL8CAmi/cs4jQIAAAQIECBDoS0AA7YvNSQQIECBAgAABAv0KCKD9yjmPAAECBAgQ6Evgueee6+u88SfNrHLGl+v3wQsIoIM3VgMBAgQIzAKBrbbaKk2aNGnCr4MOOmimtOoHP/hBVcfdd9/dqLwzzzyzKue+++5rVM7b3va2tMUWW0xYxv/8z/9U9Xz1q1/teczyyy+fPvCBD/T8rMnORx99NH34wx9OSy65ZJprrrnScsstlw4//PD0zDPP9Cw2jl955ZXT+9///ik+r1vOFCf7pTUCc7WmJRpCgACBwgUefvjh9NBDD6VlllmmcImZ1/0IMP/93//ds8CXvvSlPfeXsvOQQw5JO+ywQ1p66aWzdPl973tfOvfcc9NHPvKRtPnmm6dzzjknfeITn0hPPPFE+tSnPjVVGw4++OD05z//ear9dcuZqgA7WiEggLZiGDSCAAECKc0777zpi1/8YlpttdXS61//+vT85z8fS0OBF73oRSlWBG1TC8w333xpv/32S7GCO+gt/mH13e9+t1oBjWAZ2yte8Yp00003peOOO26qAHrxxRenU045pVot7W5b3XK6z/VzuwRcgm/XeGgNAQIFC8wzzzzp0EMPTc973vPSZz/72fTTn/40PfvsswWL5Ol6XOJ99atfnf71r3+NVRgrcptttln65z//We175JFH0gc/+MHqHwerrLJKitXDv/3tb2PHd/9w2GGHpXe/+93du9LPfvaztP7666cHHnhgbP95552Xttlmm/TCF74wvfGNb0z/+Mc/xj7r/HDCCSekl7/85dU/RiKwxaph9xb3QMYK78te9rK07LLLpo9//ONpRu+L/N///d/0wx/+MH3/+9/vLnK6Px9zzDHpv/7rv3p+HX300T3Pj3kc58XqZfe2wgorVO7dbQ7rd77znelLX/pSWmSRRarbBTrn1Cmnc47v7RQQQNs5LlpFgEChApMnT07bb799tVJ02223pc985jPp97//faEaebq97777piuuuCJ97GMfqyqMn+PS8Jve9KYUK6gRjt7+9renuEczLh/HCt7pp59erR72amGM28033zzFRw8++GC65pprxu53vO6669LOO++cFl988RQhc4kllkj777//FOdEANtnn33Sqquumk488cS08cYbV0H1rLPOGjsu/qHyuc99Lu21115VYPvRj340wyuau+yyS9p2223Tf/7nf6Zo34xuF110UbU6GSuU478uvPDCnsVEkIy+RODsbOF66qmnViuhc8zx7zgS9+a+5CUvSXvssUfn0LHvdcoZO8kPrRRwCb6Vw6JR3QJxQ/4FF1zQvcvPBIoQ6NybF0Fk/vnnn/BexiIw+uzklVdeWd3a0Ov0W265pbrfdvXVV6/CZ6we7rrrrlWYi9XPD33oQ9VpsUoYK48RIGM1MrYIUm94wxvSH/7wh+r3uv858MADqxXRCJaxdVZAO5fD41JzrMLutttu6Vvf+lZ1TATiu+66K330ox9NO+64Y7U6G22Oh4oiRMa25ZZbVn0aGRmpfp/ef2LFco011qjK/NrXvja9w6vPI4jPjC1WimMVOcJ8Z/vJT35SXaq//vrrO7um+71XOdM9yQGzXEAAneVDoAEECBAgMCiBCPGxwtlrW3DBBcd2R6iLS9HxcExs559//til31itXHHFFcfCZ3wex8Ul+3jKfvxqZ3w+ve23v/1tdQm7+7hYkewE0Pg8QugGG2xQBd/OcRGWI7DFrQER0uKSdITRzrbwwgunrbfeeopL/Z3Pen2PJ97jEn6sOkbYjeCdYzviiCOq1f14Cn6jjTaqqoyH8Pbee+/q9pN4Qn5Gtl7lzMh5jpn1AgLorB8DLZiOQNwfFfdJ2QiUJBAr/3GpNVa84tU1jz/+eEndn2l9XWqppapL5tMrMF4LFJfX41J7BLEIZp0tHpR58Ytf3Pl17HuEz362+++/vwqQcdm9e4u2drbbb7+9+nH8K4i6P//jH/9Y/dqrnO57TTvnTPQ9VnrjAaG4RB7Bd3pb3J/5u9/9rudha6655tiKbc8DRnfGiuWnP/3p9MlPfrK6l7ZzXPwjYM4556yCftwGEdtjjz2W4vVW8fu6666b4haVzjZROZ3PfW+3gADa7vHROgIEChN48sknU9xHd/nll1fvcox7++J/lK+66qrCJPJ2t/MqoHhHZdzXGMFvww03rBoRK6U33HDDVA269957q3tEp/pgdMfTTz89xe4InZ1toYUWSgsssMBUq5TxfsvOFiuZsV166aVTrLx2Po83JnQeWoqwudhii3U+SvEQT50t5tfxxx9f9TfuOZ7eFg9hdd+z2X189z2e3fs7P0dojFXPeAAqHurq3q6++uoU989usskm3bvTrbfeWq1ORyjvrIxOq5wpTvZLawUE0NYOjYYRIFCawFNPPVX9j3O8himeMvYapnwzIB5A+stf/lJd1t59993TnnvumX7zm99U94/G+0JPOumkFKvScUUmtrh/NB6UiYd+xm/xFoPuwBmfxypqZ4vwtvbaa1fhMl6D1Nk6q37xe8yB2OL+00033bT6Of4T94PGE/URGNdZZ51qf4TUnXbaqfo57v389a9/PUUgrT6Yzn/WW2+96j7SeKBp7rnnnubRMTf72b7yla9U8/sb3/hGdZ/t+DJOO+20qVb6497YePo/3g4R/ziIbXrljC/X7+0UEEDbOS5aRYBAgQKxChev7/Ei+pk3+HGv5Mknn9yzwFhljKfAI/jFg15xP2Hc6/n1r3+9Cnexyhb74pJzrNq99a1vrR4MitXGuFwcr1WK24M69212KolLxfFAz1FHHZXe/OY3V6/TisDYvcVtFVFePAEfT8N/+9vfrlYFO8fEKmOcG5/H7QDxLtNYIYyHjWJ1Ni5FxyX72B+3DkS7IxzHg0uxWtu9Itopc3rf49wzzjgj3XHHHdM7tPbncStJhMgwi7aPH5O3vOUtUzwh36kgVnrjyfe49zW2GSknbqewDYHA6L+WbARaLTD6J+Fa3T6NI5BDYHRVa2Q0TOWoarapY/SJ8HgUfMKv0RXEkdF7a0dGVzJHRoPRyOifhBzr++hrmEZGVypHLrvssmpf+I8+LT5W1mhAHIl9sZ199tnV/tFwVP0+et/iyGi4HBm9R7TaH+WPru5VP99zzz3VMfGfI488cmR0Va/aPxoeR0Yvf1c/d8Z59NL6yDve8Y6R0UBV7R+9D3Vk9B8oI1F+Z4v2j4a3kdGXylf1vfKVrxwZXcEdGX1IqnPIVN9Hw3ZV3uhrkKb6bPQvFVWfjYbcqT5rsiP6Oq2xGH3gqmfxo/eUjnS3pd9yehZe+M6Y76O3+8wyhUlR8xDkZE0sWCD+xR+XXGwEShaIe0A7q1wlO8zqvsd9n7FSHU/XT+8hpHhKPp7s7n64aHz743+CY8UxVr0nuq8ybs2I1xXFSuhEdcZDavHU/PgHksbX53cCHYF4g0LczrHVVlt1dmX9bp06K7fKCBAgQGCYBRZddNEZbn7cwzu9+3gjUHYerJmo4PgLWdN7uCf+rGZ82QgMi8C///TAsLRYOwkQIECAAAECBIZaQAAd6uHTeAIECBAgQIDA8AkIoMM3ZlpMgAABAgQIEBhqAQF0qIdP4wkQIECAAAECwycggA7fmGkxAQIECBAgQGCoBQTQoR4+jSdAgAABAgQIDJ+AADp8Y6bFBAgQIECAAIGhFhBAh3r4NJ4AAQIECBAgMHwCAujwjZkWEyBAgAABAgSGWkAAHerh03gCBAgQIECAwPAJCKDDN2ZaTIAAAQIECBAYagEBdKiHT+MJECBAgAABAsMnIIAO35hpMQECBAgQIEBgqAUE0KEePo0nQIAAAQIECAyfgAA6fGOmxQQIECBAgACBoRYQQId6+DSeAAECBAgQIDB8AgLo8I2ZFhMgQIAAAQIEhlpAAB3q4dN4AgQIECBAgMDwCQigwzdmWkyAAAECBAgQGGoBAXSoh0/jCRAgQIAAAQLDJyCADt+YaTEBAgQIECBAYKgFBNChHj6NJ0CAAAECBAgMn4AAOnxjpsUECBAgQIAAgaEWEECHevg0ngABAgQIECAwfAIC6PCNmRYTIECAAAECBIZaQAAd6uHTeAIECBAgQIDA8AkIoMM3ZlpMgAABAgQIEBhqAQF0qIdP4wkQIECAAAECwycggA7fmGkxAQIECBAgQGCoBQTQoR4+jSdAgAABAgQIDJ+AADp8Y6bFBAgQIECAAIGhFhBAh3r4NJ4AAQIECBAgMHwCAujwjZkWEyBAgAABAgSGWkAAHerh03gCBAgQIECAwPAJCKDDN2ZaTIAAAQIECBAYagEBdKiHT+MJECBAgAABAsMnIIAO35hpMQECBAgQIEBgqAUE0KEePo0nQIAAAQIECAyfgAA6fGOmxQQIECBAgACBoRYQQId6+DSeAAECBAgQIDB8AgLo8I2ZFhMgQIAAAQIEhlpAAB3q4dN4AgQIECBAgMDwCQigwzdmWkyAAAECBAgQGGoBAXSoh0/jCRAgQIAAAQLDJyCADt+YaTEBAgQIECBAYKgFBNChHj6NJ0CAAAECBAgMn4AAOnxjpsUECBAgQIAAgaEWEECHevhmz8afd9556amnnurZufvuuy9dcMEFPT+zkwABAgQIEBgOAQF0OMapqFY+/fTT6ayzzpqqzyMjI+mEE05ISyyxxFSf2UGAAAECBAgMj4AAOjxjVUxLt9lmm3T99denv//971P0+YorrkiTJ09O66yzzhT7/UKAAAECBAgMl4AAOlzjVURr55133rTddtulM844Y6y/Tz75ZIpL8zvttNPYPj8QIECAAAECwykggA7nuM32rd54443TY489lq677rqqr3Hf55prrpmWWmqp2b7vOkiAAAECBGZ3AQF0dh/hIe3fpEmT0s4775zOPvvsKoheeeWVafvttx/S3mg2AQIECBAg0C0ggHZr+LlVAiuttFJadtll00033ZS22mqrtMACC7SqfRpDgAABAgQI9CcwV3+nNT8rLqlGoIiVLhuBiQQWX3zxtNZaa1Xz5Je//OVEh9lPID3yyCPVGxI8pGYyECBAoP0CsyyAzjnnnGmTTTZJ8d1GYFoC8UCSjcD0BOIdsbfeeuv0DvM5AQIECLRAwCX4FgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgMOqP/AAAeuUlEQVQCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAQABtwSBoAgECBAgQIECgJAEBtKTR1lcCBAgQIECAQAsEBNAWDIImECBAgAABAgRKEhBASxptfSVAgAABAgQItEBAAG3BIGgCAQIECBAgQKAkAQG0pNHWVwIECBAgQIBACwQE0BYMgiYQIECAAAECBEoSEEBLGm19JUCAAAECBAi0QEAAbcEgaAIBAgQIECBAoCQBAbSk0dZXAgQIECBAgEALBATQFgyCJhAgQIAAAQIEShIQQEsabX0lQIAAAQIECLRAYK4WtEETCBAgQGA6As8991y6995704MPPjidI31MgACB6QuMjIykhx56aPoHDugIAXRAsIolQIDAzBRYe+2105133pkiiNoIECAwMwS23HLLmVFMX2UIoH2xOYkAAQJ5Beadd960yiqr5K1UbQQIEBiQgHtABwSrWAIECBAgQIAAgd4CAmhvF3sJECBAgAABAgQGJCCADghWsQQIECBAgAABAr0FBNDeLvYSIECAAAECBAgMSEAAHRCsYgkQIECAAAECBHoLCKC9XewlQIAAAQIECBAYkIAAOiBYxRIgQIAAAQIECPQWEEB7u9hLgAABAgQIECAwIAEBdECwiiVAgAABAgQIEOgtIID2drGXAAECBAgQIEBgQAIC6IBgFUuAAAECBAgQINBbQADt7WIvAQIECBAgQIDAgAQE0AHBKpYAAQIECBAgQKC3gADa28VeAgQIECBAgACBAQkIoAOCVSwBAgQIECBAgEBvAQG0t4u9BAgQIECAAAECAxIQQAcEq1gCBAgQIECAAIHeAgJobxd7CRAgQIAAAQIEBiQggA4IVrEECBAgQIAAAQK9BQTQ3i72EiBAgAABAgQIDEhAAB0QrGIJECBAgAABAgR6CwigvV3sJUCAAAECBAgQGJCAADogWMUSIECAAAECBAj0FhBAe7vYS4AAAQIECBAgMCABAXRAsIolQIAAAQIECBDoLSCA9naxlwABAgQIECBAYEACAuiAYBVLgAABAgQIECDQW0AA7e1iLwECBAgQIECAwIAEBNABwSqWAAECBAgQIECgt4AA2tvFXgIECBAgQIAAgQEJCKADglUsAQIECBAgQIBAbwEBtLeLvQQIECBAgAABAgMSEEAHBKtYAgQIECBAgACB3gICaG8XewkQIECAAAECBAYkIIAOCFaxBAgQIECAAAECvQUE0N4u9hIgQIAAAQIECAxIQAAdEKxiCRAgQIAAAQIEegsIoL1d7CVAgAABAgQIEBiQgAA6IFjFEiBAgAABAgQI9BYQQHu72EuAAAECBAgQIDAgAQF0QLCKJUCAAAECBAgQ6C0ggPZ2sZcAAQIECBAgQGBAAgLogGAVS4AAAQIECBAg0FtAAO3tYu9MFFh33XXTpEmT0p577tmz1LvvvjvNOeec1TF33nlnz2N67Zw8eXI66qijen1kHwECBAgQINBiAQG0xYMzOzUtAuY555yTnnnmmam6ddZZZ6Xnnntuqv12ECBAgAABArOngAA6e45r63q16aabpgceeCD94he/mKpt3//+99P6668/1X47CBAgQIAAgdlTQACdPce1db1aaqml0kYbbZTOPPPMKdp27733pksuuSTtvPPOU+yPX84+++wUwXWRRRZJL37xi9N2222Xbr755qmO6+x49NFH07777ptWWGGFtOiii6Yddtgh3XHHHZ2PfSdAgAABAgRaIiCAtmQgSmjGTjvtVIXKkZGRse5GyFxnnXXS8ssvP7YvfjjjjDPSjjvumNZcc810/PHHp3322Sdde+21KcrotUWZW265ZTr99NPTrrvumo455ph03333pQ022KBaee11jn0ECBAgQIDArBGYa9ZUq9YSBd70pjelAw88MF155ZXVamgYxOX3N7/5zVNxxKrotttum4499tjqswie8dDRoYcemh588MG00EILTXFOBM8rrrginXvuuel1r3td9VmsmMZK6Je+9KX06U9/eorj/UKAAAECBAjMOgEBdNbZF1dzXBqP1c546Cgux99///3p4osvTkcffXS6+uqrp/A48sgjx36Plcwbbrgh3XLLLdW+xx57bKoAGoF1wQUXrALnNddcM3ZuPIH/q1/9aux3PxAgQIAAAQKzXkAAnfVjUFQLYiXzpJNOSp///OfTD37wg+oS+0orrTRVAI1VzkMOOaS6ZH/XXXdV94Euu+yylVX3JfwO3u23354eeuihtOGGG3Z2jX0ff3l/7AM/ECBAgAABArNEwD2gs4S93ErjMnysZMaKZtzn2evho9DZfffd06mnnpo++tGPpuuuuy7985//TAcccMCEcHFJPoLmI488kuJhpO6vG2+8ccLzfECAAAECBAjkFxBA85sXXePqq6+eXvKSl6STTz45/fSnP+0ZQJ966ql0wQUXpA9+8IPV11prrVW9pP53v/tdZdfrXaJrrLFGilXQCJvzzz9/9TXffPNV58dDTDYCBAgQIECgPQICaHvGopiWxGX4L3/5y2mVVVZJq6666lT9nmeeear3gl544YUp/kpS3PP53e9+N3XuC3388cenOuc973lPWnjhhavAGefFfaOf/OQn0wknnJA22WSTqY63gwABAgQIEJh1AgLorLMvtua4DB8hcqLL7wFz+OGHp6effjrF+0MjWMZrlS666KLqT3bGU/Tjt3hXaHwe5W699dbVw0jxl5fiAScvuR+v5XcCBAgQIDBrBSaNPtDx75cyZmxLhIXNN9+8ChQZq1XVkAnECmhcUn/BC14wwy2Pv7j05JNPpiWWWGKGz3Hg8AvEqvett95avft1+HujBwQIEJi9BTwFP3uP79D3rp8QGSumNgIECBAgQKC9Ai7Bt3dstIwAAQIECBAgMFsKCKCz5bDqFAECBAgQIECgvQICaHvHRssIECBAgAABArOlgAA6Ww6rThEgQIAAAQIE2isggLZ3bLSMAAECBAgQIDBbCgigs+Ww6hQBAgQIECBAoL0CAmh7x0bLCBAgQIAAAQKzpYAAOlsOq04RIECAAAECBNorIIC2d2y0bDoCzz333DSPmEV/5GuabfIhAQIECBAgkJIAahb0JbDxxhunBRZYIN12221TnX/VVVelSZMmpUsvvXSqz5ruuPHGG9N2221X/WnO+BOd8Xfe48+6dm/x5xgPOOCAtOyyy1Z/jnP33XdPDz300Nghn/rUp9Kqq67a8yvKthEgQIAAAQKDFfCnOAfrO1uX/thjj6X3vve96cc//nGWft5///1pq622SksuuWQ67rjj0ote9KL0la98pQqkV1xxRVpvvfWqduy1117V34I//vjj0xNPPJEOOeSQ9NrXvjZdeeWV1ecRWp999tkp2vzggw+mI488Mm222WZT7PcLAQIECBAgMPMFBNCZb1pMiYsttli68MIL03e+85202267DbzfZ599dvr73/+e4vsGG2xQ1bfhhhtWgfRb3/pWFUCjPZdcckmKVdgImrE9+eSTaZdddkm33HJLWmWVVdK2225bfVUf/t9/3vWud6U11lgjHXXUUd27/UyAAAECBAgMQEAAHQBqKUW+6lWvSnEf5v7775+22WabakVyRvr+8MMPp89+9rMTHhqXwXutRK677rrp6KOPHgufUcDzn//8qt5YwYwtVkjjEvwKK6xQ/R7/ufvuu6uf55577rF93T9cfPHF6YQTTkg///nPU1zWtxEgQIAAAQKDFRBAB+s725ceK4arrbZadc/lSSedNEP9jUv3p5xyyoTHrrjiihMG0Aih3dtll12Wbr/99nTggQdWu+Pe0074jKAbtwccccQR6fWvf31afvnlu0+tfn7mmWfSPvvsk3bYYYcUgdpGgAABAgQIDF5AAB288WxdQ9yPGauZ++23X4qHfWIFcnrbEkssUYXG6R03vc8fffTRqt64rB6X0MdvW2yxRbr66qvTIossko455pjxH1e/n3/++elPf/rThJ/3PMlOAgQIECBAoJGAp+Ab8Tk5BOJBpI022qj6/vjjj2dBeeSRR9L222+f/vznP6dTTz01TZ48eap6v/71r6fzzjsvrbPOOmnttddO11xzzVTHxKptrIxGWLURIECAAAECeQSsgOZxnq1rmWOOOVI8cf7yl788feITn0g777zzNPt7zz33VE+uT3TQhz70oWk+1BSvVNp6663TH/7wh+oSe9Tba4vQGV+vfOUrq9cxxcNSnSfl4/gHHnggnXPOOenQQw+tXhvVqwz7CBAgQIAAgZkvIIDOfNMiS1xzzTXTQQcdlL7whS+klVZaaZoG8TBQrEpOtMXT9RNtcV9nvFLpL3/5S4qHh8aXc8cdd6T42nTTTceKWHDBBasV2nhVU/d25plnVk/Ix2ubbAQIECBAgEA+AQE0n/VsX9Nhhx2WTjvttHTwwQdPs68LL7xwisvjdbf4y0bxMNFf//rX6iX3ce/n+O2b3/xmihfNxyuXOg8jxYppvAN0xx13nOLwa6+9Ni2zzDJp6aWXnmK/XwgQIECAAIHBCrgHdLC+RZU+77zzpmOPPba6tB0dn9l/CjPe9Rl/XWmnnXaq3vN58sknp85XvEIptre//e3V/aDxl5AihF5//fXVU+5PP/10ikv73dvNN99cvfuze5+fCRAgQIAAgcELWAEdvHFRNcTDPHvssUc68cQTZ3q/412dscWrn8a/MD7uCf2P//iP6kXzZ511VhU6489txharnHG5vfPy+mrn6H8igMYL6m0ECBAgQIBAXoFJo6tUI3mr/P9ri7/fvfnmm6c555xzVlSvztlcIKZ13AsaD0hFALXN/gL33Xdf9UcIxv9DY/bvuR4SIEBg+ASsgA7fmGnxDAjEC+mXW265GTjSIQQIECBAgEBuAfeA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCAmhucfURIECAAAECBAoXEEALnwC6T4AAAQIECBDILSCA5hZXHwECBAgQIECgcAEBtPAJoPsECBAgQIAAgdwCc+WusFPfyMhIevLJJ9OkSZM6u3wnQIBA3wLPPfdcii8bAQIECLRfYJYF0IUXXjhdddVVAmj754gWEhgKgQifyy233FC0VSMJECBQusCk0ZXIkdIR9J8AAQIECBAgQCCfgHtA81mriQABAgQIECBAYFRAADUNCBAgQIAAAQIEsgoIoFm5VUaAAAECBAgQICCAmgMECBAgQIAAAQJZBQTQrNwqI0CAAAECBAgQEEDNAQIECBAgQIAAgawCAmhWbpURIECAAAECBAgIoOYAAQIECBAgQIBAVgEBNCu3yggQIECAAAECBARQc4AAAQIECBAgQCCrgACalVtlBAgQIECAAAECAqg5QIAAAQIECBAgkFVAAM3KrTICBAgQIECAAAEB1BwgQIAAAQIECBDIKiCAZuVWGQECBAgQIECAgABqDhAgQIAAAQIECGQVEECzcquMAAECBAgQIEBAADUHCBAgQIAAAQIEsgoIoFm5VUaAAAECBAgQICCAmgMECBAgQIAAAQJZBQTQrNwqI0CAAAECBAgQEEDNAQIECBAgQIAAgawCAmhWbpURIECAAAECBAgIoOYAAQIECBAgQIBAVgEBNCu3yggQIECAAAECBARQc4AAAQIECBAgQCCrgACalVtlBAgQIECAAAECAqg5QIAAAQIECBAgkFVAAM3KrTICBAgQIECAAAEB1BwgQIAAAQIECBDIKiCAZuVWGQECBAgQIECAgABqDhAgQIAAAQIECGQVEECzcquMAAECBAgQIEBAADUHCBAgQIAAAQIEsgoIoFm5VUaAAAECBAgQICCAmgMECBAgQIAAAQJZBQTQrNwqI0CAAAECBAgQEEDNAQIECBAgQIAAgawCAmhWbpURIECAAAECBAgIoOYAAQIECBAgQIBAVgEBNCu3yggQIECAAAECBARQc4AAAQIECBAgQCCrwP8HxO5eTt4KMwQAAAAASUVORK5CYII=" /><!-- --></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">warn.conflicts =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">generate_concept_cohort_set</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  cdm, </span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="at">concept_set =</span> <span class="fu">list</span>(<span class="at">gibleed =</span> <span class="dv">192671</span>), </span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&quot;gibleed2&quot;</span>, <span class="co"># name of the cohort table</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="at">limit =</span> <span class="st">&quot;all&quot;</span>, <span class="co"># use all occurrences of the concept instead of just the first</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  <span class="at">end =</span> <span class="dv">10</span> <span class="co"># set explicit cohort end date 10 days after start</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>)</span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>cdm<span class="sc">$</span>gibleed2 <span class="ot">&lt;-</span> cdm<span class="sc">$</span>gibleed2 <span class="sc">%&gt;%</span> </span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>  <span class="fu">semi_join</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>    <span class="fu">filter</span>(cdm<span class="sc">$</span>person, gender_concept_id <span class="sc">==</span> <span class="dv">8507</span>), </span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span> <span class="ot">=</span> <span class="st">&quot;person_id&quot;</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>  <span class="fu">record_cohort_attrition</span>(<span class="at">reason =</span> <span class="st">&quot;Male&quot;</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a>  </span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>gibleed2) </span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 7</span></span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Initial qualify…</span></span>
+<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a><span class="co">#&gt; 2                    1            237             237         2 Male            </span></span>
+<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
 <p>In the above example we built a cohort table from a concept set. The
 cohort essentially captures patient-time based off of the presence or
 absence of OMOP standard concept IDs. We then manually applied an
@@ -835,81 +745,79 @@ choose. As long as the table is in the CDM database and has the four
 required columns it can be added to the CDM object as a generated cohort
 set.</p>
 <p>Suppose for example our cohort table is</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>cohort <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">cohort_definition_id =</span> 1L,</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">subject_id =</span> 1L,</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">cohort_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;1999-01-01&quot;</span>),</span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2001-01-01&quot;</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>)</span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>cohort</span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 4</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>cohort <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="at">cohort_definition_id =</span> 1L,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="at">subject_id =</span> 1L,</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="at">cohort_start_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;1999-01-01&quot;</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="at">cohort_end_date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2001-01-01&quot;</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>)</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>cohort</span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 4</span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
 <p>First make sure the table is in the database and create a dplyr table
 reference to it and add it to the CDM object.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;omopgenerics&#39;</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:Capr&#39;:</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt;     attrition</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:CDMConnector&#39;:</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;     cdmName, recordCohortAttrition, uniqueTableName</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:stats&#39;:</span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt;     filter</span></span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>, <span class="at">table =</span> cohort, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a></span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>cdm<span class="sc">$</span>cohort</span>
-<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.cohort&gt; [1 x 4]</span></span>
-<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v0.10.1 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmpez5HHt/file182a21fc13148.duckdb]</span></span>
-<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
-<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
-<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">library</span>(omopgenerics)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;omopgenerics&#39; was built under R version 4.3.3</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;omopgenerics&#39;</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:CDMConnector&#39;:</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="co">#&gt;     cdmName, recordCohortAttrition, uniqueTableName</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; The following object is masked from &#39;package:stats&#39;:</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co">#&gt;     filter</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;cohort&quot;</span>, <span class="at">table =</span> cohort, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>cdm<span class="sc">$</span>cohort</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.cohort&gt; [1 x 4]</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.0.0 [root@Darwin 23.0.0:R 4.3.1//private/var/folders/xx/01v98b6546ldnm1rg1_bvk000000gn/T/Rtmp4kNTM3/file1b3b5ec33315.duckdb]</span></span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id subject_id cohort_start_date cohort_end_date</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         </span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; 1                    1          1 1999-01-01        2001-01-01</span></span></code></pre></div>
 <p>To make this a true generated cohort object use the
 <code>cohort_table</code></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>cdm<span class="sc">$</span>cohort <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort)</span></code></pre></div>
 <p>We can see that this cohort is now has the class “cohort_table” as
 well as the various metadata tables.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>cohort)</span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
-<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
-<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>cohort)</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a><span class="co">#&gt; 1                    1              1               1         1 Initial qualify…</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
 <p>If you would like to override the attribute tables then pass
 additional dataframes to cohortTable</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;cohort2&quot;</span>, <span class="at">table =</span> cohort, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort2)</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>cohort2)</span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">cohort_definition_id =</span> 1L,</span>
-<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>                         <span class="at">cohort_name =</span> <span class="st">&quot;made_up_cohort&quot;</span>)</span>
-<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort2, <span class="at">cohortSetRef =</span> cohort_set)</span>
-<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a></span>
-<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>cohort2)</span>
-<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name   </span></span>
-<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;         </span></span>
-<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a><span class="co">#&gt; 1                    1 made_up_cohort</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">insertTable</span>(<span class="at">cdm =</span> cdm, <span class="at">name =</span> <span class="st">&quot;cohort2&quot;</span>, <span class="at">table =</span> cohort, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort2)</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>cohort2)</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a><span class="co">#&gt; 1                    1 cohort_1</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a></span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>cohort_set <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">cohort_definition_id =</span> 1L,</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>                         <span class="at">cohort_name =</span> <span class="st">&quot;made_up_cohort&quot;</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>cdm<span class="sc">$</span>cohort2 <span class="ot">&lt;-</span> <span class="fu">newCohortTable</span>(cdm<span class="sc">$</span>cohort2, <span class="at">cohortSetRef =</span> cohort_set)</span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>cohort2)</span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name   </span></span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;         </span></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a><span class="co">#&gt; 1                    1 made_up_cohort</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Cohort building is a fundamental building block of observational
 health analysis and CDMConnector supports different ways of creating
 cohorts. As long as your cohort table is has the required structure and

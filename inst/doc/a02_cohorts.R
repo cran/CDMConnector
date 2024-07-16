@@ -53,35 +53,6 @@ attrition(cdm$study_cohorts)
 #    cdm_subset_cohort(cohort_table = "study_cohorts")
 
 ## -----------------------------------------------------------------------------
-library(Capr)
-
-gibleed_concept_set <- cs(192671, name = "gibleed")
-
-gibleed_definition <- cohort(
-  entry = conditionOccurrence(gibleed_concept_set)
-)
-
-gibleed_male_definition <- cohort(
-  entry = conditionOccurrence(gibleed_concept_set, male())
-)
-
-# create a named list of Capr cohort definitions
-cohort_details = list(gibleed = gibleed_definition,
-                  gibleed_male = gibleed_male_definition)
-
-# generate cohorts
-cdm <- generate_cohort_set(
-  cdm,
-  cohort_set = cohort_details,
-  name = "gibleed" # name for the cohort table in the cdm
-)
-
-cdm$gibleed
-
-## -----------------------------------------------------------------------------
-DBI::dbDisconnect(con, shutdown = TRUE)
-
-## -----------------------------------------------------------------------------
 library(CDMConnector)
 con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
 cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
@@ -165,13 +136,6 @@ cdm$gibleed2 <- cdm$gibleed2 %>%
   record_cohort_attrition(reason = "Male")
   
 attrition(cdm$gibleed2) 
-
-## ----fig.width= 7, fig.height=10----------------------------------------------
-library(visR)
-gibleed2_attrition <- CDMConnector::attrition(cdm$gibleed2)  %>% 
-    dplyr::select(Criteria = "reason", `Remaining N` = "number_subjects")
-class(gibleed2_attrition) <- c("attrition", class(gibleed2_attrition))
-visr(gibleed2_attrition)
 
 ## -----------------------------------------------------------------------------
 cohort <- dplyr::tibble(

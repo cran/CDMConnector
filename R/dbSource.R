@@ -29,12 +29,12 @@ dbSource <- function(con, writeSchema) {
     }
     con <- pool::localCheckout(con)
   }
-  if (methods::is(con, "DatabaseConnectorConnection")) {
-    cli::cli_warn(
-      "Not all functionality is supported when DatabaseConnector is your
-      database driver! Some issues may occur."
-    )
-  }
+  # if (methods::is(con, "DatabaseConnectorConnection")) {
+  #   cli::cli_warn(
+  #     "Not all functionality is supported when DatabaseConnector is your
+  #     database driver! Some issues may occur."
+  #   )
+  # }
   checkmate::assert_true(.dbIsValid(con))
   if (dbms(con) %in% c("duckdb", "sqlite") && missing(writeSchema)) {
     writeSchema <- c(schema = "main")
@@ -61,7 +61,7 @@ insertTable.db_cdm <- function(cdm,
   checkmate::assertCharacter(name, len = 1, any.missing = FALSE)
   con <- attr(src, "dbcon")
   writeSchema <- attr(src, "write_schema")
-  fullName <- inSchema(schema = writeSchema, table = name, dbms = dbms(con))
+  fullName <- .inSchema(schema = writeSchema, table = name, dbms = dbms(con))
   if (overwrite && (name %in% listTables(con, writeSchema))) {
     DBI::dbRemoveTable(con, name = fullName)
   }
@@ -95,13 +95,17 @@ dropTable.db_cdm <- function(cdm, name) {
 
   # drop tables
   for (i in seq_along(toDrop)) {
-    DBI::dbRemoveTable(conn = con, name = inSchema(
+    DBI::dbRemoveTable(conn = con, name = .inSchema(
       schema = schema, table = toDrop[i], dbms = dbms(con)
     ))
   }
 
   return(invisible(TRUE))
 }
+
+#' @importFrom dplyr compute
+#' @export
+dplyr::compute
 
 #' @export
 #' @importFrom dplyr compute
@@ -110,6 +114,19 @@ compute.db_cdm <- function(x, name, temporary = FALSE, overwrite = TRUE, ...) {
   # check source and name
   source <- attr(x, "tbl_source")
   con <- attr(source, "dbcon")
+  checkmate::assertTRUE(DBI::dbIsValid(con))
+
+  if (dbms(con) == "spark" & isTRUE(temporary)) {
+    cdm <- attr(x, "cdm_reference")
+    checkmate::assertClass(cdm, "cdm_reference")
+    prefix <- attr(cdm, "temp_emulation_prefix")
+    if (is.null(prefix)) {
+      rlang::abort("temp_emulation_prefix is missing! Please open an issue at https://github.com/darwin-eu/CDMConnector")
+    }
+    name <- paste0(prefix, name)
+    temporary <- FALSE
+  }
+
   if (is.null(source)) cli::cli_abort("table source not found.")
   oldName <- attr(x, "tbl_name")
   if (is.null(oldName)) cli::cli_abort("table name not found.")
@@ -146,7 +163,7 @@ compute.db_cdm <- function(x, name, temporary = FALSE, overwrite = TRUE, ...) {
     )
 
   if (intermediate) {
-    DBI::dbRemoveTable(con, name = inSchema(schema = schema, table = intername, dbms = dbms(con)))
+    DBI::dbRemoveTable(con, name = .inSchema(schema = schema, table = intername, dbms = dbms(con)))
     if (intername %in% list_tables(con, schema)) {
       cli::cli_warn("Intermediate table `{intername}` was not dropped as expected.")
     }
@@ -244,7 +261,7 @@ dropSourceTable.db_cdm <- function(cdm, name) {
 
   # drop tables
   for (i in seq_along(name)) {
-    DBI::dbRemoveTable(conn = con, name = inSchema(
+    DBI::dbRemoveTable(conn = con, name = .inSchema(
       schema = schema, table = name[i], dbms = dbms(con)
     ))
   }
@@ -256,7 +273,7 @@ dropSourceTable.db_cdm <- function(cdm, name) {
 readSourceTable.db_cdm <- function(cdm, name) {
   con <- attr(cdm, "dbcon")
   schema <- attr(cdm, "write_schema")
-  fullName <- inSchema(schema = schema, table = name, dbms = dbms(con))
+  fullName <- .inSchema(schema = schema, table = name, dbms = dbms(con))
   dplyr::tbl(src = con, fullName) |>
     dplyr::rename_all(tolower) |>
     omopgenerics::newCdmTable(src = cdm, name = tolower(name))

@@ -2,7 +2,7 @@
 test_cohort_generation <- function(con, cdm_schema, write_schema) {
   skip_if_not_installed("CirceR")
 
-  cdm <- cdm_from_con(con, cdm_schema, write_schema)
+  cdm <- cdm_from_con(con, cdm_schema, write_schema, cdm_name = "test cdm")
 
   # test read cohort set with a cohortsToCreate.csv
   expect_error(readCohortSet(path = "does_not_exist"))
@@ -60,6 +60,7 @@ test_cohort_generation <- function(con, cdm_schema, write_schema) {
 }
 
 for (dbtype in dbToTest) {
+  # dbtype = "spark"
   test_that(glue::glue("{dbtype} - generateCohortSet"), {
     skip_if_not_installed("CirceR")
     if (dbtype != "duckdb") skip_on_cran() else skip_if_not_installed("duckdb")
@@ -72,37 +73,39 @@ for (dbtype in dbToTest) {
   })
 }
 
-test_that("Generation from Capr Cohorts", {
-  skip_if_not(eunomia_is_available())
-  skip_if_not_installed("Capr", minimum_version = "2.0.5")
-  skip_if_not_installed("duckdb")
-  skip_if_not_installed("CirceR")
-
-  con <- DBI::dbConnect(duckdb::duckdb(eunomia_dir()))
-  cdm <- cdm_from_con(
-    con = con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main"
-  )
-
-  gibleed_cohort_definition <- Capr::cohort(
-    entry = Capr::conditionOccurrence(Capr::cs(Capr::descendants(192671), name = "test")),
-    attrition = Capr::attrition(
-      "no RA" = Capr::withAll(
-        Capr::exactly(0,
-                      Capr::conditionOccurrence(Capr::cs(Capr::descendants(80809), name = "test")),
-                      Capr::duringInterval(Capr::eventStarts(-Inf, Inf))))
-    )
-  )
-
-  cdm <- generateCohortSet(
-    cdm,
-    list(gibleed = gibleed_cohort_definition),
-    name = "gibleed",
-    overwrite = TRUE
-  )
-
-  expect_gt(nrow(dplyr::collect(cdm$gibleed)), 10)
-  DBI::dbDisconnect(con, shutdown = TRUE)
-})
+# can't depend on Capr until it's on CRAN so removing this test
+# test_that("Generation from Capr Cohorts", {
+#   skip_if_not(eunomia_is_available())
+#   skip_if_not_installed("Capr", minimum_version = "2.0.5")
+#   skip_if_not_installed("duckdb")
+#   skip_if_not_installed("CirceR")
+#   skip_if_not("duckdb" %in% dbToTest)
+#
+#   con <- DBI::dbConnect(duckdb::duckdb(eunomia_dir()))
+#   cdm <- cdm_from_con(
+#     con = con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main"
+#   )
+#
+#   gibleed_cohort_definition <- Capr::cohort(
+#     entry = Capr::conditionOccurrence(Capr::cs(Capr::descendants(192671), name = "test")),
+#     attrition = Capr::attrition(
+#       "no RA" = Capr::withAll(
+#         Capr::exactly(0,
+#                       Capr::conditionOccurrence(Capr::cs(Capr::descendants(80809), name = "test")),
+#                       Capr::duringInterval(Capr::eventStarts(-Inf, Inf))))
+#     )
+#   )
+#
+#   cdm <- generateCohortSet(
+#     cdm,
+#     list(gibleed = gibleed_cohort_definition),
+#     name = "gibleed",
+#     overwrite = TRUE
+#   )
+#
+#   expect_gt(nrow(dplyr::collect(cdm$gibleed)), 10)
+#   DBI::dbDisconnect(con, shutdown = TRUE)
+# })
 
 test_that("duckdb - phenotype library generation", {
   skip("manual test")
@@ -171,8 +174,10 @@ test_that("TreatmentPatterns cohort works", {
 # cdm$gibleed
 # cohort_count(cdm$gibleed)
 
+
 test_that("newGeneratedCohortSet works with prefix", {
   skip_if_not_installed("duckdb")
+  skip_if_not("duckdb" %in% dbToTest)
   con <- DBI::dbConnect(duckdb::duckdb(eunomia_dir()))
 
   write_schema <- c(schema = "main", prefix = "test_")

@@ -49,7 +49,8 @@ table_refs <- function(domain_id) {
 #' observation domains, the the start date will be used as the end date.
 #'
 #' @param cdm A cdm reference object created by `CDMConnector::cdmFromCon` or `CDMConnector::cdm_from_con`
-#' @param conceptSet,concept_set A named list of numeric vectors or Capr concept sets
+#' @param conceptSet,concept_set A named list of numeric vectors or a Concept Set Expression created
+#' `omopgenerics::newConceptSetExpression`
 #' @param name The name of the new generated cohort table as a character string
 #' @param limit Include "first" (default) or "all" occurrences of events in the cohort
 #' \itemize{
@@ -91,7 +92,6 @@ generateConceptCohortSet <- function(cdm,
   checkmate::assert_character(name, len = 1, min.chars = 1, any.missing = FALSE, pattern = "[a-zA-Z0-9_]+")
 
   assertTables(cdm, "observation_period", empty.ok = FALSE)
-  assertWriteSchema(cdm)
 
   # check name ----
   checkmate::assertLogical(overwrite, len = 1, any.missing = FALSE)
@@ -119,11 +119,33 @@ generateConceptCohortSet <- function(cdm,
   }
 
   # check ConceptSet ----
-  checkmate::assertList(conceptSet, min.len = 1, any.missing = FALSE, types = c("numeric", "ConceptSet"), names = "named")
+  checkmate::assertList(conceptSet, min.len = 1, any.missing = FALSE, types = c("numeric", "ConceptSet", "data.frame"), names = "named")
   checkmate::assertList(conceptSet, min.len = 1, names = "named")
   CDMConnector::assert_tables(cdm, "concept")
 
-  if (methods::is(conceptSet[[1]], "ConceptSet")) {
+  if (methods::is(conceptSet, "conceptSetExpression")) {
+    # omopgenerics conceptSetExpression
+
+    df <- dplyr::tibble(cohort_definition_id = seq_along(conceptSet),
+                        cohort_name = names(conceptSet),
+                        df = conceptSet) %>%
+      tidyr::unnest(cols = df) %>%
+      dplyr::mutate(
+        "limit" = .env$limit,
+        "prior_observation" = .env$requiredObservation[1],
+        "future_observation" = .env$requiredObservation[2],
+        "end" = .env$end
+      ) %>%
+      dplyr::select(
+        "cohort_definition_id", "cohort_name", "concept_id",
+        "include_descendants" = "descendants",
+        "is_excluded" = "excluded",
+        # dplyr::any_of(c(
+        "limit", "prior_observation", "future_observation", "end"
+        # ))
+      )
+  } else if (methods::is(conceptSet[[1]], "ConceptSet")) {
+    # handling of Capr Concept set expressions.
     purrr::walk(conceptSet, ~checkmate::assertClass(., "ConceptSet"))
 
     df <- dplyr::tibble(cohort_definition_id = seq_along(conceptSet),
@@ -146,6 +168,7 @@ generateConceptCohortSet <- function(cdm,
       )
 
   } else {
+    # conceptSet should be a named list of int vectors
     # remove any empty concept sets
     conceptSet <- conceptSet[lengths(conceptSet) > 0]
     # conceptSet must be a named list of integer-ish vectors
@@ -176,9 +199,10 @@ generateConceptCohortSet <- function(cdm,
     dplyr::distinct()
 
   # check target cohort -----
-  if(!is.null(subsetCohort)){
+  if (!is.null(subsetCohort)) {
     assertTables(cdm, subsetCohort)
   }
+
   if (!is.null(subsetCohort) && !is.null(subsetCohortId)){
     if (!nrow(omopgenerics::settings(cdm[[subsetCohort]]) %>% dplyr::filter(.data$cohort_definition_id %in% .env$subsetCohortId)) > 0){
       cli::cli_abort("cohort_definition_id {subsetCohortId} not found in cohort set of {subsetCohort}")
@@ -188,7 +212,7 @@ generateConceptCohortSet <- function(cdm,
   tempName <- paste0("tmp", as.integer(Sys.time()), "_")
 
   DBI::dbWriteTable(cdmCon(cdm),
-                    name = inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con)),
+                    name = .inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con)),
                     value = df,
                     overwrite = TRUE)
 
@@ -197,14 +221,12 @@ generateConceptCohortSet <- function(cdm,
   }
 
   # realize full list of concepts ----
-  concepts <- dplyr::tbl(cdmCon(cdm), inSchema(cdmWriteSchema(cdm),
-                                                      tempName,
-                                                      dbms = dbms(con))) %>%
+  concepts <- dplyr::tbl(cdmCon(cdm), .inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con))) %>%
     dplyr::rename_all(tolower)
 
   if (any(df$include_descendants)) {
     concepts <- concepts  %>%
-      dplyr::filter(.data$include_descendants) %>%
+      dplyr::filter(.data$include_descendants == TRUE) %>%
         dplyr::inner_join(cdm$concept_ancestor, by = c("concept_id" = "ancestor_concept_id")) %>%
         dplyr::select(
           "cohort_definition_id", "cohort_name",
@@ -214,7 +236,7 @@ generateConceptCohortSet <- function(cdm,
         dplyr::union_all(
           dplyr::tbl(
             cdmCon(cdm),
-            inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con))
+            .inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con))
           ) %>%
           dplyr::select(dplyr::any_of(c(
             "cohort_definition_id", "cohort_name", "concept_id", "is_excluded",
@@ -223,7 +245,7 @@ generateConceptCohortSet <- function(cdm,
         )
     }
 
-  concepts <-  concepts %>%
+  concepts <- concepts %>%
         dplyr::filter(.data$is_excluded == FALSE) %>%
     # Note that concepts that are not in the vocab will be silently ignored
     dplyr::inner_join(dplyr::select(cdm$concept, "concept_id", "domain_id"), by = "concept_id") %>%
@@ -234,8 +256,12 @@ generateConceptCohortSet <- function(cdm,
     dplyr::distinct() %>%
     dplyr::compute()
 
-  DBI::dbRemoveTable(cdmCon(cdm),
-                     name = inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con)))
+  on.exit({
+    if (DBI::dbIsValid(cdmCon(cdm))) {
+      DBI::dbRemoveTable(cdmCon(cdm), name = .inSchema(cdmWriteSchema(cdm), tempName, dbms = dbms(con)))
+    }},
+    add = TRUE
+  )
 
   domains <- concepts %>% dplyr::distinct(.data$domain_id) %>% dplyr::pull() %>% tolower()
   domains <- domains[!is.na(domains)] # remove NAs
@@ -243,14 +269,15 @@ generateConceptCohortSet <- function(cdm,
 
   if (length(domains) == 0){
     cli::cli_warn("None of the input concept IDs found for the cdm reference - returning an empty cohort")
-    cdm <- insertTable(cdm = cdm, name = name,
+    cdm <- insertTable(cdm = cdm,
+                       name = name,
                        table = dplyr::tibble(
                          cohort_definition_id = numeric(),
                          subject_id = numeric(),
                          cohort_start_date = as.Date(character()),
-                         cohort_end_date = as.Date(character())
-                       ),
+                         cohort_end_date = as.Date(character())),
                        overwrite = overwrite)
+
     cdm[[name]] <- omopgenerics::newCohortTable(
       table = cdm[[name]],
       cohortSetRef = cohort_set_ref
@@ -288,7 +315,10 @@ generateConceptCohortSet <- function(cdm,
                        subject_id = .data$person_id,
                        cohort_start_date = !!rlang::parse_expr(df$start_date),
                        cohort_end_date = dplyr::coalesce(!!rlang::parse_expr(df$end_date),
-                                                         !!dateadd(df$start_date, 1)))
+                                                         !!dateadd(df$start_date, 1))) %>%
+      # silently ignore cdm records where end date is before start.
+      # Another reasonable option could be to set end to start if end is before start.
+      dplyr::filter(cohort_start_date <= .data$cohort_end_date)
   }
 
   if (length(domains) == 0) {
@@ -297,7 +327,6 @@ generateConceptCohortSet <- function(cdm,
     cohort <- purrr::map(domains, ~get_domain(., cdm = cdm, concepts = concepts)) %>%
       purrr::reduce(dplyr::union_all)
   }
-
 
   if (is.null(cohort)) {
     # no domains included. Create empty cohort.
@@ -320,22 +349,11 @@ generateConceptCohortSet <- function(cdm,
                     "observation_period_end_date")
 
     # subset to target cohort
-    if(!is.null(subsetCohort)){
-      if(is.null(subsetCohortId)){
-        obs_period <- obs_period %>%
-          dplyr::inner_join(cdm[[subsetCohort]] %>%
-                       dplyr::select("subject_id") %>%
-                       dplyr::distinct(),
-                     by = "subject_id")
-      } else {
-        obs_period <- obs_period %>%
-          dplyr::inner_join(cdm[[subsetCohort]] %>%
-                       dplyr::filter(.data$cohort_definition_id %in%
-                                       .env$subsetCohortId) %>%
-                       dplyr::select("subject_id") %>%
-                       dplyr::distinct(),
-                     by = "subject_id")
-      }
+    if (!is.null(subsetCohort)) {
+      obs_period <- cdm[[subsetCohort]] %>%
+        {if (!is.null(subsetCohortId)) dplyr::filter(., .data$cohort_definition_id %in% .env$subsetCohortId) else .} %>%
+        dplyr::distinct(.data$subject_id) %>%
+        dplyr::inner_join(obs_period, by = "subject_id")
     }
 
     # TODO remove this variable since it is confusing
@@ -359,8 +377,8 @@ generateConceptCohortSet <- function(cdm,
       # TODO order_by = .data$cohort_start_date
       {if (limit == "first") dplyr::slice_min(., n = 1, order_by = cohort_start_date, by = c("cohort_definition_id", "subject_id")) else .} %>%
       cohort_collapse() %>%
-      dplyr::mutate(cohort_start_date = !!asDate(.data$cohort_start_date),
-                    cohort_end_date = !!asDate(.data$cohort_end_date)) %>%
+      dplyr::mutate(cohort_start_date = as.Date(.data$cohort_start_date),
+                    cohort_end_date = as.Date(.data$cohort_end_date)) %>%
       dplyr::compute(name = name, temporary = FALSE, overwrite = overwrite)
   }
 
@@ -430,5 +448,4 @@ generate_concept_cohort_set <- function(cdm,
                            subsetCohortId = subset_cohort_id,
                            overwrite = overwrite)
 }
-
 
