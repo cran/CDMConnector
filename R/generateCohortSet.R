@@ -81,6 +81,14 @@ read_cohort_set <- function(path) {
     dplyr::mutate(cohort_name_snakecase = snakecase::to_snake_case(.data$cohort_name)) %>%
     dplyr::select("cohort_definition_id", "cohort_name", "cohort", "json", "cohort_name_snakecase")
 
+  for (i in seq_len(nrow(cohortsToCreate))) {
+    first_chr <- substr(cohortsToCreate$cohort_name[i], 1, 1)
+    if (!grepl("[a-zA-Z]", first_chr)) {
+      cli::cli_abort("Cohort names must start with a letter but {cohortsToCreate$cohort_name[i]} does not.
+                     Rename the json file or use a CohortsToCreate.csv file to explicity set cohort names.")
+    }
+  }
+
   class(cohortsToCreate) <- c("CohortSet", class(cohortsToCreate))
   return(cohortsToCreate)
 }
@@ -122,7 +130,8 @@ readCohortSet <- read_cohort_set
 #' @param cdm A cdm reference created by CDMConnector. write_schema must be
 #'   specified.
 #' @param name Name of the cohort table to be created. This will also be used
-#' as a prefix for the cohort attribute tables.
+#' as a prefix for the cohort attribute tables. This must be a lowercase character string
+#' that starts with a letter and only contains letters, numbers, and underscores.
 #' @param cohort_set,cohortSet Can be a cohortSet object created with `readCohortSet()`
 #' @param compute_attrition,computeAttrition Should attrition be computed? TRUE (default) or FALSE
 #' @param overwrite Should the cohort table be overwritten if it already
@@ -183,12 +192,19 @@ generateCohortSet <- function(cdm,
 
   cli::cli_alert_info("Generating {nrow(cohortSet)} cohort{?s}")
   withr::local_options(list("cli.progress_show_after" = 0, "cli.progress_clear" = FALSE))
-
-
   checkmate::assertClass(cdm, "cdm_reference")
   con <- cdmCon(cdm)
   checkmate::assertTRUE(DBI::dbIsValid(con))
-  checkmate::assert_character(name, len = 1, min.chars = 1, any.missing = FALSE, pattern = "[a-zA-Z0-9_]+")
+  checkmate::assertCharacter(name, len = 1, min.chars = 1, any.missing = FALSE)
+  if (name != tolower(name)) {
+    rlang::abort("Cohort table name {name} must be lowercase!")
+  }
+  if (!grepl("^[a-z]", substr(name, 1, 1))) {
+    cli::cli_abort("Cohort table name {name} must start with a letter!")
+  }
+  if (!grepl("^[a-z][a-z0-9_]*$", name)) {
+    cli::cli_abort("Cohort table name {name} must only contain letters, numbers, and underscores!")
+  }
   checkmate::assertLogical(computeAttrition, len = 1)
   checkmate::assertLogical(overwrite, len = 1)
 
@@ -330,7 +346,9 @@ generateCohortSet <- function(cdm,
         paste0("Inclusion_", 0:9))
 
       for (j in seq_along(tempTablesToDrop)) {
-        DBI::dbExecute(con, paste("drop table if exists", tempTablesToDrop[j]))
+        suppressMessages({
+          invisible(DBI::dbExecute(con, paste("drop table if exists", tempTablesToDrop[j])))
+        })
       }
 
       namesToQuote <- c("cohort_definition_id",
@@ -407,12 +425,17 @@ generateCohortSet <- function(cdm,
       stringr::str_subset("^;$", negate = TRUE)
 
     # drop temp tables if they already exist
-    drop_statements <- stringr::str_subset(sql, "DROP TABLE") %>%
-      stringr::str_replace("DROP TABLE", "DROP TABLE IF EXISTS") %>%
+    drop_statements <- c(
+      stringr::str_subset(sql, "DROP TABLE") %>%
+        stringr::str_subset("IF EXISTS", negate = TRUE) %>%
+        stringr::str_replace("DROP TABLE", "DROP TABLE IF EXISTS"),
+
+      stringr::str_subset(sql, "DROP TABLE IF EXISTS")
+    ) %>%
       purrr::map_chr(~SqlRender::translate(., dbms(con)))
 
     for (k in seq_along(drop_statements)) {
-      DBI::dbExecute(con, drop_statements[k], immediate = TRUE)
+      suppressMessages(DBI::dbExecute(con, drop_statements[k], immediate = TRUE))
     }
 
     for (k in seq_along(sql)) {
@@ -455,11 +478,15 @@ generateCohortSet <- function(cdm,
   cdm[[name]] <- cohort_ref |>
     omopgenerics::newCdmTable(src = attr(cdm, "cdm_source"), name = name)
 
-# browser()
   # Create the object. Let the constructor handle getting the counts.----
+
+  cohortSetRef <- dplyr::transmute(cohortSet,
+    cohort_definition_id = as.integer(.data$cohort_definition_id),
+    cohort_name = as.character(.data$cohort_name))
+
   cdm[[name]] <- omopgenerics::newCohortTable(
     table = cdm[[name]],
-    cohortSetRef = cohortSet[,c("cohort_definition_id", "cohort_name")],
+    cohortSetRef = cohortSetRef,
     cohortAttritionRef = cohort_attrition_ref)
 
   cli::cli_progress_done()
@@ -838,7 +865,16 @@ computeAttritionTable <- function(cdm,
 
   attrition <- attritionList %>%
     dplyr::bind_rows() %>%
-    dplyr::rename_all(tolower)
+    dplyr::rename_all(tolower) %>%
+    dplyr::transmute(
+      cohort_definition_id = as.integer(.data$cohort_definition_id),
+      number_records = as.integer(.data$number_records),
+      number_subjects = as.integer(.data$number_subjects),
+      reason_id = as.integer(.data$reason_id),
+      reason = as.character(.data$reason),
+      excluded_records = as.integer(.data$excluded_records),
+      excluded_subjects = as.integer(.data$excluded_subjects)
+    )
 
   # upload attrition table to database
   DBI::dbWriteTable(con,
@@ -938,6 +974,7 @@ recordCohortAttrition <- function(cohort,
   omopgenerics::recordCohortAttrition(cohort = cohort,
                                       reason = reason,
                                       cohortId = cohortId)
+
 }
 
 #' @export
