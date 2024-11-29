@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 1.6.0
+Version: 1.6.1
 Authors@R: c(
     person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -38,11 +38,11 @@ Collate: 'CDMConnector-package.R' 'Eunomia.R' 'benchmarkCDMConnector.R'
         'generateConceptCohortSet.R' 'summariseQuantile.R' 'utils.R'
         'validate.R' 'zzz-deprecated.R'
 NeedsCompilation: no
-Packaged: 2024-11-13 09:12:04 UTC; ablack
+Packaged: 2024-11-29 08:42:51 UTC; ablack
 Author: Adam Black [aut, cre] (<https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
   Marti Catala Sabate [aut]
 Maintainer: Adam Black <black@ohdsi.org>
 Repository: CRAN
-Date/Publication: 2024-11-13 10:00:02 UTC
+Date/Publication: 2024-11-29 09:20:13 UTC

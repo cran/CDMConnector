@@ -1,6 +1,6 @@
-3a9cc8f180fe30f3a19b1903ae877934 *DESCRIPTION
+c6ea69c1409fb3f2062847a55167468b *DESCRIPTION
 37206abd215741c1d0b87b3b207abcb2 *NAMESPACE
-468ece2c308ad4166d80673d54703807 *NEWS.md
+eb8581adc1f7681d024f1b3497f781d8 *NEWS.md
 e719878ec4fb07496e54c9331bdd8497 *R/CDMConnector-package.R
 c05d4c4999256c4b802c55e0566c19f3 *R/Eunomia.R
 90935175904d31ec1e3ce865744712db *R/benchmarkCDMConnector.R
@@ -8,7 +8,7 @@ a9fe6446c799057695c606a113151bc5 *R/cdm.R
 6d34cf07ca0b5d0dd17b0d2227d8c812 *R/cdmSubset.R
 22dffad52bb1a69e167ed723d455bc1b *R/cdm_from_environment.R
 b2672ee52cdbf370197f18ce61a0540d *R/cohortTransformations.R
-60cece7619ca59433ebb7769dd96440b *R/cohort_ddl.R
+087a02d85fb9100e51a91e1dddb1172d *R/cohort_ddl.R
 52570cb38c22e6889cdfdb7b2e985313 *R/compute.R
 a90f63ea677c9e394bff211eb15fdcb4 *R/copy_cdm_to.R
 0fd8ecf167462d3b49bee1c6e0f118b4 *R/dateadd.R
@@ -42,10 +42,10 @@ b59016f5e0a94e7bcd6b8dca1d09c179 *inst/csv/OMOP_CDMv5.3_Field_Level.csv
 85d5120c8a6423cb32d9d458fb364b73 *inst/csv/OMOP_CDMv5.4_Table_Level.csv
 095c1c0261f0f62a36ff9552a4d1347b *inst/doc/a01_getting-started.R
 bcca604b05bc394dbc0788f1808b786e *inst/doc/a01_getting-started.Rmd
-6fb0dfe521c32794325445b4c3bd0199 *inst/doc/a01_getting-started.html
+a765ac6834ada5504634df4868f0d0e4 *inst/doc/a01_getting-started.html
 84f290651e5d7254a81b839deb7a2282 *inst/doc/a02_cohorts.R
 9066667abd9eb0a9d54fd13a360e34c0 *inst/doc/a02_cohorts.Rmd
-aa4f38f9c6a3df7f28fc174b686529d2 *inst/doc/a02_cohorts.html
+78fd7faac364e794d0c3e149776724ee *inst/doc/a02_cohorts.html
 0f9001229d65e0f13c345788a858dd58 *inst/doc/a03_dbplyr.R
 b49471fc6645363cd2777773556fc89c *inst/doc/a03_dbplyr.Rmd
 5a387f2c61b7b083a06725b9a87ab16e *inst/doc/a03_dbplyr.html
@@ -57,7 +57,7 @@ b2f9da509198811941da14b12fb53e3e *inst/doc/a05_cdm_reference_backends.Rmd
 6f6a4e8851895d104809ad7799b03daf *inst/doc/a05_cdm_reference_backends.html
 f599311dee30b027d2072a91d05fa4ea *inst/doc/a06_using_cdm_attributes.R
 4c35404ac6e2503d7c65a8f8c67b740e *inst/doc/a06_using_cdm_attributes.Rmd
-83a78fa87ce14dc506f2b2690fb8a3ce *inst/doc/a06_using_cdm_attributes.html
+7b0de1757afe72612d4e8dbad1df94d1 *inst/doc/a06_using_cdm_attributes.html
 4a8c678e8c0b85d3c2630cda24cba041 *inst/example_cohorts/GIBleed_male.json
 48dc0b7fa83693b69bd389e0163dbaa7 *inst/example_cohorts/GiBleed_default.json
 15a6f0e7f49c0efb2ebf6bc2109e71ee *inst/png/cdmconnector-hex.png
