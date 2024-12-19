@@ -84,14 +84,15 @@ inSchema <- function(schema, table, dbms = NULL) {
     checkmate::assertCharacter(schema, min.len = 1, max.len = 2)
   }
 
-  if (isFALSE(dbms %in% c("snowflake", "sql server"))) {
+  if (isFALSE(dbms %in% c("snowflake", "sql server", "spark"))) {
     # only a few dbms support three part names
     checkmate::assertCharacter(schema, len = 1)
   }
 
   schema <- unname(schema)
 
-  if (isTRUE(dbms %in% c("bigquery"))) { #TODO bigrquery needs to fix this
+  # if (isTRUE(dbms %in% c("bigquery"))) { #TODO bigrquery needs to fix this
+  if(FALSE) {
     checkmate::assertCharacter(schema, len = 1)
     out <- paste(c(schema, table), collapse = ".")
   } else {
@@ -102,14 +103,19 @@ inSchema <- function(schema, table, dbms = NULL) {
   return(out)
 }
 
+#' `r lifecycle::badge("deprecated")`
 #' @export
 #' @rdname inSchema
-in_schema <- inSchema
+in_schema <- function(schema, table, dbms = NULL) {
+  lifecycle::deprecate_soft("1.7.0", "in_schema()", "inSchema()")
+  inSchema(schema, table, dbms)
+}
 
 #' List tables in a schema
 #'
 #' DBI::dbListTables can be used to get all tables in a database but not always in a
 #' specific schema. `listTables` will list tables in a schema.
+#'
 #'
 #' @param con A DBI connection to a database
 #' @param schema The name of a schema in a database. If NULL, returns DBI::dbListTables(con).
@@ -120,10 +126,10 @@ in_schema <- inSchema
 #'
 #' @examples
 #' \dontrun{
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
 #' listTables(con, schema = "main")
 #' }
-list_tables <- function(con, schema = NULL) {
+listTables <- function(con, schema = NULL) {
 
   if (methods::is(con, "Pool")) {
     if (!rlang::is_installed("pool")) {
@@ -203,7 +209,7 @@ list_tables <- function(con, schema = NULL) {
 
   if (methods::is(con, "Spark SQL")) {
     # spark odbc connection
-    sql <- paste("SHOW TABLES", if (!is.null(schema)) paste("IN", schema[[1]]))
+    sql <- paste("SHOW TABLES", if (!is.null(schema)) paste("IN", paste(schema, collapse = ".")))
     out <- DBI::dbGetQuery(con, sql) %>%
       dplyr::filter(.data$isTemporary == FALSE) %>%
       dplyr::pull(.data$tableName)
@@ -240,9 +246,13 @@ list_tables <- function(con, schema = NULL) {
   rlang::abort(paste(paste(class(con), collapse = ", "), "connection not supported"))
 }
 
-#' @rdname list_tables
+#' `r lifecycle::badge("deprecated")`
+#' @rdname listTables
 #' @export
-listTables <- list_tables
+list_tables <- function(con, schema = NULL) {
+  lifecycle::deprecate_soft("1.7.0", "list_tables()", "listTables()")
+  listTables(con, schema = NULL)
+}
 
 # To silence warning <BigQueryConnection> uses an old dbplyr interface
 # https://github.com/r-dbi/bigrquery/issues/508
@@ -252,7 +262,7 @@ listTables <- list_tables
 dbplyr_edition.BigQueryConnection <- function(con) 2L
 
 # Create the cdm tables in a database
-execute_ddl <- function(con, cdm_schema, cdm_version = "5.3", dbms = "duckdb", tables = tbl_group("all"), prefix = "") {
+execute_ddl <- function(con, cdm_schema, cdm_version = "5.3", dbms = "duckdb", tables = tblGroup("all"), prefix = "") {
 
   specs <- spec_cdm_field[[cdm_version]] %>%
     dplyr::mutate(cdmDatatype = dplyr::if_else(.data$cdmDatatype == "varchar(max)", "varchar(2000)", .data$cdmDatatype)) %>%
@@ -277,4 +287,77 @@ execute_ddl <- function(con, cdm_schema, cdm_version = "5.3", dbms = "duckdb", t
 # get a unique prefix based on current time. internal function.
 unique_prefix <- function() {
   as.integer((as.numeric(Sys.time())*10) %% 1e6)
+}
+
+
+# Borrowed from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
+isInstalled <- function(pkg, version = "0") {
+  installedVersion <- tryCatch(utils::packageVersion(pkg),
+                                error = function(e) NA
+  )
+  !is.na(installedVersion) && installedVersion >= version
+}
+
+# Borrowed and adapted from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
+ensureInstalled <- function(pkg) {
+  if (!isInstalled(pkg)) {
+    msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
+    if (interactive()) {
+      rlang::inform(paste(msg, "Would you like to install it?", sep = "\n"))
+      if (utils::menu(c("Yes", "No")) == 1) {
+        utils::install.packages(pkg)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    } else {
+      stop(msg, call. = FALSE)
+    }
+  }
+}
+
+mapTypes <- function(type) {
+
+  if (type %in% c("integer", "integer64")) {
+    return("INT")
+  } else if (type == "character") {
+    return("STRING")
+  }
+  return(type)  # Default to returning the type as is
+}
+
+# create table function adjusted to work with DatabaseConnector
+dcCreateTable <- function(conn, name, fields) {
+
+  if (tibble::is_tibble(fields)) {
+   fieldsSql <- paste(names(fields),
+     sapply(fields, function(x) mapTypes(class(x)[1])),
+     collapse = ", "
+   )
+ } else {
+   fields <- sapply(names(fields), function(field) {
+     paste(field, fields[[field]], sep = " ")
+   })
+   fieldsSql <- paste(fields, collapse = ", ")
+ }
+
+  tableName <- paste(name@name, collapse = ".")
+
+  if (!(dbms(conn) %in% c("bigquery"))){
+    createTableSQL <- SqlRender::render("CREATE TABLE @a ( @b );", a = tableName, b = fieldsSql)
+
+    createTableSQLTranslated <- SqlRender::translate(createTableSQL, dbms(conn))
+  } else {
+    createTableSQLTranslated <- glue::glue("CREATE TABLE `{tableName}` ({fieldsSql});")
+  }
+
+  DBI::dbExecute(conn, createTableSQLTranslated)
+}
+
+# branching logic: which createTable function to use based on the connection type
+.dbCreateTable <- function(conn, name, fields) {
+  if (methods::is(conn, "DatabaseConnectorJdbcConnection") || dbms(conn)  %in% c("bigquery")) {
+  dcCreateTable(conn, name, fields)
+  } else {
+  DBI::dbCreateTable(conn, name, fields)
+  }
 }

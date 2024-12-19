@@ -78,24 +78,28 @@ creating small test CDM datasets see \url{https://ohdsi.github.io/omock/} and
 
 To contribute synthetic observational health data to the Eunomia project please
 open an issue at \url{https://github.com/OHDSI/Eunomia/issues/}
+
+Setup: To use the \code{eunomiaDir} function please set the \code{EUNOMIA_DATA_FOLDER} in your .Renviron file
+to a folder on your computer where the datasets will be downloaded to. This file can
+be opened by calling \code{usethis::edit_r_environ()}.
 }
 \examples{
 \dontrun{
 
  # The defaults GiBleed dataset is a small dataset that is useful for testing
  library(CDMConnector)
- con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
- cdm <- cdm_from_con(con, "main", "main")
+ con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir())
+ cdm <- cdmFromCon(con, "main", "main")
  cdmDisconnect(cdm)
 
  # Synpuf datasets include the Achilles tables
- con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("synpuf-1k", "5.3"))
- cdm <- cdm_from_con(con, "main", "main", achilles_schema = "main")
+ con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("synpuf-1k", "5.3"))
+ cdm <- cdmFromCon(con, "main", "main", achillesSchema = "main")
  cdmDisconnect(cdm)
 
  # Currently the only 5.4 dataset is synpuf-1k
- con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("synpuf-1k", "5.4"))
- cdm <- cdm_from_con(con, "main", "main", achilles_schema = "main")
+ con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("synpuf-1k", "5.4"))
+ cdm <- cdmFromCon(con, "main", "main", achillesSchema = "main")
  cdmDisconnect(cdm)
 
 }

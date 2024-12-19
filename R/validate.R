@@ -20,6 +20,7 @@
 #' checking that column names are correct and that no tables are empty. A short
 #' report is printed to the console. This function is meant for interactive use.
 #'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cdm A cdm reference object.
 #'
@@ -28,12 +29,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
-#' cdm <- cdm_from_con(con, cdm_schema = "main")
-#' validate_cdm(cdm)
+#' con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir())
+#' cdm <- cdmFromCon(con, cdmSchema = "main")
+#' validateCdm(cdm)
 #' DBI::dbDisconnect(con)
 #' }
-validate_cdm <- function(cdm) {
+validateCdm <- function(cdm) {
+  lifecycle::deprecate_soft("1.7.0", "validateCdm()")
   checkmate::assert_class(cdm, "cdm_reference")
   if (is.null(cdmCon(cdm))) {
     rlang::abort("validate_cdm is not implement for local cdms")
@@ -46,9 +48,14 @@ validate_cdm <- function(cdm) {
   validate_cdm_rowcounts(cdm)
 }
 
+#' `r lifecycle::badge("deprecated")`
 #' @export
-#' @rdname validate_cdm
-validateCdm <- validate_cdm
+#' @rdname validateCdm
+validate_cdm <- function(cdm){
+  lifecycle::deprecate_soft("1.7.0", "validate_cdm()")
+  validateCdm(cdm = cdm)
+
+}
 
 validate_cdm_colnames <- function(cdm) {
   # local option needed for pull with arrow
@@ -63,16 +70,19 @@ validate_cdm_colnames <- function(cdm) {
         dplyr::pull(.data$cdmFieldName)
       actual_columns <- cdm[[nm]] %>% head(1) %>% dplyr::collect() %>% colnames()
 
-      dif <- waldo::compare(expected_columns,
-                            actual_columns,
-                            x_arg = glue::glue("{nm} table expected columns"),
-                            y_arg = glue::glue("{nm} table actual_colums"),
-                            ignore_attr = TRUE)
 
-      if (length(dif) > 0) {
-        print(dif, n = 100)
+      expectedButNotFound <- dplyr::setdiff(expected_columns, actual_columns)
+      foundButNotExpected <- dplyr::setdiff(actual_columns, expected_columns)
+
+      if (length(expectedButNotFound) > 0) {
+        cli::cli_inform("Columns expected but not found in table {nm}: {paste(expectedButNotFound, collapse = ', ')}")
         any_dif <- TRUE
       }
+      if (length(foundButNotExpected) > 0) {
+        cli::cli_inform("Columns found but not expected in table {nm}: {paste(foundButNotExpected, collapse = ', ')}")
+        any_dif <- TRUE
+      }
+
   }
   if (!any_dif) {
     cli::cat_bullet("cdm field names are correct",
@@ -113,6 +123,9 @@ validate_cdm_rowcounts <- function(cdm) {
 #' are in the cdm object, have the correct columns/fields,
 #' and (optionally) are not empty.
 #'
+#' `r lifecycle::badge("deprecated")`
+#'
+#'
 #' @param cdm A cdm object
 #' @param tables A character vector of table names to check.
 #' @param empty.ok Should an empty table (0 rows) be considered an error?
@@ -137,15 +150,21 @@ validate_cdm_rowcounts <- function(cdm) {
 #' }
 #'
 #' library(CDMConnector)
-#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-#' cdm <- cdm_from_con(con)
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
+#' cdm <- cdmFromCon(con)
 #'
 #' countDrugsByGender(cdm)
 #'
 #' DBI::dbDisconnect(con, shutdown = TRUE)
 #'
 #' }
-assert_tables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
+assertTables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
+  lifecycle::deprecate_soft("1.7.0", "assertTables()")
+  .assertTables(cdm = cdm, tables = tables, empty.ok = empty.ok, add = add)
+}
+
+# internal assertTables function
+.assertTables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
   checkmate::assertClass(add, "AssertCollection", null.ok = TRUE)
   checkmate::assertLogical(empty.ok, len = 1, null.ok = FALSE)
   checkmate::assertCharacter(tables,
@@ -190,7 +209,7 @@ assert_tables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
     rowcounts <- purrr::map_dbl(existingTables, function(.) {
       dplyr::tally(cdm[[.]], name = "n") %>%
         dplyr::pull(.data$n)
-      }) %>%
+    }) %>%
       rlang::set_names(existingTables)
 
     empty_tables <- rowcounts[rowcounts == 0]
@@ -206,11 +225,13 @@ assert_tables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
   invisible(cdm)
 }
 
-
+#' `r lifecycle::badge("deprecated")`
+#' @rdname assertTables
 #' @export
-#' @rdname assert_tables
-assertTables <- assert_tables
-
+assert_tables <- function(cdm, tables, empty.ok = FALSE, add = NULL) {
+  lifecycle::deprecate_soft("1.7.0", "assert_tables()")
+  assertTables(cdm, tables, empty.ok = FALSE, add = NULL)
+}
 
 #' Assert that cdm has a writable schema
 #'
@@ -218,6 +239,8 @@ assertTables <- assert_tables
 #' write access. assert_write_schema checks that the cdm contains the
 #' "write_schema" attribute and tests that local dataframes can be written
 #' to tables in this schema.
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cdm A cdm object
 #' @param add An optional AssertCollection created by
@@ -241,6 +264,10 @@ assert_write_schema <- function(cdm, add = NULL) {
 }
 
 
+#' `r lifecycle::badge("deprecated")`
 #' @rdname assert_write_schema
 #' @export
-assertWriteSchema <- assert_write_schema
+assertWriteSchema <- function(cdm, add = NULL) {
+  lifecycle::deprecate_soft("1.7.0", "CDMConnector::assertWriteSchema()")
+  assert_write_schema(cdm, add)
+}

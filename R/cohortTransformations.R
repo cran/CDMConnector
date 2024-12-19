@@ -101,6 +101,8 @@ cohort_collapse <- function(x) {
 
 #' Union all cohorts in a cohort set with cohorts in a second cohort set
 #'
+#` r lifecycle::badge("deprecated")`
+#'
 #' @param x A tbl reference to a cohort table with one or more generated cohorts
 #' @param y A tbl reference to a cohort table with one generated cohort
 #'
@@ -108,7 +110,8 @@ cohort_collapse <- function(x) {
 #' one the same cohort_definitions_ids in x resulting from the union of all cohorts
 #' in x with the single cohort in y cohort table
 #' @export
-cohort_union <- function(x, y) {
+cohortUnion <- function(x, y) {
+  lifecycle::deprecate_soft("1.7.0", "CDMConnector::cohortUnion()")
   checkmate::assert_class(x, "tbl")
   checkmate::assert_class(y, "tbl")
   checkmate::assert_subset(c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date"), colnames(x))
@@ -130,9 +133,13 @@ cohort_union <- function(x, y) {
     cohort_collapse()
 }
 
-#' @rdname cohort_union
+#' `r lifecycle::badge("deprecated")`
+#' @rdname cohortUnion
 #' @export
-cohortUnion <- cohort_union
+cohort_union <-  function(x, y) {
+  lifecycle::deprecate_soft("1.7.0", "CDMConnector::cohort_union()")
+  cohortUnion(x = x, y = y)
+}
 
 # Intersect all cohorts in a single cohort table
 #
@@ -296,13 +303,15 @@ cohort_pad_start <- function(x, days = NULL, from = "start") {
 
 #' Collapse cohort records within a certain number of days
 #'
+#'
 #' @param x A generated cohort set
 #' @param gap When two cohort records are 'gap' days apart or less the periods will be
 #' collapsed into a single record
 #'
 #' @return A lazy query on a generated cohort set
 #' @export
-cohort_erafy <- function(x, gap) {
+cohortErafy <- function(x, gap) {
+  lifecycle::deprecate_soft("1.7.0", "CDMConnector::cohortErafy()")
   checkmate::assert_class(x, "tbl")
   checkmate::assertIntegerish(gap, len = 1)
   cols <-  c("cohort_definition_id", "subject_id", "cohort_start_date", "cohort_end_date")
@@ -315,9 +324,13 @@ cohort_erafy <- function(x, gap) {
     cohort_pad_end(-gap, from = "end")
 }
 
-#' @rdname cohort_erafy
+#' `r lifecycle::badge("deprecated")`
+#' @rdname cohortErafy
 #' @export
-cohortErafy <- cohort_erafy
+cohort_erafy <- function(x, gap) {
+  lifecycle::deprecate_soft("1.7.0", "CDMConnector::cohort_erafy()")
+  cohortErafy(x = x, gap = gap)
+}
 
 # cohort_under_observation <- function(.data) {
 #   checkmate::assert_class(.data, "tbl")

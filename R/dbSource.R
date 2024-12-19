@@ -68,9 +68,16 @@ insertTable.db_cdm <- function(cdm,
   if (!inherits(table, "data.frame")) {
     table <- table |> dplyr::collect()
   }
-  DBI::dbWriteTable(conn = con, name = fullName, value = table, temporary = temporary)
+
+  if (dbms(con) %in% c("bigquery") && nrow(table) == 0) {
+    .dbCreateTable(con, fullName, table)
+  } else {
+    DBI::dbWriteTable(conn = con, name = fullName, value = table, temporary = temporary)
+  }
+
   x <- dplyr::tbl(src = con, fullName) |>
-    omopgenerics::newCdmTable(src = src, name = name)
+    omopgenerics::newCdmTable(src = src, name = name) |>
+    dplyr::select(colnames(table))
   return(x)
 }
 
@@ -164,7 +171,7 @@ compute.db_cdm <- function(x, name, temporary = FALSE, overwrite = TRUE, ...) {
 
   if (intermediate) {
     DBI::dbRemoveTable(con, name = .inSchema(schema = schema, table = intername, dbms = dbms(con)))
-    if (intername %in% list_tables(con, schema)) {
+    if (intername %in% listTables(con, schema)) {
       cli::cli_warn("Intermediate table `{intername}` was not dropped as expected.")
     }
   }

@@ -388,7 +388,7 @@ the version of the cdm we have connected to.</p>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">cdmCon</span>(cdm)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection d7620 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpBrKaB4/file15a91361f6837.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection ddfd0 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a11e177523.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
@@ -500,7 +500,7 @@ structure</p>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.2 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpBrKaB4/file15a91361f6837.duckdb]</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a11e177523.duckdb]</span></span>
 <span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
 <span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
@@ -513,12 +513,7 @@ custom cohorts.</p>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>cdm<span class="sc">$</span>gi_bleed <span class="ot">&lt;-</span> omopgenerics<span class="sc">::</span><span class="fu">newCohortTable</span>(</span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">table =</span> cdm<span class="sc">$</span>gi_bleed, <span class="at">cohortSetRef =</span> GI_bleed_cohort_ref</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 casted column in gi_bleed (cohort_set) as do not match expected column</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;   type:</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` from numeric to integer</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; Warning: ! 1 column in gi_bleed do not match expected column type:</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; • `cohort_definition_id` is numeric but expected integer</span></span></code></pre></div>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Now our custom cohort GI_bleed has the same attributes associated
 with it as if it had been created by
 <code>generateConceptCohortSet</code>. This will mean that it can be
@@ -526,7 +521,7 @@ used by analytic packages designed to work with cdm cohorts.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>gi_bleed)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt; &lt;chr&gt;          </span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;                  &lt;dbl&gt; &lt;chr&gt;          </span></span>
 <span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; 1                    1 custom_gi_bleed</span></span>
 <span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>gi_bleed)</span>
 <span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>

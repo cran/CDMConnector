@@ -101,7 +101,7 @@ downloadEunomiaData <- function(datasetName = "GiBleed",
 #' #> [1] "GiBleed"
 #'
 #' con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("GiBleed"))
-#' cdm <- cdm_from_con(con)
+#' cdm <- cdmFromCon(con)
 #' }
 exampleDatasets <- function() {
   c("GiBleed",
@@ -129,17 +129,22 @@ exampleDatasets <- function() {
     "empty_cdm")
 }
 
+#' `r lifecycle::badge("deprecated")`
 #' @export
 #' @rdname exampleDatasets
-example_datasets <- exampleDatasets
+example_datasets <- function() {
+  lifecycle::deprecate_soft("1.7.0", "example_datasets()", "exampleDatasets()")
+  exampleDatasets()
+}
 
-
+#' `r lifecycle::badge("deprecated")`
 #' @rdname downloadEunomiaData
 #' @export
 download_eunomia_data <- function(dataset_name = "GiBleed",
                                   cdm_version = "5.3",
                                   path_to_data = Sys.getenv("EUNOMIA_DATA_FOLDER"),
                                   overwrite = FALSE) {
+  lifecycle::deprecate_soft("1.7.0", "download_eunomia_data()", "downloadEunomiaData()")
   downloadEunomiaData(datasetName = dataset_name,
                       cdmVersion = cdm_version,
                       pathToData = path_to_data,
@@ -178,6 +183,9 @@ download_eunomia_data <- function(dataset_name = "GiBleed",
 #' To contribute synthetic observational health data to the Eunomia project please
 #' open an issue at \url{https://github.com/OHDSI/Eunomia/issues/}
 #'
+#' Setup: To use the `eunomiaDir` function please set the `EUNOMIA_DATA_FOLDER` in your .Renviron file
+#' to a folder on your computer where the datasets will be downloaded to. This file can
+#' be opened by calling `usethis::edit_r_environ()`.
 #'
 #' @param datasetName,dataset_name One of "GiBleed" (default),
 #' "synthea-allergies-10k",
@@ -212,18 +220,18 @@ download_eunomia_data <- function(dataset_name = "GiBleed",
 #'
 #'  # The defaults GiBleed dataset is a small dataset that is useful for testing
 #'  library(CDMConnector)
-#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
-#'  cdm <- cdm_from_con(con, "main", "main")
+#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir())
+#'  cdm <- cdmFromCon(con, "main", "main")
 #'  cdmDisconnect(cdm)
 #'
 #'  # Synpuf datasets include the Achilles tables
-#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("synpuf-1k", "5.3"))
-#'  cdm <- cdm_from_con(con, "main", "main", achilles_schema = "main")
+#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("synpuf-1k", "5.3"))
+#'  cdm <- cdmFromCon(con, "main", "main", achillesSchema = "main")
 #'  cdmDisconnect(cdm)
 #'
 #'  # Currently the only 5.4 dataset is synpuf-1k
-#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("synpuf-1k", "5.4"))
-#'  cdm <- cdm_from_con(con, "main", "main", achilles_schema = "main")
+#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("synpuf-1k", "5.4"))
+#'  cdm <- cdmFromCon(con, "main", "main", achillesSchema = "main")
 #'  cdmDisconnect(cdm)
 #'
 #' }
@@ -316,12 +324,13 @@ eunomiaDir <- function(datasetName = "GiBleed",
   return(databaseFile)
 }
 
+#' `r lifecycle::badge("deprecated")`
 #' @export
 #' @rdname eunomiaDir
 eunomia_dir <- function(dataset_name = "GiBleed",
                         cdm_version = "5.3",
                         database_file = tempfile(fileext = ".duckdb")) {
-
+  lifecycle::deprecate_soft("1.7.0", "eunomia_dir()", "eunomiaDir()")
   eunomiaDir(datasetName = dataset_name,
              cdmVersion = cdm_version,
              databaseFile = database_file)
@@ -334,28 +343,28 @@ eunomia_dir <- function(dataset_name = "GiBleed",
 #'
 #' @return TRUE if the eunomia example dataset is available and FASLE otherwise
 #' @export
-eunomia_is_available <- function(dataset_name = "GiBleed",
-                                 cdm_version = "5.3") {
-
+eunomiaIsAvailable <- function(datasetName = "GiBleed",
+                                 cdmVersion = "5.3") {
   if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") {
     rlang::abort("Set the environment variable EUNOMIA_DATA_FOLDER to the eunomia cache location")
   }
 
-  stopifnot(is.character(cdm_version), length(cdm_version) == 1, cdm_version %in% c("5.3", "5.4"))
+  stopifnot(is.character(cdmVersion), length(cdmVersion) == 1, cdmVersion %in% c("5.3", "5.4"))
 
   # check for zip archive of csv source files
-  archiveName <- paste0(dataset_name, "_", cdm_version, ".zip")
+  archiveName <- paste0(datasetName, "_", cdmVersion, ".zip")
   archiveLocation <- file.path(Sys.getenv("EUNOMIA_DATA_FOLDER"), archiveName)
   return(file.exists(archiveLocation))
 }
 
-
-#' @rdname eunomia_is_available
+#' `r lifecycle::badge("deprecated")`
+#' @rdname eunomiaIsAvailable
 #' @export
-eunomiaIsAvailable <- function(datasetName = "GiBleed",
-                               cdmVersion = "5.3") {
-  eunomia_is_available(dataset_name = datasetName,
-                       cdm_version = cdmVersion)
+eunomia_is_available <- function(dataset_name = "GiBleed",
+                               cdm_version = "5.3") {
+  lifecycle::deprecate_soft("1.7.0", "eunomia_is_available()", "eunomiaIsAvailable()")
+  eunomiaIsAvailable(datasetName = dataset_name,
+                       cdmVersion = cdm_version)
 }
 
 
@@ -398,9 +407,11 @@ requireEunomia <- function(datasetName = "GiBleed",
   return(invisible(TRUE))
 }
 
+#' `r lifecycle::badge("deprecated")`
 #' @rdname requireEunomia
 #' @export
 require_eunomia <- function(dataset_name = "GiBleed",
                            cdm_version = "5.3") {
+  lifecycle::deprecate_soft("1.7.0", "require_eunomia()", "requireEunomia()")
   requireEunomia(datasetName = dataset_name, cdmVersion = cdm_version)
 }

@@ -15,17 +15,43 @@ tryCatch({
 get_connection <- function(dbms, DatabaseConnector = FALSE) {
 
   if (DatabaseConnector) {
-    stopifnot(dbms %in% c("postgres"), rlang::is_installed("DatabaseConnector"))
-
+    stopifnot(rlang::is_installed("DatabaseConnector"))
 
     if (dbms == "postgres") {
+      cli::cli_inform("Testing with DatabseConector on postgresql")
+      return(
+        con = DatabaseConnector::connect(
+          dbms = "postgresql",
+          server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
+          user = Sys.getenv("CDM5_POSTGRESQL_USER"),
+          password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD"))
+      )
+    }
 
-      return(DatabaseConnector::connect(
-        dbms = "postgresql",
-        server = Sys.getenv("CDM5_POSTGRESQL_SERVER"),
-        user = Sys.getenv("CDM5_POSTGRESQL_USER"),
-        password = Sys.getenv("CDM5_POSTGRESQL_PASSWORD")))
+    if (dbms == "redshift") {
+      cli::cli_inform("Testing with DatabseConector on redshift")
+      return(
+        DatabaseConnector::connect(
+          dbms = "redshift",
+          server = Sys.getenv("CDM5_REDSHIFT_SERVER"),
+          user = Sys.getenv("CDM5_REDSHIFT_USER"),
+          password = Sys.getenv("CDM5_REDSHIFT_PASSWORD"),
+          port = Sys.getenv("CDM5_REDSHIFT_PORT"))
+      )
+    }
 
+    if (dbms == "bigquery") {
+
+      options(sqlRenderTempEmulationSchema = Sys.getenv("BIGQUERY_SCRATCH_SCHEMA"))
+
+      connectionDetails <- DatabaseConnector::createConnectionDetails(dbms="bigquery",
+                                                                      connectionString=Sys.getenv("BIGQUERY_CONNECTION_STRING"),
+                                                                      user="",
+                                                                      password='')
+
+      con <- DatabaseConnector::connect(connectionDetails)
+
+      return(con)
     }
 
     stop(paste("Testing", dbms, "with DatabaseConnector has not been implemented yet."))
@@ -35,7 +61,7 @@ get_connection <- function(dbms, DatabaseConnector = FALSE) {
 
 
   if (dbms == "duckdb") {
-    return(DBI::dbConnect(duckdb::duckdb(dbdir =eunomia_dir())))
+    return(DBI::dbConnect(duckdb::duckdb(dbdir = eunomiaDir())))
   }
 
   if (dbms == "postgres" && Sys.getenv("CDM5_POSTGRESQL_DBNAME") != "") {
@@ -81,14 +107,16 @@ get_connection <- function(dbms, DatabaseConnector = FALSE) {
   }
 
   if (dbms == "bigquery" && Sys.getenv("BIGQUERY_SERVICE_ACCOUNT_JSON_PATH") != "") {
-
+    # options(sqlRenderTempEmulationSchema = Sys.getenv("BIGQUERY_SCRATCH_SCHEMA"))
     bigrquery::bq_auth(path = Sys.getenv("BIGQUERY_SERVICE_ACCOUNT_JSON_PATH"))
 
-    return(DBI::dbConnect(
+    con <- DBI::dbConnect(
       bigrquery::bigquery(),
       project = Sys.getenv("BIGQUERY_PROJECT_ID"),
       dataset = Sys.getenv("BIGQUERY_CDM_SCHEMA")
-    ))
+    )
+
+    return(con)
   }
 
   if (dbms == "snowflake" && Sys.getenv("SNOWFLAKE_USER") != "") {
@@ -171,11 +199,13 @@ disconnect <- function(con) {
 }
 
 # databases supported on github actions
-ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake")
+ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake", "bigquery")
 
 if (Sys.getenv("CI_TEST_DB") == "") {
 
   dbToTest <- c(
+    # "bigquery",
+    #
      "duckdb"
     # ,
     # "postgres"
@@ -195,7 +225,11 @@ if (Sys.getenv("CI_TEST_DB") == "") {
   print(paste("running CI tests on ", dbToTest))
 }
 
-testUsingDatabaseConnector <- FALSE
+if (Sys.getenv('TEST_USING_DATABASE_CONNECTOR') %in% c("TRUE", "FALSE")) {
+  testUsingDatabaseConnector <- as.logical(Sys.getenv('TEST_USING_DATABASE_CONNECTOR'))
+} else {
+  testUsingDatabaseConnector <- F
+}
 
 # make sure we're only trying to test on dbs we have connection details for
 if ("postgres" %in% dbToTest & Sys.getenv("CDM5_POSTGRESQL_DBNAME") == "") {

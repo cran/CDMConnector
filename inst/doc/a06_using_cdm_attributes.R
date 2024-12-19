@@ -49,26 +49,26 @@ DBI::dbListFields(cdmCon(cdm), "person")
 DBI::dbGetQuery(cdmCon(cdm), "SELECT * FROM person LIMIT 5")
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cdm <- generateConceptCohortSet(cdm = cdm,
-#                                  conceptSet = list("gi_bleed" = 192671,
-#                                                    "celecoxib" = 1118084),
-#                                  name = "study_cohorts",
-#                                  overwrite = TRUE)
-#  
-#  cdm$study_cohorts %>%
-#    glimpse()
+# cdm <- generateConceptCohortSet(cdm = cdm,
+#                                 conceptSet = list("gi_bleed" = 192671,
+#                                                   "celecoxib" = 1118084),
+#                                 name = "study_cohorts",
+#                                 overwrite = TRUE)
+# 
+# cdm$study_cohorts %>%
+#   glimpse()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  settings(cdm$study_cohorts)
-#  cohort_set(cdm$study_cohorts)
+# settings(cdm$study_cohorts)
+# cohort_set(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cohortCount(cdm$study_cohorts)
-#  cohort_count(cdm$study_cohorts)
+# cohortCount(cdm$study_cohorts)
+# cohort_count(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cohortAttrition(cdm$study_cohorts)
-#  cohort_attrition(cdm$study_cohorts)
+# cohortAttrition(cdm$study_cohorts)
+# cohort_attrition(cdm$study_cohorts)
 
 ## -----------------------------------------------------------------------------
 cdm$gi_bleed <- cdm$condition_occurrence %>% 

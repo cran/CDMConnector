@@ -8,7 +8,7 @@ test_date_functions <- function(con, write_schema) {
   )
 
   # upload the date table
-  if ("tmpdate" %in% list_tables(con, write_schema)) {
+  if ("tmpdate" %in% listTables(con, write_schema)) {
     DBI::dbRemoveTable(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)))
   }
 
@@ -29,7 +29,7 @@ test_date_functions <- function(con, write_schema) {
     DBI::dbRemoveTable(con, inSchema(schema = write_schema, table = "tmpdate0", dbms = dbms(con)))
   } else {
     DBI::dbWriteTable(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)), date_df)
-    expect_true("tmpdate" %in% list_tables(con, write_schema))
+    expect_true("tmpdate" %in% listTables(con, write_schema))
     date_tbl <- dplyr::tbl(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)))
   }
   # test datediff
@@ -174,13 +174,13 @@ test_clock_functions <- function(con, write_schema) {
   )
 
   # upload the date table
-  if ("tmpdate" %in% list_tables(con, write_schema)) {
+  if ("tmpdate" %in% listTables(con, write_schema)) {
     DBI::dbRemoveTable(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)))
   }
 
   # Note there is an issue with uploading date types to Oracle
   DBI::dbWriteTable(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)), date_df)
-  expect_true("tmpdate" %in% list_tables(con, write_schema))
+  expect_true("tmpdate" %in% listTables(con, write_schema))
   date_tbl <- dplyr::tbl(con, inSchema(schema = write_schema, table = "tmpdate", dbms = dbms(con)))
 
   # add_years is not working on spark or duckdb
@@ -191,17 +191,18 @@ test_clock_functions <- function(con, write_schema) {
   library(clock)
   # on postgres we need the as.Date conversion around add_years and add_days
   df <- date_tbl %>%
-    dplyr::mutate(y2 = get_year(date1),
-                  m2 = get_month(date1),
-                  d2 = get_day(date1))
+    dplyr::mutate(y2 = clock::get_year(date1),
+                  m2 = clock::get_month(date1),
+                  d2 = clock::get_day(date1))
 
   if (dbms(con) != "duckdb") {
     df <- dplyr::mutate(df,
-                        dif_days = difftime(date1, date2),
-                        date3 = as.Date(clock::add_years(date1, 1L)),
-                        date4 = as.Date(clock::add_days(date1, 1L)),
-                        date7 = as.Date(add_years(date1, m)),
-                        date8 = as.Date(add_days(date1, m)))
+      dif_days = difftime(date2, date1),
+      date3 = as.Date(clock::add_years(date1, 1L)),
+      date4 = as.Date(clock::add_days(date1, 1L)),
+      date7 = as.Date(add_years(date1, m)),
+      date8 = as.Date(add_days(date1, m))
+    )
   }
 
   if (dbms(con) == "spark") {
@@ -249,31 +250,47 @@ for (dbtype in dbToTest) {
     skip_if(any(write_schema == ""))
     con <- get_connection(dbtype)
     skip_if(is.null(con))
-    test_clock_functions(con, write_schema)
+    if (dbtype != "bigquery") test_clock_functions(con, write_schema)
     disconnect(con)
   })
 }
 
 test_as.Date <- function(con, cdm_schema, write_schema) {
 
- # debugonce(cdm_from_con)
- cdm <- cdm_from_con(con,
-                     cdm_schema = cdm_schema,
-                     write_schema = write_schema,
-                     cdm_name = "test")
+ # debugonce(cdmFromCon)
+ cdm <- cdmFromCon(con,
+   cdmSchema = cdm_schema,
+   writeSchema = write_schema,
+   cdmName = "test"
+ )
 
-  df <- cdm$person %>%
-    head(1) %>%
-    dplyr::mutate(string = paste(
-      as.character(.data$year_of_birth),
-      as.character(.data$month_of_birth),
-      as.character(.data$day_of_birth), sep = "-")) %>%
-    dplyr::transmute(date1 = as.Date("2020-01-01"),
-                     date2 = as.Date(.data$string)) %>%
-    dplyr::collect()
+ df <- cdm$person %>%
+   head(1)
 
-  expect_equal(df$date1, as.Date("2020-01-01"))
-  expect_s3_class(df$date2, "Date")
+ if (dbms(con) == "bigquery") {
+   df <- df %>% dplyr::mutate(string = CONCAT(
+     as.character(.data$year_of_birth), "-",
+     as.character(.data$month_of_birth), "-",
+     as.character(.data$day_of_birth)
+   ))
+ } else {
+   df <- df %>% dplyr::mutate(string = paste(
+     as.character(.data$year_of_birth),
+     as.character(.data$month_of_birth),
+     as.character(.data$day_of_birth),
+     sep = "-"
+   ))
+ }
+
+ df <- df %>%
+   dplyr::transmute(
+     date1 = as.Date("2020-01-01"),
+     date2 = as.Date(.data$string)
+   ) %>%
+   dplyr::collect()
+
+ expect_equal(df$date1, as.Date("2020-01-01"))
+ expect_s3_class(df$date2, "Date")
 }
 
 for (dbtype in dbToTest) {

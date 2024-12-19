@@ -49,8 +49,8 @@ cohort_set(cdm$study_cohorts)
 attrition(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cdm_gibleed <- cdm %>%
-#    cdm_subset_cohort(cohort_table = "study_cohorts")
+# cdm_gibleed <- cdm %>%
+#   cdm_subset_cohort(cohort_table = "study_cohorts")
 
 ## -----------------------------------------------------------------------------
 library(CDMConnector)

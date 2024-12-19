@@ -147,16 +147,16 @@ local_cdm <- cdm_100person %>%
 local_cdm$person[1:4, 1:4] 
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  save_path <- file.path(tempdir(), "tmp")
-#  dir.create(save_path)
-#  
-#  cdm %>%
-#    stow(path = save_path, format = "parquet")
-#  
-#  list.files(save_path)
+# save_path <- file.path(tempdir(), "tmp")
+# dir.create(save_path)
+# 
+# cdm %>%
+#   stow(path = save_path, format = "parquet")
+# 
+# list.files(save_path)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  cdm <- cdm_from_files(save_path, cdm_name = "GI Bleed example data")
+# cdm <- cdm_from_files(save_path, cdm_name = "GI Bleed example data")
 
 ## -----------------------------------------------------------------------------
 DBI::dbDisconnect(con, shutdown = TRUE)

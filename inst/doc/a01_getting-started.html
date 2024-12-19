@@ -379,33 +379,43 @@ database similar to SQLite but with better date type support. To see all
 the example datasets available run <code>example_datasets()</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">example_datasets</span>()</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;GiBleed&quot;                             &quot;synthea-allergies-10k&quot;              </span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;synthea-anemia-10k&quot;                  &quot;synthea-breast_cancer-10k&quot;          </span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;synthea-contraceptives-10k&quot;          &quot;synthea-covid19-10k&quot;                </span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;synthea-covid19-200k&quot;                &quot;synthea-dermatitis-10k&quot;             </span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;synthea-heart-10k&quot;                   &quot;synthea-hiv-10k&quot;                    </span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; [11] &quot;synthea-lung_cancer-10k&quot;             &quot;synthea-medications-10k&quot;            </span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; [13] &quot;synthea-metabolic_syndrome-10k&quot;      &quot;synthea-opioid_addiction-10k&quot;       </span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; [15] &quot;synthea-rheumatoid_arthritis-10k&quot;    &quot;synthea-snf-10k&quot;                    </span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [17] &quot;synthea-surgery-10k&quot;                 &quot;synthea-total_joint_replacement-10k&quot;</span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; [19] &quot;synthea-veteran_prostate_cancer-10k&quot; &quot;synthea-veterans-10k&quot;               </span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; [21] &quot;synthea-weight_loss-10k&quot;             &quot;synpuf-1k&quot;                          </span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; [23] &quot;empty_cdm&quot;</span></span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;care_site&quot;             &quot;cdm_source&quot;            &quot;concept&quot;              </span></span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;concept_ancestor&quot;      &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;concept_synonym&quot;       &quot;condition_era&quot;         &quot;condition_occurrence&quot; </span></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; [10] &quot;cost&quot;                  &quot;death&quot;                 &quot;device_exposure&quot;      </span></span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; [13] &quot;domain&quot;                &quot;dose_era&quot;              &quot;drug_era&quot;             </span></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; [16] &quot;drug_exposure&quot;         &quot;drug_strength&quot;         &quot;fact_relationship&quot;    </span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; [19] &quot;location&quot;              &quot;measurement&quot;           &quot;metadata&quot;             </span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; [22] &quot;note&quot;                  &quot;note_nlp&quot;              &quot;observation&quot;          </span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; [25] &quot;observation_period&quot;    &quot;payer_plan_period&quot;     &quot;person&quot;               </span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; [28] &quot;procedure_occurrence&quot;  &quot;provider&quot;              &quot;relationship&quot;         </span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; [31] &quot;source_to_concept_map&quot; &quot;specimen&quot;              &quot;visit_detail&quot;         </span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; [34] &quot;visit_occurrence&quot;      &quot;vocabulary&quot;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: `example_datasets()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `exampleDatasets()` instead.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;GiBleed&quot;                             &quot;synthea-allergies-10k&quot;              </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;synthea-anemia-10k&quot;                  &quot;synthea-breast_cancer-10k&quot;          </span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;synthea-contraceptives-10k&quot;          &quot;synthea-covid19-10k&quot;                </span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;synthea-covid19-200k&quot;                &quot;synthea-dermatitis-10k&quot;             </span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;synthea-heart-10k&quot;                   &quot;synthea-hiv-10k&quot;                    </span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; [11] &quot;synthea-lung_cancer-10k&quot;             &quot;synthea-medications-10k&quot;            </span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; [13] &quot;synthea-metabolic_syndrome-10k&quot;      &quot;synthea-opioid_addiction-10k&quot;       </span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; [15] &quot;synthea-rheumatoid_arthritis-10k&quot;    &quot;synthea-snf-10k&quot;                    </span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt; [17] &quot;synthea-surgery-10k&quot;                 &quot;synthea-total_joint_replacement-10k&quot;</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt; [19] &quot;synthea-veteran_prostate_cancer-10k&quot; &quot;synthea-veterans-10k&quot;               </span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt; [21] &quot;synthea-weight_loss-10k&quot;             &quot;synpuf-1k&quot;                          </span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt; [23] &quot;empty_cdm&quot;</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; Warning: `eunomia_dir()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `eunomiaDir()` instead.</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;care_site&quot;             &quot;cdm_source&quot;            &quot;concept&quot;              </span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;concept_ancestor&quot;      &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;concept_synonym&quot;       &quot;condition_era&quot;         &quot;condition_occurrence&quot; </span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; [10] &quot;cost&quot;                  &quot;death&quot;                 &quot;device_exposure&quot;      </span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; [13] &quot;domain&quot;                &quot;dose_era&quot;              &quot;drug_era&quot;             </span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt; [16] &quot;drug_exposure&quot;         &quot;drug_strength&quot;         &quot;fact_relationship&quot;    </span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; [19] &quot;location&quot;              &quot;measurement&quot;           &quot;metadata&quot;             </span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; [22] &quot;note&quot;                  &quot;note_nlp&quot;              &quot;observation&quot;          </span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt; [25] &quot;observation_period&quot;    &quot;payer_plan_period&quot;     &quot;person&quot;               </span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; [28] &quot;procedure_occurrence&quot;  &quot;provider&quot;              &quot;relationship&quot;         </span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt; [31] &quot;source_to_concept_map&quot; &quot;specimen&quot;              &quot;visit_detail&quot;         </span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt; [34] &quot;visit_occurrence&quot;      &quot;vocabulary&quot;</span></span></code></pre></div>
 <p>If you’re using CDMConnector for the first time you may get a message
 about adding an enviroment vairable <code>EUNOMIA_DATA_FOLDER</code> .
 To do this simply create a new text file in your home directory called
@@ -420,47 +430,52 @@ each CDM table along with metadata about the CDM instance.</p>
 <p>The cdm_schema is the schema in the database that contains the OMOP
 CDM tables and is required. All other arguments are optional.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Note: method with signature &#39;DBIConnection#Id&#39; chosen for function &#39;dbExistsTable&#39;,</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;  target signature &#39;duckdb_connection#Id&#39;.</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;  &quot;duckdb_connection#ANY&quot; would also be valid</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>cdm</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.observation_period&gt; [?? x 5]</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.2 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpBrKaB4/file15a9184f3aee.duckdb]</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;  2                    13        13 2009-04-26             2019-04-14            </span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;  3                    27        27 2002-01-30             2018-11-21            </span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;  4                    16        16 1971-10-14             2017-11-02            </span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;  5                    55        55 2009-05-30             2019-03-23            </span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  6                    60        60 1990-11-21             2019-01-23            </span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;  7                    42        42 1909-11-03             2019-03-13            </span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;  8                    33        33 1986-05-12             2018-09-10            </span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;  9                    18        18 1965-11-17             2018-11-07            </span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; 10                    25        25 2007-03-18             2019-04-07            </span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; # ℹ abbreviated names: ¹​observation_period_start_date,</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; #   ²​observation_period_end_date</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: period_type_concept_id &lt;int&gt;</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_from_con()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmFromCon()` instead.</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Note: method with signature &#39;DBIConnection#Id&#39; chosen for function &#39;dbExistsTable&#39;,</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;  target signature &#39;duckdb_connection#Id&#39;.</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;  &quot;duckdb_connection#ANY&quot; would also be valid</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>cdm</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.observation_period&gt; [?? x 5]</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;  2                    13        13 2009-04-26             2019-04-14            </span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;  3                    27        27 2002-01-30             2018-11-21            </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;  4                    16        16 1971-10-14             2017-11-02            </span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;  5                    55        55 2009-05-30             2019-03-23            </span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;  6                    60        60 1990-11-21             2019-01-23            </span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;  7                    42        42 1909-11-03             2019-03-13            </span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;  8                    33        33 1986-05-12             2018-09-10            </span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;  9                    18        18 1965-11-17             2018-11-07            </span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; 10                    25        25 2007-03-18             2019-04-07            </span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; # ℹ abbreviated names: ¹​observation_period_start_date,</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; #   ²​observation_period_end_date</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: period_type_concept_id &lt;int&gt;</span></span></code></pre></div>
 <p>Individual CDM table references can be accessed using `$`.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>cdm<span class="sc">$</span>person <span class="sc">%&gt;%</span> </span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Columns: 18</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.2 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpBrKaB4/file15a9184f3aee.duckdb]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; $ person_id                   &lt;int&gt; 6, 123, 129, 16, 65, 74, 42, 187, 18, 111,…</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; $ gender_concept_id           &lt;int&gt; 8532, 8507, 8507, 8532, 8532, 8532, 8532, …</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $ year_of_birth               &lt;int&gt; 1963, 1950, 1974, 1971, 1967, 1972, 1909, …</span></span>
@@ -559,16 +574,16 @@ viral pharyngitis”.</p>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 113 × 2</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    concept_name                                                                n</span></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 Acetaminophen 325 MG / Hydrocodone Bitartrate 7.5 MG Oral Tablet          305</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 {7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Nore…   997</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 Penicillin V Potassium 250 MG Oral Tablet                                1666</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Methylphenidate Hydrochloride 20 MG Oral Tablet                            63</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 Haemophilus influenzae type b vaccine, PRP-OMP conjugate                 1295</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Ibuprofen 100 MG Oral Tablet                                              360</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Amoxicillin 500 MG Oral Tablet                                            246</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Naproxen 500 MG Oral Tablet                                                18</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Warfarin Sodium 5 MG Oral Tablet                                          135</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 remifentanil                                                               16</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 hepatitis B vaccine, adult dosage                                        1826</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 Penicillin V Potassium 500 MG Oral Tablet                                1060</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 tetanus and diphtheria toxoids, adsorbed, preservative free, for adult…  7203</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Alendronic acid 10 MG Oral Tablet                                         129</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 alteplase 100 MG Injection                                                210</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Amoxicillin 250 MG Oral Capsule                                           188</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Nitrofurantoin 5 MG/ML Oral Suspension                                    779</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray                                 207</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Amlodipine 5 MG Oral Tablet                                               179</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 rocuronium bromide 10 MG/ML Injectable Solution                            35</span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 103 more rows</span></span></code></pre></div>
 <p>To inspect the generated SQL use <code>show_query</code> from
 dplyr.</p>
@@ -669,7 +684,7 @@ Typically this should be a separate schema from the “cdm_schema”.</p>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>drugs</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;scratch.test&gt; [?? x 11]</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.2 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpBrKaB4/file15a9184f3aee.duckdb]</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;    drug_concept_id     n concept_name   domain_id vocabulary_id concept_class_id</span></span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;              &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;           </span></span>
 <span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;  1        40162522   305 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
@@ -697,63 +712,73 @@ only a subset of tables to include in the CDM reference. The
 selection language</a> and provides a new selection helper:
 <code>tbl_group</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="st">&quot;person&quot;</span>, <span class="st">&quot;observation_period&quot;</span>) <span class="co"># quoted names</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(person, observation_period) <span class="co"># unquoted names </span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">starts_with</span>(<span class="st">&quot;concept&quot;</span>)) <span class="co"># tables that start with &#39;concept&#39;</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, concept_class, concept_relationship, concept_synonym,</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; concept_ancestor</span></span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">contains</span>(<span class="st">&quot;era&quot;</span>)) <span class="co"># tables that contain the substring &#39;era&#39;</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; • omop tables: drug_era, dose_era, condition_era</span></span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">matches</span>(<span class="st">&quot;person|period&quot;</span>)) <span class="co"># regular expression</span></span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, payer_plan_period</span></span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_select_tbl()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSelect()` instead.</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(person, observation_period) <span class="co"># unquoted names </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">starts_with</span>(<span class="st">&quot;concept&quot;</span>)) <span class="co"># tables that start with &#39;concept&#39;</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, concept_class, concept_relationship, concept_synonym,</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; concept_ancestor</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">contains</span>(<span class="st">&quot;era&quot;</span>)) <span class="co"># tables that contain the substring &#39;era&#39;</span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; • omop tables: drug_era, dose_era, condition_era</span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">matches</span>(<span class="st">&quot;person|period&quot;</span>)) <span class="co"># regular expression</span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, payer_plan_period</span></span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <p>Predefined sets of tables can also be selected using
 <code>tbl_group</code> which supports several subsets of the CDM: “all”,
 “clinical”, “vocab”, “derived”, and “default”.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># pre-defined groups</span></span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">tbl_group</span>(<span class="st">&quot;clinical&quot;</span>)) </span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">tbl_group</span>(<span class="st">&quot;vocab&quot;</span>)) </span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, vocabulary, domain, concept_class,</span></span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; concept_relationship, relationship, concept_synonym, concept_ancestor,</span></span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; source_to_concept_map, drug_strength</span></span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Warning: `tbl_group()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `tblGroup()` instead.</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">tbl_group</span>(<span class="st">&quot;vocab&quot;</span>)) </span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, vocabulary, domain, concept_class,</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; concept_relationship, relationship, concept_synonym, concept_ancestor,</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; source_to_concept_map, drug_strength</span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <p>The default set of CDM tables included in a CDM object is:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">tbl_group</span>(<span class="st">&quot;default&quot;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;person&quot;               &quot;observation_period&quot;   &quot;visit_occurrence&quot;    </span></span>
@@ -782,23 +807,33 @@ database has indexes on the “person_id” columns of each table.</p>
 <span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
 <span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>cdm_pneumonia <span class="ot">&lt;-</span> cdm <span class="sc">%&gt;%</span></span>
 <span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="fu">cdm_subset</span>(<span class="at">person_id =</span> person_ids)</span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="fu">tally</span>(cdm_pneumonia<span class="sc">$</span>person) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>cdm_pneumonia<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>  <span class="fu">distinct</span>(person_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_subset()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSubset()` instead.</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="fu">tally</span>(cdm_pneumonia<span class="sc">$</span>person) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>cdm_pneumonia<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>  <span class="fu">distinct</span>(person_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
 <p>Alternatively if we simply want a random sample of the entire CDM we
 can use <code>cdm_sample</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a></span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>cdm_100person <span class="ot">&lt;-</span> <span class="fu">cdm_sample</span>(cdm, <span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">tally</span>(cdm_100person<span class="sc">$</span>person) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(<span class="st">&quot;n&quot;</span>)</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_sample()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSample()` instead.</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">tally</span>(cdm_100person<span class="sc">$</span>person) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(<span class="st">&quot;n&quot;</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
 </div>
 <div id="flatten-a-cdm" class="section level1">
 <h1>Flatten a CDM</h1>
@@ -809,21 +844,26 @@ number of persons and events.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">cdm_flatten</span>(cdm_pneumonia,</span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>            <span class="at">domain =</span> <span class="fu">c</span>(<span class="st">&quot;condition&quot;</span>, <span class="st">&quot;drug&quot;</span>, <span class="st">&quot;measurement&quot;</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1      3614                4052083 2008-03-30 2008-03-30            5001 measu…</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      1162               46235214 1963-02-18 1963-02-18            5001 measu…</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3      1923                3001247 1990-01-05 1990-01-05            5001 measu…</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4      4976                3012494 1993-07-06 1993-07-06            5001 measu…</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5      5081                3006322 1994-04-08 1994-04-08            5001 measu…</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6       507               40758406 1957-10-13 1957-10-13            5001 measu…</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7       419                4024958 1928-09-11 1928-09-11            5001 measu…</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8       419               40766240 1913-11-21 1913-11-21            5001 measu…</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9      3553                3006322 1984-08-13 1984-08-13            5001 measu…</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10       550                3006322 1977-02-20 1977-02-20            5001 measu…</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_flatten()` was deprecated in CDMConnector 1.7.0.</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmFlatten()` instead.</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  1      4976                3021226 1990-01-02 1990-01-02            5001 measu…</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  2      3438                3006322 1916-08-10 1916-08-10            5001 measu…</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  3      4976                4052083 1981-06-05 1981-06-05            5001 measu…</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  4      2333                3006322 1966-02-24 1966-02-24            5001 measu…</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt;  5      4521                3006322 1987-02-23 1987-02-23            5001 measu…</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt;  6       445                4052083 1968-03-15 1968-03-15            5001 measu…</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt;  7      5251                4024958 1952-01-30 1952-01-30            5001 measu…</span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt;  8      1954               40766240 1967-10-19 1967-10-19            5001 measu…</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt;  9      1954                3051031 2003-02-07 2003-02-07            5001 measu…</span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; 10      4308                4052083 1992-08-29 1992-08-29            5001 measu…</span></span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
 <div id="saving-a-local-copy-of-a-cdm" class="section level2">
 <h2>Saving a local copy of a CDM</h2>
 <p>We can use <code>collect</code> to bring the whole cdm object into R
@@ -839,10 +879,10 @@ this.</p>
 <span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 4</span></span>
 <span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt;   person_id gender_concept_id year_of_birth month_of_birth</span></span>
 <span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt;             &lt;int&gt;         &lt;int&gt;          &lt;int&gt;</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 1        72              8532          1947              7</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 2       120              8507          1978              1</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 3       184              8532          1946              1</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 4       437              8532          1946              2</span></span></code></pre></div>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 1       187              8507          1945              7</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 2        61              8532          1968              1</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 3       181              8532          1973              9</span></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 4        36              8532          1958             10</span></span></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>save_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;tmp&quot;</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">dir.create</span>(save_path)</span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a></span>
