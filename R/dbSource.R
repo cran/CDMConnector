@@ -57,6 +57,7 @@ insertTable.db_cdm <- function(cdm,
                                table,
                                overwrite = TRUE,
                                temporary = FALSE) {
+  table <- dplyr::as_tibble(table)
   src <- cdm
   checkmate::assertCharacter(name, len = 1, any.missing = FALSE)
   con <- attr(src, "dbcon")
@@ -81,8 +82,16 @@ insertTable.db_cdm <- function(cdm,
   return(x)
 }
 
-#' @export
+#' Drop table from a database backed cdm object
+#'
+#' Tables will be dropped from the write schema of the cdm.
+#'
+#' @param cdm a cdm_reference object
+#' @param name A character vector of table names to be dropped
+#'
+#' @importFrom omopgenerics dropTable
 #' @importFrom tidyselect starts_with ends_with matches
+#' @export
 dropTable.db_cdm <- function(cdm, name) {
   # initial checks
   schema <- attr(cdm, "write_schema")
@@ -286,3 +295,86 @@ readSourceTable.db_cdm <- function(cdm, name) {
     omopgenerics::newCdmTable(src = cdm, name = tolower(name))
 }
 
+#' @export
+insertCdmTo.db_cdm <- function(cdm, to) {
+  # input check
+  omopgenerics::assertClass(cdm, "cdm_reference")
+
+  con <- attr(to, "dbcon")
+  writeSchema <- attr(to, "write_schema")
+
+  achillesSchema <- NULL
+  cohorts <- character()
+  other <- character()
+  for (nm in names(cdm)) {
+    x <- dplyr::collect(cdm[[nm]])
+    cl <- class(x)
+    if ("achilles_table" %in% cl) {
+      achilles <- writeSchema
+    }
+    if (!any(c("achilles_table", "omop_table", "cohort_table") %in% cl)) {
+      other <- c(other, nm)
+    }
+    insertTable(cdm = to, name = nm, table = x, overwrite = TRUE)
+    if ("cohort_table" %in% cl) {
+      cohorts <- c(cohorts, nm)
+      insertTable(cdm = to, name = paste0(nm, "_set"), table = attr(x, "cohort_set"), overwrite = TRUE)
+      insertTable(cdm = to, name = paste0(nm, "_attrition"), table = attr(x, "cohort_attrition"), overwrite = TRUE)
+      insertTable(cdm = to, name = paste0(nm, "_codelist"), table = attr(x, "cohort_codelist"), overwrite = TRUE)
+    }
+  }
+
+  newCdm <- CDMConnector::cdmFromCon(
+    con = attr(to, "dbcon"),
+    cdmSchema = writeSchema,
+    writeSchema = writeSchema,
+    cohortTables = cohorts,
+    achillesSchema = achillesSchema,
+    cdmName = cdmName(cdm),
+    cdmVersion = cdmVersion(cdm),
+    .softValidation = TRUE
+  )
+
+  newCdm <- omopgenerics::readSourceTable(cdm = newCdm, name = other)
+
+  return(newCdm)
+}
+
+#' Disconnect the connection of the cdm object
+#'
+#' This function will disconnect from the database as well as drop
+#' "temporary" tables that were created on database systems that do not support
+#' actual temporary tables. Currently temp tables are emulated on
+#' Spark/Databricks systems.
+#'
+#' @param cdm cdm reference
+#' @param dropWriteSchema Whether to drop tables in the writeSchema
+#' @param ... Not used
+#'
+#' @export
+cdmDisconnect.db_cdm <- function(cdm, dropWriteSchema = FALSE, ...) {
+  omopgenerics::assertLogical(dropWriteSchema, length = 1)
+
+  con <- attr(cdm, "dbcon")
+  writeSchema <- attr(cdm, "write_schema")
+
+  on.exit(DBI::dbDisconnect(con, shutdown = TRUE), add = TRUE)
+
+  # drop tables if needed
+  if (dropWriteSchema) {
+    dropSourceTable(cdm = cdm, name = dplyr::everything())
+  }
+
+  if (dbms(con) == "spark") {
+    # TODO drop temp emulation prefix (it has to be incorporated in the dbSource object, so it is available in this function)
+
+    # tbls <- listTables(con, schema = schema)
+    # tempEmulationTablesToDrop <- stringr::str_subset(tbls, attr(cdm, "temp_emulation_prefix"))
+    # # try to drop the temp emulation tables
+    # purrr::walk(tempEmulationTablesToDrop,
+    #             ~tryCatch(DBI::dbRemoveTable(con, .inSchema(schema, ., dbms = dbms(con))),
+    #                       error = function(e) invisible(NULL)))
+  }
+
+  return(invisible(TRUE))
+}

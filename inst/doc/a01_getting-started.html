@@ -365,7 +365,7 @@ resources.</p>
 <p>Typically OMOP CDM datasets are stored in a database and can range in
 size from hundreds of patients with thousands of records to hundreds of
 millions of patients with billions of records. The Observational Health
-Data Science and Infromatics (OHDSI) community supports a selection of
+Data Science and Informatics (OHDSI) community supports a selection of
 popular database platforms including Postgres, Microsoft SQL Server,
 Oracle, as well as cloud data platforms suchs as Amazon Redshift, Google
 Big Query, Databricks, and Snowflake. The first step in using
@@ -376,46 +376,36 @@ database documentation.</a></p>
 <p>In our example’s we will use some synthetic data from the <a href="https://synthetichealth.github.io/synthea/">Synthea project</a>
 that has been mapped to the OMOP CDM format. We’ll use the <a href="https://duckdb.org/">duckdb</a> database which is a file based
 database similar to SQLite but with better date type support. To see all
-the example datasets available run <code>example_datasets()</code>.</p>
+the example datasets available run <code>exampleDatasets()</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">example_datasets</span>()</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: `example_datasets()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `exampleDatasets()` instead.</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;GiBleed&quot;                             &quot;synthea-allergies-10k&quot;              </span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;synthea-anemia-10k&quot;                  &quot;synthea-breast_cancer-10k&quot;          </span></span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;synthea-contraceptives-10k&quot;          &quot;synthea-covid19-10k&quot;                </span></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;synthea-covid19-200k&quot;                &quot;synthea-dermatitis-10k&quot;             </span></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;synthea-heart-10k&quot;                   &quot;synthea-hiv-10k&quot;                    </span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; [11] &quot;synthea-lung_cancer-10k&quot;             &quot;synthea-medications-10k&quot;            </span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; [13] &quot;synthea-metabolic_syndrome-10k&quot;      &quot;synthea-opioid_addiction-10k&quot;       </span></span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; [15] &quot;synthea-rheumatoid_arthritis-10k&quot;    &quot;synthea-snf-10k&quot;                    </span></span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co">#&gt; [17] &quot;synthea-surgery-10k&quot;                 &quot;synthea-total_joint_replacement-10k&quot;</span></span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt; [19] &quot;synthea-veteran_prostate_cancer-10k&quot; &quot;synthea-veterans-10k&quot;               </span></span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt; [21] &quot;synthea-weight_loss-10k&quot;             &quot;synpuf-1k&quot;                          </span></span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt; [23] &quot;empty_cdm&quot;</span></span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomia_dir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; Warning: `eunomia_dir()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `eunomiaDir()` instead.</span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;care_site&quot;             &quot;cdm_source&quot;            &quot;concept&quot;              </span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;concept_ancestor&quot;      &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;concept_synonym&quot;       &quot;condition_era&quot;         &quot;condition_occurrence&quot; </span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; [10] &quot;cost&quot;                  &quot;death&quot;                 &quot;device_exposure&quot;      </span></span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; [13] &quot;domain&quot;                &quot;dose_era&quot;              &quot;drug_era&quot;             </span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt; [16] &quot;drug_exposure&quot;         &quot;drug_strength&quot;         &quot;fact_relationship&quot;    </span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; [19] &quot;location&quot;              &quot;measurement&quot;           &quot;metadata&quot;             </span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt; [22] &quot;note&quot;                  &quot;note_nlp&quot;              &quot;observation&quot;          </span></span>
-<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt; [25] &quot;observation_period&quot;    &quot;payer_plan_period&quot;     &quot;person&quot;               </span></span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt; [28] &quot;procedure_occurrence&quot;  &quot;provider&quot;              &quot;relationship&quot;         </span></span>
-<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt; [31] &quot;source_to_concept_map&quot; &quot;specimen&quot;              &quot;visit_detail&quot;         </span></span>
-<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt; [34] &quot;visit_occurrence&quot;      &quot;vocabulary&quot;</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">exampleDatasets</span>()</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;GiBleed&quot;                             &quot;synthea-allergies-10k&quot;              </span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;synthea-anemia-10k&quot;                  &quot;synthea-breast_cancer-10k&quot;          </span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;synthea-contraceptives-10k&quot;          &quot;synthea-covid19-10k&quot;                </span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;synthea-covid19-200k&quot;                &quot;synthea-dermatitis-10k&quot;             </span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;synthea-heart-10k&quot;                   &quot;synthea-hiv-10k&quot;                    </span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; [11] &quot;synthea-lung_cancer-10k&quot;             &quot;synthea-medications-10k&quot;            </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; [13] &quot;synthea-metabolic_syndrome-10k&quot;      &quot;synthea-opioid_addiction-10k&quot;       </span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co">#&gt; [15] &quot;synthea-rheumatoid_arthritis-10k&quot;    &quot;synthea-snf-10k&quot;                    </span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; [17] &quot;synthea-surgery-10k&quot;                 &quot;synthea-total_joint_replacement-10k&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt; [19] &quot;synthea-veteran_prostate_cancer-10k&quot; &quot;synthea-veterans-10k&quot;               </span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; [21] &quot;synthea-weight_loss-10k&quot;             &quot;synpuf-1k&quot;                          </span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; [23] &quot;empty_cdm&quot;</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), <span class="fu">eunomiaDir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;care_site&quot;             &quot;cdm_source&quot;            &quot;concept&quot;              </span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;concept_ancestor&quot;      &quot;concept_class&quot;         &quot;concept_relationship&quot; </span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;concept_synonym&quot;       &quot;condition_era&quot;         &quot;condition_occurrence&quot; </span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; [10] &quot;cost&quot;                  &quot;death&quot;                 &quot;device_exposure&quot;      </span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; [13] &quot;domain&quot;                &quot;dose_era&quot;              &quot;drug_era&quot;             </span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; [16] &quot;drug_exposure&quot;         &quot;drug_strength&quot;         &quot;fact_relationship&quot;    </span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; [19] &quot;location&quot;              &quot;measurement&quot;           &quot;metadata&quot;             </span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; [22] &quot;note&quot;                  &quot;note_nlp&quot;              &quot;observation&quot;          </span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; [25] &quot;observation_period&quot;    &quot;payer_plan_period&quot;     &quot;person&quot;               </span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; [28] &quot;procedure_occurrence&quot;  &quot;provider&quot;              &quot;relationship&quot;         </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; [31] &quot;source_to_concept_map&quot; &quot;specimen&quot;              &quot;visit_detail&quot;         </span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; [34] &quot;visit_occurrence&quot;      &quot;vocabulary&quot;</span></span></code></pre></div>
 <p>If you’re using CDMConnector for the first time you may get a message
 about adding an enviroment vairable <code>EUNOMIA_DATA_FOLDER</code> .
 To do this simply create a new text file in your home directory called
@@ -424,58 +414,55 @@ To do this simply create a new text file in your home directory called
 If you run <code>usethis::edit_r_environ()</code> this file will be
 created and opened for you and opened in RStudio.</p>
 <p>After connecting to a database containing data mapped to the OMOP
-CDM, use <code>cdm_from_con</code> to create a CDM reference. This CDM
+CDM, use <code>cdmFromCon</code> to create a CDM reference. This CDM
 reference is a single object that contains dplyr table references to
 each CDM table along with metadata about the CDM instance.</p>
-<p>The cdm_schema is the schema in the database that contains the OMOP
-CDM tables and is required. All other arguments are optional.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_from_con()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmFromCon()` instead.</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; Note: method with signature &#39;DBIConnection#Id&#39; chosen for function &#39;dbExistsTable&#39;,</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;  target signature &#39;duckdb_connection#Id&#39;.</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;  &quot;duckdb_connection#ANY&quot; would also be valid</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>cdm</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;main.observation_period&gt; [?? x 5]</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;  2                    13        13 2009-04-26             2019-04-14            </span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;  3                    27        27 2002-01-30             2018-11-21            </span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;  4                    16        16 1971-10-14             2017-11-02            </span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;  5                    55        55 2009-05-30             2019-03-23            </span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;  6                    60        60 1990-11-21             2019-01-23            </span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;  7                    42        42 1909-11-03             2019-03-13            </span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;  8                    33        33 1986-05-12             2018-09-10            </span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;  9                    18        18 1965-11-17             2018-11-07            </span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; 10                    25        25 2007-03-18             2019-04-07            </span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; # ℹ abbreviated names: ¹​observation_period_start_date,</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; #   ²​observation_period_end_date</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: period_type_concept_id &lt;int&gt;</span></span></code></pre></div>
+<p>The <code>cdmSchema</code> is the schema in the database that
+contains the OMOP CDM tables and is required. The
+<code>writeSchema</code> is a schema in the database where the user has
+the ability to create tables. Both <code>cdmSchema</code> and
+<code>writeSchema</code> are required to create a cdm object.</p>
+<p>Every cdm object needs a <code>cdmName</code> that is used to
+identify the CDM in output files.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, <span class="at">cdmName =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdmSchema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">writeSchema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>cdm</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship,</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; location, care_site, provider, payer_plan_period, cost, drug_era, dose_era,</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; condition_era, metadata, cdm_source, concept, vocabulary, domain,</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; concept_class, concept_relationship, relationship, concept_synonym,</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; concept_ancestor, source_to_concept_map, drug_strength</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;observation_period&gt; [?? x 5]</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f9834079dfe.duckdb]</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;  2                    13        13 2009-04-26             2019-04-14            </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;  3                    27        27 2002-01-30             2018-11-21            </span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;  4                    16        16 1971-10-14             2017-11-02            </span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;  5                    55        55 2009-05-30             2019-03-23            </span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;  6                    60        60 1990-11-21             2019-01-23            </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;  7                    42        42 1909-11-03             2019-03-13            </span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;  8                    33        33 1986-05-12             2018-09-10            </span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  9                    18        18 1965-11-17             2018-11-07            </span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; 10                    25        25 2007-03-18             2019-04-07            </span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; # ℹ abbreviated names: ¹​observation_period_start_date,</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; #   ²​observation_period_end_date</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: period_type_concept_id &lt;int&gt;</span></span></code></pre></div>
 <p>Individual CDM table references can be accessed using `$`.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>cdm<span class="sc">$</span>person <span class="sc">%&gt;%</span> </span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Columns: 18</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f9834079dfe.duckdb]</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; $ person_id                   &lt;int&gt; 6, 123, 129, 16, 65, 74, 42, 187, 18, 111,…</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; $ gender_concept_id           &lt;int&gt; 8532, 8507, 8507, 8532, 8532, 8532, 8532, …</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $ year_of_birth               &lt;int&gt; 1963, 1950, 1974, 1971, 1967, 1972, 1909, …</span></span>
@@ -527,7 +514,7 @@ R.</p>
 <span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Year of birth&quot;</span>, </span>
 <span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Person count&quot;</span>, </span>
 <span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Age Distribution&quot;</span>,</span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">cdm_name</span>(cdm),</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">cdmName</span>(cdm),</span>
 <span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>       <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
 <span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
@@ -574,16 +561,16 @@ viral pharyngitis”.</p>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 113 × 2</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    concept_name                                                                n</span></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 hepatitis B vaccine, adult dosage                                        1826</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 Penicillin V Potassium 500 MG Oral Tablet                                1060</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 tetanus and diphtheria toxoids, adsorbed, preservative free, for adult…  7203</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Alendronic acid 10 MG Oral Tablet                                         129</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 alteplase 100 MG Injection                                                210</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Amoxicillin 250 MG Oral Capsule                                           188</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Nitrofurantoin 5 MG/ML Oral Suspension                                    779</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Nitroglycerin 0.4 MG/ACTUAT Mucosal Spray                                 207</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Amlodipine 5 MG Oral Tablet                                               179</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 rocuronium bromide 10 MG/ML Injectable Solution                            35</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 Acetaminophen 325 MG / Hydrocodone Bitartrate 7.5 MG Oral Tablet          305</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 {7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Nore…   997</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 Penicillin V Potassium 250 MG Oral Tablet                                1666</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Methylphenidate Hydrochloride 20 MG Oral Tablet                            63</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 Haemophilus influenzae type b vaccine, PRP-OMP conjugate                 1295</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 Ibuprofen 100 MG Oral Tablet                                              360</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Amoxicillin 500 MG Oral Tablet                                            246</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Naproxen 500 MG Oral Tablet                                                18</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Warfarin Sodium 5 MG Oral Tablet                                          135</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 remifentanil                                                               16</span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 103 more rows</span></span></code></pre></div>
 <p>To inspect the generated SQL use <code>show_query</code> from
 dplyr.</p>
@@ -635,15 +622,15 @@ dplyr.</p>
 <span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a><span class="co">#&gt;       dose_unit_source_value</span></span>
 <span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a><span class="co">#&gt;     FROM (</span></span>
 <span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a><span class="co">#&gt;       SELECT DISTINCT person_id</span></span>
-<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a><span class="co">#&gt;       FROM main.condition_occurrence</span></span>
+<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a><span class="co">#&gt;       FROM condition_occurrence</span></span>
 <span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a><span class="co">#&gt;       WHERE (condition_concept_id = 4112343.0)</span></span>
 <span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a><span class="co">#&gt;     ) LHS</span></span>
-<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a><span class="co">#&gt;     INNER JOIN main.drug_exposure</span></span>
+<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a><span class="co">#&gt;     INNER JOIN drug_exposure</span></span>
 <span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a><span class="co">#&gt;       ON (LHS.person_id = drug_exposure.person_id)</span></span>
 <span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a><span class="co">#&gt;   ) q01</span></span>
 <span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a><span class="co">#&gt;   GROUP BY drug_concept_id</span></span>
 <span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a><span class="co">#&gt; ) LHS</span></span>
-<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a><span class="co">#&gt; LEFT JOIN main.concept</span></span>
+<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a><span class="co">#&gt; LEFT JOIN concept</span></span>
 <span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a><span class="co">#&gt;   ON (LHS.drug_concept_id = concept.concept_id)</span></span></code></pre></div>
 <p>These are a few simple queries. More complex queries can be built by
 combining simple queries like the ones above and other analytic packages
@@ -664,10 +651,12 @@ tested across the OHDSI supported database platforms.</p>
 argument when creating our cdm reference object, the “write_schema”.
 This is a schema in the database where you have write permissions.
 Typically this should be a separate schema from the “cdm_schema”.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbExecute</span>(con, <span class="st">&quot;create schema scratch;&quot;</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdm_schema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">write_schema =</span> <span class="st">&quot;scratch&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbExecute</span>(con, <span class="st">&quot;create schema scratch;&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, <span class="at">cdmName =</span> <span class="st">&quot;eunomia&quot;</span>, <span class="at">cdmSchema =</span> <span class="st">&quot;main&quot;</span>, <span class="at">writeSchema =</span> <span class="st">&quot;scratch&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; Note: method with signature &#39;DBIConnection#Id&#39; chosen for function &#39;dbExistsTable&#39;,</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;  target signature &#39;duckdb_connection#Id&#39;.</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;  &quot;duckdb_connection#ANY&quot; would also be valid</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>drugs <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">filter</span>(condition_concept_id <span class="sc">==</span> <span class="dv">4112343</span>) <span class="sc">%&gt;%</span> </span>
@@ -684,19 +673,19 @@ Typically this should be a separate schema from the “cdm_schema”.</p>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>drugs</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;scratch.test&gt; [?? x 11]</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a1c13b0af.duckdb]</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f9834079dfe.duckdb]</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;    drug_concept_id     n concept_name   domain_id vocabulary_id concept_class_id</span></span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;              &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;           </span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;  1        40162522   305 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;  2        19128065   997 {7 (Inert Ing… Drug      RxNorm        Branded Pack    </span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;  3        19133873  1666 Penicillin V … Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  4        40236446    63 Methylphenida… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  5        40213314  1295 Haemophilus i… Drug      CVX           CVX             </span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  6        19019979   360 Ibuprofen 100… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  7        19073188   246 Amoxicillin 5… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  8        19019273    18 Naproxen 500 … Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  9        40163554   135 Warfarin Sodi… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 10        19016749    16 remifentanil   Drug      RxNorm        Ingredient      </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;  1        40213260  2082 zoster vaccin… Drug      CVX           CVX             </span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;  2         1551192   152 Prednisone 5 … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;  3        19006318  1119 Penicillin G … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  4        40231925   301 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  5        40213201   708 pneumococcal … Drug      CVX           CVX             </span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  6          920334   118 NITROFURANTOI… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  7        19074843    82 Cefaclor 250 … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  8        19018935   135 Digoxin 0.125… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  9         1539411   182 Simvastatin 2… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 10         1367571    35 heparin        Drug      RxNorm        Ingredient      </span></span>
 <span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
 <span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; # ℹ 5 more variables: standard_concept &lt;chr&gt;, concept_code &lt;chr&gt;,</span></span>
 <span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; #   valid_start_date &lt;date&gt;, valid_end_date &lt;date&gt;, invalid_reason &lt;chr&gt;</span></span></code></pre></div>
@@ -708,79 +697,69 @@ table.</p>
 <h2>Selecting a subset of CDM tables</h2>
 <p>If you do not need references to all tables you can easily select
 only a subset of tables to include in the CDM reference. The
-<code>cdm_select_tbl</code> function supports the <a href="https://tidyselect.r-lib.org/reference/language.html">tidyselect
+<code>cdmSelect</code> function supports the <a href="https://tidyselect.r-lib.org/reference/language.html">tidyselect
 selection language</a> and provides a new selection helper:
 <code>tbl_group</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="st">&quot;person&quot;</span>, <span class="st">&quot;observation_period&quot;</span>) <span class="co"># quoted names</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_select_tbl()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSelect()` instead.</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(person, observation_period) <span class="co"># unquoted names </span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">starts_with</span>(<span class="st">&quot;concept&quot;</span>)) <span class="co"># tables that start with &#39;concept&#39;</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, concept_class, concept_relationship, concept_synonym,</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; concept_ancestor</span></span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">contains</span>(<span class="st">&quot;era&quot;</span>)) <span class="co"># tables that contain the substring &#39;era&#39;</span></span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; • omop tables: drug_era, dose_era, condition_era</span></span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">matches</span>(<span class="st">&quot;person|period&quot;</span>)) <span class="co"># regular expression</span></span>
-<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, payer_plan_period</span></span>
-<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="st">&quot;person&quot;</span>, <span class="st">&quot;observation_period&quot;</span>) <span class="co"># quoted names</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(person, observation_period) <span class="co"># unquoted names </span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="fu">starts_with</span>(<span class="st">&quot;concept&quot;</span>)) <span class="co"># tables that start with &#39;concept&#39;</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, concept_class, concept_relationship, concept_synonym,</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; concept_ancestor</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="fu">contains</span>(<span class="st">&quot;era&quot;</span>)) <span class="co"># tables that contain the substring &#39;era&#39;</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; • omop tables: drug_era, dose_era, condition_era</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="fu">matches</span>(<span class="st">&quot;person|period&quot;</span>)) <span class="co"># regular expression</span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, payer_plan_period</span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <p>Predefined sets of tables can also be selected using
 <code>tbl_group</code> which supports several subsets of the CDM: “all”,
 “clinical”, “vocab”, “derived”, and “default”.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># pre-defined groups</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">tbl_group</span>(<span class="st">&quot;clinical&quot;</span>)) </span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Warning: `tbl_group()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `tblGroup()` instead.</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship</span></span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdm_select_tbl</span>(<span class="fu">tbl_group</span>(<span class="st">&quot;vocab&quot;</span>)) </span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, vocabulary, domain, concept_class,</span></span>
-<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; concept_relationship, relationship, concept_synonym, concept_ancestor,</span></span>
-<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; source_to_concept_map, drug_strength</span></span>
-<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
-<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
-<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="fu">tblGroup</span>(<span class="st">&quot;clinical&quot;</span>)) </span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; • omop tables: person, observation_period, visit_occurrence, visit_detail,</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; condition_occurrence, drug_exposure, procedure_occurrence, device_exposure,</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; measurement, observation, death, note, note_nlp, specimen, fact_relationship</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> <span class="fu">cdmSelect</span>(<span class="fu">tblGroup</span>(<span class="st">&quot;vocab&quot;</span>)) </span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; ── # OMOP CDM reference (duckdb) of eunomia ────────────────────────────────────</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; • omop tables: concept, vocabulary, domain, concept_class,</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; concept_relationship, relationship, concept_synonym, concept_ancestor,</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; source_to_concept_map, drug_strength</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; • cohort tables: -</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="co">#&gt; • achilles tables: -</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span></code></pre></div>
 <p>The default set of CDM tables included in a CDM object is:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">tbl_group</span>(<span class="st">&quot;default&quot;</span>)</span>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">tblGroup</span>(<span class="st">&quot;default&quot;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;person&quot;               &quot;observation_period&quot;   &quot;visit_occurrence&quot;    </span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;condition_occurrence&quot; &quot;drug_exposure&quot;        &quot;procedure_occurrence&quot;</span></span>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;measurement&quot;          &quot;observation&quot;          &quot;death&quot;               </span></span>
@@ -797,43 +776,33 @@ or simply down sample the data to a more reasonable size. Let’s subset
 our cdm to just persons with a Pneumonia (concept_id 255848). This works
 best then the number of persons in the subset is quite small and the
 database has indexes on the “person_id” columns of each table.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>person_ids <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>personIds <span class="ot">&lt;-</span> cdm<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">filter</span>(condition_concept_id <span class="sc">==</span> <span class="dv">255848</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">distinct</span>(person_id) <span class="sc">%&gt;%</span> </span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="fu">pull</span>(person_id)</span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">length</span>(person_ids)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">length</span>(personIds)</span>
 <span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span>
 <span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
 <span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>cdm_pneumonia <span class="ot">&lt;-</span> cdm <span class="sc">%&gt;%</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="fu">cdm_subset</span>(<span class="at">person_id =</span> person_ids)</span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_subset()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSubset()` instead.</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a></span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="fu">tally</span>(cdm_pneumonia<span class="sc">$</span>person) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>cdm_pneumonia<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>  <span class="fu">distinct</span>(person_id) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
-<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="fu">cdmSubset</span>(<span class="at">personId =</span> personIds)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="fu">tally</span>(cdm_pneumonia<span class="sc">$</span>person) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>cdm_pneumonia<span class="sc">$</span>condition_occurrence <span class="sc">%&gt;%</span> </span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>  <span class="fu">distinct</span>(person_id) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>  <span class="fu">pull</span>(n)</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
 <p>Alternatively if we simply want a random sample of the entire CDM we
 can use <code>cdm_sample</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>cdm_100person <span class="ot">&lt;-</span> <span class="fu">cdm_sample</span>(cdm, <span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_sample()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmSample()` instead.</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">tally</span>(cdm_100person<span class="sc">$</span>person) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(<span class="st">&quot;n&quot;</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>cdm_100person <span class="ot">&lt;-</span> <span class="fu">cdmSample</span>(cdm, <span class="at">n =</span> <span class="dv">100</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">tally</span>(cdm_100person<span class="sc">$</span>person) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(<span class="st">&quot;n&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
 </div>
 <div id="flatten-a-cdm" class="section level1">
 <h1>Flatten a CDM</h1>
@@ -841,65 +810,30 @@ can use <code>cdm_sample</code>.</p>
 flatten this relational structure into a “tidy” dataframe with one row
 per observation. This transformation should only be done with a small
 number of persons and events.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">cdm_flatten</span>(cdm_pneumonia,</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>            <span class="at">domain =</span> <span class="fu">c</span>(<span class="st">&quot;condition&quot;</span>, <span class="st">&quot;drug&quot;</span>, <span class="st">&quot;measurement&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">cdmFlatten</span>(cdm_pneumonia,</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>           <span class="at">domain =</span> <span class="fu">c</span>(<span class="st">&quot;condition_occurrence&quot;</span>, <span class="st">&quot;drug_exposure&quot;</span>, <span class="st">&quot;measurement&quot;</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; Warning: `cdm_flatten()` was deprecated in CDMConnector 1.7.0.</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `cdmFlatten()` instead.</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  1      4976                3021226 1990-01-02 1990-01-02            5001 measu…</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  2      3438                3006322 1916-08-10 1916-08-10            5001 measu…</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  3      4976                4052083 1981-06-05 1981-06-05            5001 measu…</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  4      2333                3006322 1966-02-24 1966-02-24            5001 measu…</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt;  5      4521                3006322 1987-02-23 1987-02-23            5001 measu…</span></span>
-<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt;  6       445                4052083 1968-03-15 1968-03-15            5001 measu…</span></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt;  7      5251                4024958 1952-01-30 1952-01-30            5001 measu…</span></span>
-<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&gt;  8      1954               40766240 1967-10-19 1967-10-19            5001 measu…</span></span>
-<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt;  9      1954                3051031 2003-02-07 2003-02-07            5001 measu…</span></span>
-<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; 10      4308                4052083 1992-08-29 1992-08-29            5001 measu…</span></span>
-<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
-<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
-<div id="saving-a-local-copy-of-a-cdm" class="section level2">
-<h2>Saving a local copy of a CDM</h2>
-<p>We can use <code>collect</code> to bring the whole cdm object into R
-as dataframes. If you would like to save a subset of the CDM and then
-restore it in R as a local CDM object, CDMConnector provides the
-<code>stow</code> and <code>cdm_from_files</code> functions to do
-this.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>local_cdm <span class="ot">&lt;-</span> cdm_100person <span class="sc">%&gt;%</span> </span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co"># The cdm tables are now dataframes</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>local_cdm<span class="sc">$</span>person[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>] </span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 4</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt;   person_id gender_concept_id year_of_birth month_of_birth</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co">#&gt;       &lt;int&gt;             &lt;int&gt;         &lt;int&gt;          &lt;int&gt;</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; 1       187              8507          1945              7</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt; 2        61              8532          1968              1</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 3       181              8532          1973              9</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 4        36              8532          1958             10</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>save_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;tmp&quot;</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">dir.create</span>(save_path)</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>cdm <span class="sc">%&gt;%</span> </span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="fu">stow</span>(<span class="at">path =</span> save_path, <span class="at">format =</span> <span class="st">&quot;parquet&quot;</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="fu">list.files</span>(save_path)</span></code></pre></div>
-<p>Restore a saved cdm object from files with
-<code>cdm_from_files</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_files</span>(save_path, <span class="at">cdm_name =</span> <span class="st">&quot;GI Bleed example data&quot;</span>)</span></code></pre></div>
-</div>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1       419               40766240 1913-08-23 1913-08-23            5001 measu…</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      3614                3006322 2010-11-07 2010-11-07            5001 measu…</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3      2739                3006322 1995-08-14 1995-08-14            5001 measu…</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4       430                3006322 1989-04-04 1989-04-04            5001 measu…</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5      1162                4052083 1933-09-13 1933-09-13            5001 measu…</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6      3553                3006322 1984-08-13 1984-08-13            5001 measu…</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7      4976                3009201 1983-10-26 1983-10-26            5001 measu…</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8      3223                3006322 1959-10-17 1959-10-17            5001 measu…</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9      2827                3006322 1946-12-20 1946-12-20            5001 measu…</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10      4976                3001488 1990-01-02 1990-01-02            5001 measu…</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
 <div id="closing-connections" class="section level2">
 <h2>Closing connections</h2>
 <p>Close the database connection with <code>dbDisconnect</code>. After a
 connection is closed any cdm objects created with that connection can no
 longer be used.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con, <span class="at">shutdown =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>

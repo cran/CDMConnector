@@ -2,7 +2,7 @@
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomia"))
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-if (!eunomia_is_available()) downloadEunomiaData()
+if (!eunomiaIsAvailable()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -16,8 +16,8 @@ library(dplyr, warn.conflicts = FALSE)
 library(ggplot2)
 
 ## -----------------------------------------------------------------------------
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = eunomiaDir())
+cdm <- cdmFromCon(con, cdmName = "eunomia", cdmSchema = "main", writeSchema = "main")
 cdm
 
 ## ----message=FALSE------------------------------------------------------------

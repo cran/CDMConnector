@@ -11,61 +11,59 @@ library(dplyr, warn.conflicts = FALSE)
 
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomia"))
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-if (!eunomia_is_available()) downloadEunomiaData()
+if (!eunomiaIsAvailable()) downloadEunomiaData()
 
 
 ## -----------------------------------------------------------------------------
-path_to_cohort_json_files <- system.file("cohorts1", package = "CDMConnector")
-list.files(path_to_cohort_json_files)
+pathToCohortJsonFiles <- system.file("cohorts1", package = "CDMConnector")
+list.files(pathToCohortJsonFiles)
 
-readr::read_csv(file.path(path_to_cohort_json_files, "CohortsToCreate.csv"),
+readr::read_csv(file.path(pathToCohortJsonFiles, "CohortsToCreate.csv"),
                 show_col_types = FALSE)
 
 ## -----------------------------------------------------------------------------
 library(CDMConnector)
-path_to_cohort_json_files <- system.file("example_cohorts", 
-                                         package = "CDMConnector")
-list.files(path_to_cohort_json_files)
+pathToCohortJsonFiles <- system.file("example_cohorts", package = "CDMConnector")
+list.files(pathToCohortJsonFiles)
 
-con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("GiBleed"))
-cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
+con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("GiBleed"))
+cdm <- cdmFromCon(con, cdmName = "eunomia", cdmSchema = "main", writeSchema = "main")
 
-cohort_details <- read_cohort_set(path_to_cohort_json_files) |>
+cohortSet <- readCohortSet(pathToCohortJsonFiles) |>
   mutate(cohort_name = snakecase::to_snake_case(cohort_name))
 
-cohort_details
+cohortSet
 
-cdm <- generate_cohort_set(
+cdm <- generateCohortSet(
   cdm = cdm, 
-  cohort_set = cohort_details,
+  cohortSet = cohortSet,
   name = "study_cohorts"
 )
 
 cdm$study_cohorts
 
 ## -----------------------------------------------------------------------------
-cohort_count(cdm$study_cohorts)
-cohort_set(cdm$study_cohorts)
+cohortCount(cdm$study_cohorts)
+settings(cdm$study_cohorts)
 attrition(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # cdm_gibleed <- cdm %>%
-#   cdm_subset_cohort(cohort_table = "study_cohorts")
+#   cdmSubsetCohort(cohortTable = "study_cohorts")
 
 ## -----------------------------------------------------------------------------
 library(CDMConnector)
-con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir())
-cdm <- cdm_from_con(con, cdm_schema = "main", write_schema = "main")
+con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir())
+cdm <- cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
 
-cohort_set <- read_cohort_set(system.file("cohorts3", package = "CDMConnector"))
+cohortSet <- readCohortSet(system.file("cohorts3", package = "CDMConnector"))
 
 
-cdm <- generate_cohort_set(cdm, cohort_set, name = "cohort") 
+cdm <- generateCohortSet(cdm, cohortSet, name = "cohort") 
 
 cdm$cohort
 
-
-cohort_count(cdm$cohort)
+cohortCount(cdm$cohort)
 
 
 ## -----------------------------------------------------------------------------
@@ -74,21 +72,19 @@ library(dplyr)
 cdm$cohort_subset <- cdm$cohort %>% 
   # only keep persons who are in the cohort at least 28 days
   filter(!!datediff("cohort_start_date", "cohort_end_date") >= 28) %>% 
-  # optionally you can modify the cohort_id
-  mutate(cohort_definition_id = 100 + cohort_definition_id) %>% 
   compute(name = "cohort_subset", temporary = FALSE, overwrite = TRUE) %>% 
-  new_generated_cohort_set()
+  newCohortTable()
 
-cohort_count(cdm$cohort_subset)
+cohortCount(cdm$cohort_subset)
 
 ## -----------------------------------------------------------------------------
-days_in_cohort <- cdm$cohort %>% 
+daysInCohort <- cdm$cohort %>% 
   filter(cohort_definition_id %in% c(1,5)) %>% 
   mutate(days_in_cohort = !!datediff("cohort_start_date", "cohort_end_date")) %>% 
   count(cohort_definition_id, days_in_cohort) %>% 
   collect()
 
-days_in_cohort
+daysInCohort
 
 ## -----------------------------------------------------------------------------
 
@@ -105,8 +101,8 @@ cdm$cohort_subset <- cdm$cohort %>%
     filter(!!datediff("cohort_start_date", "cohort_end_date") >= 28) %>% 
     mutate(cohort_definition_id = 1000 + cohort_definition_id)
   ) %>% 
-  compute(name = "cohort_subset", temporary = FALSE, overwrite = TRUE) %>% 
-  new_generated_cohort_set() # this function creates the cohort object and metadata
+  compute(name = "cohort_subset", temporary = FALSE, overwrite = TRUE) # %>% 
+  # newCohortTable() # this function creates the cohort object and metadata
 
 cdm$cohort_subset %>% 
   mutate(days_in_cohort = !!datediff("cohort_start_date", "cohort_end_date")) %>% 
@@ -120,9 +116,9 @@ cdm$cohort_subset %>%
 
 library(dplyr, warn.conflicts = FALSE)
 
-cdm <- generate_concept_cohort_set(
+cdm <- generateConceptCohortSet(
   cdm, 
-  concept_set = list(gibleed = 192671), 
+  conceptSet = list(gibleed = 192671), 
   name = "gibleed2", # name of the cohort table
   limit = "all", # use all occurrences of the concept instead of just the first
   end = 10 # set explicit cohort end date 10 days after start
@@ -133,7 +129,7 @@ cdm$gibleed2 <- cdm$gibleed2 %>%
     filter(cdm$person, gender_concept_id == 8507), 
     by = c("subject_id" = "person_id")
   ) %>% 
-  record_cohort_attrition(reason = "Male")
+  recordCohortAttrition(reason = "Male")
   
 attrition(cdm$gibleed2) 
 
@@ -157,8 +153,8 @@ cdm$cohort
 cdm$cohort <- newCohortTable(cdm$cohort)
 
 ## -----------------------------------------------------------------------------
-cohort_count(cdm$cohort)
-cohort_set(cdm$cohort)
+cohortCount(cdm$cohort)
+settings(cdm$cohort)
 attrition(cdm$cohort)
 
 ## -----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = tempdir())
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-if (!eunomia_is_available()) downloadEunomiaData()
+if (!eunomiaIsAvailable()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -12,20 +12,19 @@ knitr::opts_chunk$set(
 
 ## -----------------------------------------------------------------------------
 library(CDMConnector)
-example_datasets()
+exampleDatasets()
 
-con <- DBI::dbConnect(duckdb::duckdb(), eunomia_dir("GiBleed"))
+con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir("GiBleed"))
 DBI::dbListTables(con)
 
 ## -----------------------------------------------------------------------------
-cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "main")
+cdm <- cdmFromCon(con, cdmName = "eunomia", cdmSchema = "main", writeSchema = "main")
 cdm
 cdm$observation_period
 
 ## -----------------------------------------------------------------------------
 cdm$person %>% 
   dplyr::glimpse()
-
 
 ## ----warning=FALSE------------------------------------------------------------
 library(dplyr)
@@ -44,7 +43,7 @@ cdm$person %>%
   labs(x = "Year of birth", 
        y = "Person count", 
        title = "Age Distribution",
-       subtitle = cdm_name(cdm),
+       subtitle = cdmName(cdm),
        fill = NULL) +
   theme_bw()
 
@@ -75,9 +74,8 @@ cdm$condition_occurrence %>%
   show_query() 
 
 ## -----------------------------------------------------------------------------
-
 DBI::dbExecute(con, "create schema scratch;")
-cdm <- cdm_from_con(con, cdm_name = "eunomia", cdm_schema = "main", write_schema = "scratch")
+cdm <- cdmFromCon(con, cdmName = "eunomia", cdmSchema = "main", writeSchema = "scratch")
 
 ## ----warning=FALSE------------------------------------------------------------
 
@@ -94,30 +92,30 @@ drugs %>% show_query()
 drugs
 
 ## -----------------------------------------------------------------------------
-cdm %>% cdm_select_tbl("person", "observation_period") # quoted names
-cdm %>% cdm_select_tbl(person, observation_period) # unquoted names 
-cdm %>% cdm_select_tbl(starts_with("concept")) # tables that start with 'concept'
-cdm %>% cdm_select_tbl(contains("era")) # tables that contain the substring 'era'
-cdm %>% cdm_select_tbl(matches("person|period")) # regular expression
+cdm %>% cdmSelect("person", "observation_period") # quoted names
+cdm %>% cdmSelect(person, observation_period) # unquoted names 
+cdm %>% cdmSelect(starts_with("concept")) # tables that start with 'concept'
+cdm %>% cdmSelect(contains("era")) # tables that contain the substring 'era'
+cdm %>% cdmSelect(matches("person|period")) # regular expression
 
 ## -----------------------------------------------------------------------------
 # pre-defined groups
-cdm %>% cdm_select_tbl(tbl_group("clinical")) 
-cdm %>% cdm_select_tbl(tbl_group("vocab")) 
+cdm %>% cdmSelect(tblGroup("clinical")) 
+cdm %>% cdmSelect(tblGroup("vocab")) 
 
 ## -----------------------------------------------------------------------------
-tbl_group("default")
+tblGroup("default")
 
 ## -----------------------------------------------------------------------------
-person_ids <- cdm$condition_occurrence %>% 
+personIds <- cdm$condition_occurrence %>% 
   filter(condition_concept_id == 255848) %>% 
   distinct(person_id) %>% 
   pull(person_id)
 
-length(person_ids)
+length(personIds)
 
 cdm_pneumonia <- cdm %>%
-  cdm_subset(person_id = person_ids)
+  cdmSubset(personId = personIds)
 
 tally(cdm_pneumonia$person) %>% 
   pull(n)
@@ -129,34 +127,15 @@ cdm_pneumonia$condition_occurrence %>%
 
 ## -----------------------------------------------------------------------------
 
-cdm_100person <- cdm_sample(cdm, n = 100)
+cdm_100person <- cdmSample(cdm, n = 100)
 
 tally(cdm_100person$person) %>% pull("n")
 
 
 ## -----------------------------------------------------------------------------
-cdm_flatten(cdm_pneumonia,
-            domain = c("condition", "drug", "measurement")) %>% 
+cdmFlatten(cdm_pneumonia,
+           domain = c("condition_occurrence", "drug_exposure", "measurement")) %>% 
   collect()
-
-## -----------------------------------------------------------------------------
-local_cdm <- cdm_100person %>% 
-  collect()
-
-# The cdm tables are now dataframes
-local_cdm$person[1:4, 1:4] 
-
-## ----eval=FALSE---------------------------------------------------------------
-# save_path <- file.path(tempdir(), "tmp")
-# dir.create(save_path)
-# 
-# cdm %>%
-#   stow(path = save_path, format = "parquet")
-# 
-# list.files(save_path)
-
-## ----eval=FALSE---------------------------------------------------------------
-# cdm <- cdm_from_files(save_path, cdm_name = "GI Bleed example data")
 
 ## -----------------------------------------------------------------------------
 DBI::dbDisconnect(con, shutdown = TRUE)

@@ -52,20 +52,15 @@
       sql <- dbplyr::build_sql("CREATE TABLE ",
                                dbplyr::ident(schema[1]), dbplyr::sql("."),
                                dbplyr::ident(schema[2]), dbplyr::sql("."), dbplyr::ident(name),
+                               if (dbms(x$src$con) == "spark")  dbplyr::sql(" USING DELTA "),
                                " AS ", dbplyr::sql_render(x), con = x$src$con)
     } else {
       sql <- dbplyr::build_sql("CREATE TABLE ",
                if (!is.null(schema)) dbplyr::ident(schema),
                if (!is.null(schema)) dbplyr::sql("."), dbplyr::ident(name),
+               if (dbms(x$src$con) == "spark")  dbplyr::sql(" USING DELTA "),
                " AS ", dbplyr::sql_render(x), con = x$src$con)
     }
-
-  } else if (dbms(x$src$con) == "spark") {
-    sql <- dbplyr::build_sql("CREATE ",
-             if (overwrite) dbplyr::sql("OR REPLACE "),  "TABLE ",
-             if (!is.null(schema)) dbplyr::ident(schema),
-             if (!is.null(schema)) dbplyr::sql("."), dbplyr::ident(name),
-             " AS ", dbplyr::sql_render(x), con = x$src$con)
   } else {
     sql <- glue::glue("SELECT * INTO {fullNameQuoted}
                       FROM ({dbplyr::sql_render(x)}) x")
@@ -138,25 +133,6 @@ appendPermanent <- function(x, name, schema = NULL) {
   sql <- glue::glue("{insertStatment} {fullNameQuoted} {dbplyr::sql_render(x)}")
   DBI::dbExecute(x$src$con, sql)
   dplyr::tbl(x$src$con, .inSchema(schema, name, dbms = dbms(x$src$con)))
-}
-
-#' `r lifecycle::badge("deprecated")`
-#' @rdname appendPermanent
-#' @export
-append_permanent <- function(x, name, schema = NULL){
-  lifecycle::deprecate_soft("1.7.0", "append_permanent()", "appendPermanent()")
-  appendPermanent(x, name, schema)
-}
-
-#' Create a unique table name for temp tables
-#'
-#' `r lifecycle::badge("deprecated")`
-#'
-#' @return A string that can be used as a dbplyr temp table name
-#' @export
-unique_table_name <- function() {
-  lifecycle::deprecate_soft("1.7.0", "unique_table_name()", "uniqueTableName()")
-  uniqueTableName()
 }
 
 #' Execute dplyr query and save result in remote database
@@ -321,19 +297,6 @@ computeQuery <- function(x,
   class(out) <- class(x)
 
   return(out)
-}
-
-#' `r lifecycle::badge("deprecated")`
-#' @rdname computeQuery
-#' @export
-compute_query <- function(x,
-                         name = uniqueTableName(),
-                         temporary = TRUE,
-                         schema = NULL,
-                         overwrite = TRUE,
-                         ...) {
-  lifecycle::deprecate_soft("1.7.0", "compute_query()")
-  computeQuery(x, name, temporary, schema, overwrite, ...)
 }
 
 # Get the full table name consisting of the schema and table name.

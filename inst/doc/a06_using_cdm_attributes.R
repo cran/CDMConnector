@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
 library(CDMConnector)
 if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = file.path(tempdir(), "eunomia"))
 if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-if (!eunomia_is_available()) downloadEunomiaData()
+if (!eunomiaIsAvailable()) downloadEunomiaData()
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -26,16 +26,15 @@ write_schema <- "main"
 cdm_schema <- "main"
 
 con <- DBI::dbConnect(duckdb::duckdb(), 
-                      dbdir = eunomia_dir())
-cdm <- cdm_from_con(con, 
-                    cdm_name = "eunomia", 
-                    cdm_schema = cdm_schema, 
-                    write_schema = write_schema, 
-                    cdm_version = "5.3")
+                      dbdir = eunomiaDir())
+cdm <- cdmFromCon(con, 
+                    cdmName = "eunomia", 
+                    cdmSchema = cdm_schema, 
+                    writeSchema = write_schema, 
+                    cdmVersion = "5.3")
 
 ## -----------------------------------------------------------------------------
 cdmName(cdm)
-cdm_name(cdm)
 
 ## -----------------------------------------------------------------------------
 cdmVersion(cdm)
@@ -60,15 +59,12 @@ DBI::dbGetQuery(cdmCon(cdm), "SELECT * FROM person LIMIT 5")
 
 ## ----eval=FALSE---------------------------------------------------------------
 # settings(cdm$study_cohorts)
-# cohort_set(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # cohortCount(cdm$study_cohorts)
-# cohort_count(cdm$study_cohorts)
 
 ## ----eval=FALSE---------------------------------------------------------------
-# cohortAttrition(cdm$study_cohorts)
-# cohort_attrition(cdm$study_cohorts)
+# attrition(cdm$study_cohorts)
 
 ## -----------------------------------------------------------------------------
 cdm$gi_bleed <- cdm$condition_occurrence %>% 
@@ -95,5 +91,5 @@ cdm$gi_bleed <- omopgenerics::newCohortTable(
 ## -----------------------------------------------------------------------------
 settings(cdm$gi_bleed)
 cohortCount(cdm$gi_bleed)
-cohortAttrition(cdm$gi_bleed)
+attrition(cdm$gi_bleed)
 

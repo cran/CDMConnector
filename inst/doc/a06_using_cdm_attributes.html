@@ -352,12 +352,12 @@ in duckdb.</p>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>cdm_schema <span class="ot">&lt;-</span> <span class="st">&quot;main&quot;</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), </span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                      <span class="at">dbdir =</span> <span class="fu">eunomia_dir</span>())</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdm_from_con</span>(con, </span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>                    <span class="at">cdm_name =</span> <span class="st">&quot;eunomia&quot;</span>, </span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>                    <span class="at">cdm_schema =</span> cdm_schema, </span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>                    <span class="at">write_schema =</span> write_schema, </span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>                    <span class="at">cdm_version =</span> <span class="st">&quot;5.3&quot;</span>)</span></code></pre></div>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                      <span class="at">dbdir =</span> <span class="fu">eunomiaDir</span>())</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>                    <span class="at">cdmName =</span> <span class="st">&quot;eunomia&quot;</span>, </span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> cdm_schema, </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>                    <span class="at">writeSchema =</span> write_schema, </span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>                    <span class="at">cdmVersion =</span> <span class="st">&quot;5.3&quot;</span>)</span></code></pre></div>
 </div>
 <div id="cdm-reference-attributes" class="section level2">
 <h2>CDM reference attributes</h2>
@@ -372,9 +372,7 @@ associate results with a particular cdm. We can use <code>cdmName</code>
 (or it’s snake case equivalent <code>cdm_name</code>) to get the cdm
 name.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">cdmName</span>(cdm)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;eunomia&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">cdm_name</span>(cdm)</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;eunomia&quot;</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;eunomia&quot;</span></span></code></pre></div>
 </div>
 <div id="cdm-version" class="section level3">
 <h3>CDM version</h3>
@@ -388,7 +386,7 @@ the version of the cdm we have connected to.</p>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">cdmCon</span>(cdm)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection ddfd0 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a11e177523.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection 768f0 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f98163ea2d.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
@@ -470,16 +468,13 @@ analysis.</p>
 <p>We have a cohort set attribute that gives details on the settings
 associated with the cohorts (along with utility functions to make it
 easier to access this attribute).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">cohort_set</span>(cdm<span class="sc">$</span>study_cohorts) </span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
 <p>We have a cohort_count attribute with counts for each of the
 cohorts.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">cohort_count</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cohortCount</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
 <p>And we also have an attribute, cohort attrition, with a summary of
 attrition when creating the cohorts.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">cohortAttrition</span>(cdm<span class="sc">$</span>study_cohorts)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">cohort_attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>study_cohorts)</span></code></pre></div>
 </div>
 <div id="creating-a-bespoke-cohort" class="section level3">
 <h3>Creating a bespoke cohort</h3>
@@ -500,7 +495,7 @@ structure</p>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpSbVAlz/file184a11e177523.duckdb]</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f98163ea2d.duckdb]</span></span>
 <span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
 <span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
@@ -516,8 +511,8 @@ custom cohorts.</p>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Now our custom cohort GI_bleed has the same attributes associated
 with it as if it had been created by
-<code>generateConceptCohortSet</code>. This will mean that it can be
-used by analytic packages designed to work with cdm cohorts.</p>
+<code>generateConceptCohortSet</code>. This will allow it to be used by
+analytic packages designed to work with cdm cohorts.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">settings</span>(cdm<span class="sc">$</span>gi_bleed)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id cohort_name    </span></span>
@@ -528,17 +523,12 @@ used by analytic packages designed to work with cdm cohorts.</p>
 <span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects</span></span>
 <span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;</span></span>
 <span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479</span></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">cohortAttrition</span>(cdm<span class="sc">$</span>gi_bleed)</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; Warning: `cohortAttrition()` was deprecated in CDMConnector 1.3.</span></span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `attrition()` instead.</span></span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; generated.</span></span>
-<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
-<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
-<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Initial qualify…</span></span>
-<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">attrition</span>(cdm<span class="sc">$</span>gi_bleed)</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt;   cohort_definition_id number_records number_subjects reason_id reason          </span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt;                  &lt;int&gt;          &lt;int&gt;           &lt;int&gt;     &lt;int&gt; &lt;chr&gt;           </span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt; 1                    1            479             479         1 Initial qualify…</span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: excluded_records &lt;int&gt;, excluded_subjects &lt;int&gt;</span></span></code></pre></div>
 </div>
 </div>
 
