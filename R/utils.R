@@ -1,4 +1,4 @@
-# Copyright 2024 DARWIN EU®
+# Copyright 2025 DARWIN EU®
 #
 # This file is part of CDMConnector
 #
@@ -59,15 +59,15 @@ inSchema <- function(schema, table, dbms = NULL) {
 .inSchema <- function(schema, table, dbms = NULL) {
   # lifecycle::deprecate_soft("1.4.1", "CDMConnector::inSchema()", "dbplyr::in_schema()")
   checkmate::assertCharacter(schema, min.len = 1, max.len = 3, null.ok = TRUE)
-  checkmate::assertCharacter(table, len = 1)
+  checkmate::assertCharacter(table, len = 1, min.chars = 1)
   checkmate::assertCharacter(dbms, len = 1, null.ok = TRUE)
 
   if (is.null(schema)) {
     # return temp table name
     if (dbms == "sql server") {
-      return(paste0("#", table))
+      return(DBI::Id(table = paste0("#", table)))
     }
-    return(table)
+    return(DBI::Id(table = table))
   }
 
   if ("prefix" %in% names(schema)) {
@@ -91,10 +91,7 @@ inSchema <- function(schema, table, dbms = NULL) {
 
   schema <- unname(schema)
 
-  # if (isTRUE(dbms %in% c("bigquery"))) { #TODO bigrquery needs to fix this
-  if (!is.null(dbms) && dbms == "duckdb" && schema == "main") {
-    checkmate::assertCharacter(schema, len = 1)
-    # out <- paste(c(schema, table), collapse = ".")
+  if (!is.null(dbms) && dbms == "duckdb" && identical(schema, "main")) {
     out <- table
   } else {
     out <- switch(length(schema),
@@ -238,6 +235,10 @@ listTables <- function(con, schema = NULL) {
     return(process_prefix(out))
   }
 
+  if (methods::is(con, "DatabaseConnectorDbiConnection")) {
+    return(listTables(con@dbiConnection, schema = schema))
+  }
+
   rlang::abort(paste(paste(class(con), collapse = ", "), "connection not supported"))
 }
 
@@ -245,6 +246,7 @@ listTables <- function(con, schema = NULL) {
 # https://github.com/r-dbi/bigrquery/issues/508
 
 #' @importFrom dbplyr dbplyr_edition
+#' @method dbplyr_edition BigQueryConnection
 #' @export
 dbplyr_edition.BigQueryConnection <- function(con) 2L
 
@@ -356,3 +358,26 @@ dcCreateTable <- function(conn, name, fields) {
   DBI::dbCreateTable(conn, name, fields)
   }
 }
+
+# build and execute the SQL query to insert data into the table
+# .dbInsertData <- function(conn, name, table) {
+#   columns <- colnames(table)
+#   values <- apply(table, 1, function(row) paste0("(", paste(shQuote(row), collapse = ", "), ")"))
+#
+#   tableName <- paste(name@name, collapse = ".")
+#
+#   query <- paste(
+#     "INSERT INTO", tableName, "(", paste(columns, collapse = ", "), ")",
+#     "VALUES", paste(values, collapse = ", ")
+#   )
+#
+#   queryTranslated <- SqlRender::translate(query, dbms(conn))
+#
+#   tryCatch({
+#     DBI::dbExecute(conn, queryTranslated)
+#     cat("Data inserted successfully.\n")
+#   }, error = function(e) {
+#     cat("Error inserting data:", e$message, "\n")
+#   })
+# }
+

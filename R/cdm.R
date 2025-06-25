@@ -1,4 +1,4 @@
-# Copyright 2024 DARWIN EU®
+# Copyright 2025 DARWIN EU®
 #
 # This file is part of CDMConnector
 #
@@ -142,6 +142,11 @@ cdmFromCon <- function(con,
     cdmVersion <- NULL
   }
 
+  # allow empty string to indicate no write prefix
+  if (identical(writePrefix, "")) {
+    writePrefix <- NULL
+  }
+
   checkmate::assert_character(writePrefix, min.chars = 1, any.missing = FALSE, len = 1, null.ok = TRUE)
 
   # users can give writeSchema = "catalog.schema"
@@ -168,7 +173,7 @@ cdmFromCon <- function(con,
     checkmate::assertTRUE(all(names(writeSchema) %in% c("catalog", "schema", "prefix")))
   }
 
-  # if writePrefix argument is pass it will be override the prefix in writeSchema
+  # if writePrefix argument is passed it will be override the prefix in writeSchema
   if (!is.null(writePrefix)) {
     checkmate::assert_character(writePrefix, min.chars = 1, len = 1, pattern = "^[a-z0-9_]+$")
     writeSchema["prefix"] <- writePrefix
@@ -221,7 +226,7 @@ cdmFromCon <- function(con,
     achilles_tables <- acTables[which(tolower(acTables) %in% achillesReqTables)]
 
     if (length(achilles_tables) != 3) {
-      cli::cli_abort("Achilles tables not found in {achilles_schema}!")
+      cli::cli_abort("Achilles tables not found in {achillesSchema}!")
     }
 
     achillesTables <- purrr::map(achilles_tables, ~dplyr::tbl(src = src, schema = achillesSchema, .)) %>%
@@ -302,8 +307,9 @@ cdmFromCon <- function(con,
   return(cdm)
 }
 
-#' @export
 #' @importFrom dplyr tbl
+#' @method tbl db_cdm
+#' @export
 tbl.db_cdm <- function(src, schema, name, ...) {
   con <- attr(src, "dbcon")
   fullName <- .inSchema(schema = schema, table = name, dbms = dbms(con))

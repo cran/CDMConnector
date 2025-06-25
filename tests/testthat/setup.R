@@ -1,10 +1,12 @@
 library(testthat)
 
-withr::local_envvar(
-  R_USER_CACHE_DIR = tempfile(),
-  .local_envir = teardown_env(),
-  EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
-)
+if (!interactive()) {
+  withr::local_envvar(
+    R_USER_CACHE_DIR = tempfile(),
+    .local_envir = teardown_env(),
+    EUNOMIA_DATA_FOLDER = Sys.getenv("EUNOMIA_DATA_FOLDER", unset = tempfile())
+  )
+}
 
 tryCatch({
   if (Sys.getenv("skip_eunomia_download_test") != "TRUE") downloadEunomiaData(overwrite = TRUE)
@@ -64,6 +66,20 @@ get_connection <- function(dbms, DatabaseConnector = FALSE) {
         password = Sys.getenv("SNOWFLAKE_PASSWORD")
       )
 
+      con <- DatabaseConnector::connect(connectionDetails)
+
+      return(con)
+    }
+
+    if (dbms == "spark") {
+      cli::cli_inform("Testing with DatabseConector on spark")
+
+      connectionDetails <- DatabaseConnector::createConnectionDetails(
+        dbms = "spark",
+        user = Sys.getenv('DATABRICKS_USER'),
+        password = Sys.getenv('DATABRICKS_TOKEN'),
+        connectionString = Sys.getenv('DATABRICKS_CONNECTION_STRING')
+      )
       con <- DatabaseConnector::connect(connectionDetails)
 
       return(con)
@@ -214,14 +230,14 @@ disconnect <- function(con) {
 }
 
 # databases supported on github actions
-ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake", "bigquery")
+ciTestDbs <- c("duckdb", "postgres", "redshift", "sqlserver", "snowflake", "bigquery", "spark")
 
 if (Sys.getenv("CI_TEST_DB") == "") {
 
   dbToTest <- c(
     # "bigquery",
     #
-     "duckdb"
+    # "duckdb"
     # ,
     # "postgres"
     # ,
@@ -231,7 +247,7 @@ if (Sys.getenv("CI_TEST_DB") == "") {
     # ,
     # "snowflake"
     # ,
-    # "spark"
+    "spark"
   )
 
   } else {

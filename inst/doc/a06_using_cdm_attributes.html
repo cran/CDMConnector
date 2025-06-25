@@ -386,7 +386,7 @@ the version of the cdm we have connected to.</p>
 <p>We also have an attribute identifying the database connection
 underlying the cdm reference.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">cdmCon</span>(cdm)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection 768f0 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f98163ea2d.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; &lt;duckdb_connection dcd60 driver=&lt;duckdb_driver dbdir=&#39;/private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/Rtmp0DVg9A/file16ae92fc7cef9.duckdb&#39; read_only=FALSE bigint=numeric&gt;&gt;</span></span></code></pre></div>
 <p>This can be useful, for example, if we want to make use of DBI
 functions to work with the database. For example we could use
 <code>dbListTables</code> to list the names of remote tables accessible
@@ -495,7 +495,7 @@ structure</p>
 <span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="fu">glimpse</span>()</span>
 <span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.1.3 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmprQjlP1/file12f98163ea2d.duckdb]</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB v1.2.1 [root@Darwin 23.1.0:R 4.3.3//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/Rtmp0DVg9A/file16ae92fc7cef9.duckdb]</span></span>
 <span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</span></span>
 <span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; $ subject_id           &lt;int&gt; 273, 61, 351, 579, 549, 116, 163, 304, 326, 285, …</span></span>
 <span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; $ cohort_start_date    &lt;date&gt; 2011-10-10, 2005-09-15, 2018-06-28, 1999-11-06, …</span></span>
