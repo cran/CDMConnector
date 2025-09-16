@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 2.1.1
+Version: 2.2.0
 Authors@R: c(
     person("Adam", "Black", , "black@ohdsi.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -26,13 +26,13 @@ Imports: dplyr, dbplyr (>= 2.5.0), DBI (>= 0.3.0), checkmate, cli,
 Suggests: SqlRender, CirceR, rJava, covr, knitr, rmarkdown, duckdb,
         RSQLite, RPostgres, DatabaseConnector, odbc, ggplot2,
         bigrquery, lubridate, clock, tibble, testthat (>= 3.0.0), pool,
-        snakecase, palmerpenguins
+        snakecase, digest
 Enhances: arrow
 Config/testthat/edition: 3
 Config/testthat/parallel: false
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-07-10 12:17:16 UTC; ablack
+Packaged: 2025-09-15 22:40:46 UTC; ablack
 Author: Adam Black [aut, cre] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
@@ -40,4 +40,4 @@ Author: Adam Black [aut, cre] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
   Ioanna Nika [aut]
 Maintainer: Adam Black <black@ohdsi.org>
 Repository: CRAN
-Date/Publication: 2025-07-10 12:50:16 UTC
+Date/Publication: 2025-09-16 11:00:28 UTC

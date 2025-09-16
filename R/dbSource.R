@@ -29,12 +29,7 @@ dbSource <- function(con, writeSchema) {
     }
     con <- pool::localCheckout(con)
   }
-  # if (methods::is(con, "DatabaseConnectorConnection")) {
-  #   cli::cli_warn(
-  #     "Not all functionality is supported when DatabaseConnector is your
-  #     database driver! Some issues may occur."
-  #   )
-  # }
+
   checkmate::assert_true(.dbIsValid(con))
   if (dbms(con) %in% c("duckdb", "sqlite") && missing(writeSchema)) {
     writeSchema <- c(schema = "main")
@@ -57,7 +52,8 @@ insertTable.db_cdm <- function(cdm,
                                name,
                                table,
                                overwrite = TRUE,
-                               temporary = FALSE) {
+                               temporary = FALSE,
+                               ...) {
   table <- dplyr::as_tibble(table)
   src <- cdm
   checkmate::assertCharacter(name, len = 1, any.missing = FALSE)
@@ -78,6 +74,7 @@ insertTable.db_cdm <- function(cdm,
   }
 
   x <- dplyr::tbl(src = con, fullName) |>
+    dplyr::rename_all(tolower) |>
     omopgenerics::newCdmTable(src = src, name = name) |>
     dplyr::select(colnames(table))
   return(x)
@@ -392,4 +389,21 @@ cdmDisconnect.db_cdm <- function(cdm, dropWriteSchema = FALSE, ...) {
   }
 
   return(invisible(TRUE))
+}
+
+#' @export
+summary.db_cdm <- function(object, ...) {
+  con <- attr(object, "dbcon")
+  result <- list(package = "CDMConnector")
+  schema <- attr(object, "write_schema")
+  if ("catalog" %in% names(schema)) {
+    result$write_catalog <- schema[["catalog"]]
+  }
+  if ("schema" %in% names(schema)) {
+    result$write_schema <- schema[["schema"]]
+  }
+  if ("prefix" %in% names(schema)) {
+    result$write_prefix <- schema[["prefix"]]
+  }
+  return(result)
 }

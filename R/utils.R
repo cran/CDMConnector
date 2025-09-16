@@ -84,7 +84,7 @@ inSchema <- function(schema, table, dbms = NULL) {
     checkmate::assertCharacter(schema, min.len = 1, max.len = 2)
   }
 
-  if (isFALSE(dbms %in% c("snowflake", "sql server", "spark"))) {
+  if (isFALSE(dbms %in% c("snowflake", "sql server", "spark", "bigquery"))) {
     # only a few dbms support three part names
     checkmate::assertCharacter(schema, len = 1)
   }
@@ -137,7 +137,7 @@ listTables <- function(con, schema = NULL) {
   if ("prefix" %in% names(schema)) {
     prefix <- schema["prefix"]
     checkmate::assert_character(prefix, min.chars = 1, len = 1)
-    schema <- schema[names(schema) != "prefix"]
+    schema2 <- schema[names(schema) != "prefix"]
 
     process_prefix <- function(x) {
       np <- nchar(prefix)
@@ -145,10 +145,12 @@ listTables <- function(con, schema = NULL) {
       substr(x, start = np+1, stop = nchar(x))
     }
   } else {
+    prefix <- ""
+    schema2 <- schema
     process_prefix <- function(x) {x}
   }
 
-  checkmate::assert_character(schema, null.ok = TRUE, min.len = 1, max.len = 2, min.chars = 1)
+  checkmate::assert_character(schema2, null.ok = TRUE, min.len = 1, max.len = 2, min.chars = 1)
 
   if (is.null(schema)) {
     if (dbms(con) == "sql server") {
@@ -172,28 +174,28 @@ listTables <- function(con, schema = NULL) {
   withr::local_options(list(arrow.pull_as_vector = TRUE))
 
   if (methods::is(con, "DatabaseConnectorJdbcConnection")) {
-    out <- DBI::dbListTables(con, databaseSchema = paste0(schema, collapse = "."))
+    out <- DBI::dbListTables(con, databaseSchema = paste0(schema2, collapse = "."))
     return(process_prefix(out))
   }
 
   if (methods::is(con, "PqConnection") || methods::is(con, "RedshiftConnection")) {
 
-    sql <- glue::glue_sql("select table_name from information_schema.tables where table_schema = {unname(schema[1])};", .con = con)
+    sql <- glue::glue_sql("select table_name from information_schema.tables where table_schema = {unname(schema2[1])};", .con = con)
     out <- DBI::dbGetQuery(con, sql) %>% dplyr::pull(.data$table_name)
     return(process_prefix(out))
   }
 
   if (methods::is(con, "duckdb_connection")) {
-    sql <- glue::glue_sql("select table_name from information_schema.tables where table_schema = {schema[[1]]};", .con = con)
+    sql <- glue::glue_sql("select table_name from information_schema.tables where table_schema = {schema2[[1]]};", .con = con)
     out <- DBI::dbGetQuery(con, sql) %>% dplyr::pull(.data$table_name)
     return(process_prefix(out))
   }
 
   if (methods::is(con, "Snowflake")) {
-    if (length(schema) == 2) {
-      sql <- glue::glue("select table_name from {schema[1]}.information_schema.tables where table_schema = '{schema[2]}';")
+    if (length(schema2) == 2) {
+      sql <- glue::glue("select table_name from {schema2[1]}.information_schema.tables where table_schema = '{schema2[2]}';")
     } else {
-      sql <- glue::glue("select table_name from information_schema.tables where table_schema = '{schema[1]}';")
+      sql <- glue::glue("select table_name from information_schema.tables where table_schema = '{schema2[1]}';")
     }
     out <- DBI::dbGetQuery(con, sql) %>% dplyr::pull(1)
     return(process_prefix(out))
@@ -201,7 +203,7 @@ listTables <- function(con, schema = NULL) {
 
   if (methods::is(con, "Spark SQL")) {
     # spark odbc connection
-    sql <- paste("SHOW TABLES", if (!is.null(schema)) paste("IN", paste(schema, collapse = ".")))
+    sql <- paste("SHOW TABLES", if (!is.null(schema2)) paste("IN", paste(schema2, collapse = ".")))
     out <- DBI::dbGetQuery(con, sql) %>%
       dplyr::filter(.data$isTemporary == FALSE) %>%
       dplyr::pull(.data$tableName)
@@ -210,28 +212,36 @@ listTables <- function(con, schema = NULL) {
   }
 
   if (methods::is(con, "OdbcConnection")) {
-    if (length(schema) == 1) {
-      out <- DBI::dbListTables(con, schema_name = schema)
-    } else if (length(schema) == 2) {
-      out <- DBI::dbListTables(con, catalog_name = schema[[1]], schema_name = schema[[2]])
+    if (length(schema2) == 1) {
+      out <- DBI::dbListTables(con, schema_name = schema2)
+    } else if (length(schema2) == 2) {
+      out <- DBI::dbListTables(con, catalog_name = schema2[[1]], schema_name = schema2[[2]])
     } else rlang::abort("schema missing!")
 
     return(process_prefix(out))
   }
 
   if (methods::is(con, "OraConnection")) {
-    checkmate::assert_character(schema, null.ok = TRUE, len = 1, min.chars = 1)
-    out <- DBI::dbListTables(con, schema = schema)
+    checkmate::assert_character(schema2, null.ok = TRUE, len = 1, min.chars = 1)
+    out <- DBI::dbListTables(con, schema = schema2)
     return(process_prefix(out))
   }
 
   if (methods::is(con, "BigQueryConnection")) {
-    checkmate::assert_character(schema, null.ok = TRUE, len = 1, min.chars = 1)
+    if (length(schema2) == 1) {
+      out <- DBI::dbGetQuery(con,
+                             glue::glue("SELECT table_name
+                         FROM `{schema2}`.INFORMATION_SCHEMA.TABLES
+                         WHERE table_schema = '{schema2}'"))[[1]]
+    } else if (length(schema2) == 2) {
+      out <- DBI::dbGetQuery(con,
+                             glue::glue("SELECT table_name
+                         FROM `{schema2[[1]]}`.`{schema2[[2]]}`.INFORMATION_SCHEMA.TABLES
+                         WHERE table_schema = '{schema2[[2]]}'"))[[1]]
+    } else {
+      rlang::abort("schema must be length 1 or 2")
+    }
 
-    out <- DBI::dbGetQuery(con,
-                           glue::glue("SELECT table_name
-                         FROM `{schema}`.INFORMATION_SCHEMA.TABLES
-                         WHERE table_schema = '{schema}'"))[[1]]
     return(process_prefix(out))
   }
 
@@ -288,9 +298,10 @@ isInstalled <- function(pkg, version = "0") {
 }
 
 # Borrowed and adapted from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
-ensureInstalled <- function(pkg) {
-  if (!isInstalled(pkg)) {
-    msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
+ensureInstalled <- function(pkg, version = "0") {
+  if (!isInstalled(pkg, version)) {
+    versionText <- ifelse(version == "0", "", paste(">=", version))
+    msg <- paste(sQuote(pkg), versionText, "must be installed for this functionality.")
     if (interactive()) {
       rlang::inform(paste(msg, "Would you like to install it?", sep = "\n"))
       if (utils::menu(c("Yes", "No")) == 1) {
@@ -323,18 +334,22 @@ mapTypes <- function(conn, type) {
 dcCreateTable <- function(conn, name, fields) {
 
   if (tibble::is_tibble(fields)) {
-   fieldsSql <- paste(names(fields),
-     sapply(fields, function(x) mapTypes(conn, class(x)[1])),
-     collapse = ", "
-   )
- } else {
-   fields <- sapply(names(fields), function(field) {
-     paste(field, fields[[field]], sep = " ")
-   })
-   fieldsSql <- paste(fields, collapse = ", ")
- }
+    fieldsSql <- paste(names(fields),
+      sapply(fields, function(x) mapTypes(conn, class(x)[1])),
+      collapse = ", "
+    )
+  } else {
+    fields <- sapply(names(fields), function(field) {
+      paste(field, fields[[field]], sep = " ")
+    })
+    fieldsSql <- paste(fields, collapse = ", ")
+  }
 
-  tableName <- paste(name@name, collapse = ".")
+  if (is.character(name)) {
+    tableName <- paste(name, collapse = ".")
+  } else {
+    tableName <- paste(name@name, collapse = ".")
+  }
 
   if (!(dbms(conn) %in% c("bigquery"))){
     createTableSQL <- SqlRender::render("CREATE TABLE @a ( @b );", a = tableName, b = fieldsSql)
@@ -349,7 +364,7 @@ dcCreateTable <- function(conn, name, fields) {
 
 # branching logic: which createTable function to use based on the connection type
 .dbCreateTable <- function(conn, name, fields) {
-  if (methods::is(conn, "DatabaseConnectorJdbcConnection") || dbms(conn)  %in% c("bigquery")) {
+  if (methods::is(conn, "DatabaseConnectorConnection") || dbms(conn)  %in% c("bigquery")) {
 
     createTableSQLTranslated <- dcCreateTable(conn, name, fields)
     DBI::dbExecute(conn, createTableSQLTranslated)
@@ -380,4 +395,141 @@ dcCreateTable <- function(conn, name, fields) {
 #     cat("Error inserting data:", e$message, "\n")
 #   })
 # }
+
+#' Compute a hash for each CDM table
+#'
+#' @details
+#' This function is used to track changes in CDM databases. It returns a
+#' dataframe with one hash for each table. The hash is based on the overall row count
+#' and the number of unique values of one column of the table. For clinical tables
+#' we count the number of unique concept IDs. For some tables we do not calculate
+#' any unique value count (e.g. the location table) and simply use the total
+#' row count.
+#'
+#' `r lifecycle::badge("experimental")
+#'
+#' @param cdm A cdm_reference object created by `cdmFromCon`
+#'
+#' @return A dataframe with one row per table, row counts, unique value counts for one column, and a hash
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'  library(CDMConnector)
+#'  con <- DBI::dbConnect(duckdb::duckdb(), eunomiaDir())
+#'  cdm <- cdmFromCon(con, "main", "main")
+#'  computeDataHashByTable(cdm)
+#'  cdmDisconnect(cdm)
+#' }
+computeDataHashByTable <- function(cdm) {
+  overallStartTime <- Sys.time()
+  ensureInstalled("DatabaseConnector", "7")
+  ensureInstalled("digest")
+
+  con <- cdmCon(cdm)
+
+  cdmSchema <- attr(cdm, "cdm_schema")
+
+  cdmTables <- c(
+    "person" = "person_id",
+    "observation_period" = "person_id",
+    "visit_occurrence" = "visit_concept_id",
+    "condition_occurrence" = "condition_concept_id",
+    "drug_exposure" = "drug_concept_id",
+    "procedure_occurrence" = "procedure_concept_id",
+    "measurement" = "measurement_concept_id",
+    "observation" = "observation_concept_id",
+    "death" = "person_id",
+    "location" = "NA",
+    "care_site" = "NA",
+    "provider" = "NA",
+    "drug_era" = "drug_concept_id",
+    "dose_era" = "NA",
+    "condition_era" = "condition_concept_id",
+    "concept" = "concept_id",
+    "vocabulary" = "vocabulary_id",
+    "concept_relationship" = "concept_id_1",
+    "concept_ancestor" = "ancestor_concept_id",
+    "concept_synonym" = "concept_id",
+    "drug_strength" = "drug_concept_id",
+    "cdm_source" = "NA")
+
+  tablesInCdmSchema <- tolower(listTables(con, schema = cdmSchema))
+
+  out <- dplyr::tibble(
+    cdm_name = character(),
+    table_name = character(),
+    table_row_count = integer(),
+    unique_column = character(),
+    n_unique_values = integer(),
+    table_hash = character()
+  )
+
+  for (i in seq_along(cdmTables)) {
+    pct <- ""
+    cli::cli_progress_step("Computing hash for {names(cdmTables)[i]} ({i}/{length(cdmTables)}{pct})", spinner = interactive())
+
+    startTime <- Sys.time()
+    tableName <- names(cdmTables)[i]
+    uniqueColumn <- cdmTables[i]
+
+    if (tableName %in% tablesInCdmSchema) {
+      if (uniqueColumn != "NA") {
+        sql = "SELECT COUNT(*) AS n, COUNT(DISTINCT @unique_column) AS n_unique FROM @database_schema.@table_name;"
+      } else {
+        sql = "SELECT COUNT(*) AS n, -1 AS n_unique FROM @database_schema.@table_name;"
+      }
+
+      result <- DatabaseConnector::renderTranslateQuerySql(
+        connection = con,
+        sql = sql,
+        database_schema = paste(cdmSchema, collapse = "."),
+        unique_column = uniqueColumn,
+        table_name = tableName,
+        warnOnMissingParameters = FALSE
+      )
+
+      colnames(result) <- tolower(colnames(result))
+
+      tableHash <- digest::digest(
+        paste0(tableName, as.character(result$n), uniqueColumn, as.character(result$n_unique)),
+        "md5")
+
+      delta <- as.numeric(difftime(Sys.time(), startTime, units = "mins"))
+
+      df <- dplyr::tibble(
+        cdm_name = cdmName(cdm),
+        table_name = tableName,
+        table_row_count = as.integer(result$n),
+        unique_column = uniqueColumn,
+        n_unique_values = as.integer(result$n_unique),
+        table_hash = tableHash,
+        compute_time_minutes = delta
+      )
+    } else {
+      df <- dplyr::tibble(
+        cdm_name = cdmName(cdm),
+        table_name = tableName,
+        table_row_count = -1L,
+        unique_column = uniqueColumn,
+        n_unique_values = -1L,
+        table_hash = "Table not found in CDM schema"
+      )
+    }
+
+    out <- dplyr::bind_rows(out, df)
+
+    if (interactive()) {
+      pct <- ifelse(i == length(cdmTables), "", glue::glue(" ~ {floor(100*i/length(cdmTables))}%"))
+      cli::cli_progress_update()
+    }
+  }
+  cli::cli_inform("")
+  delta2 <- Sys.time() - overallStartTime
+  cli::cli_inform(c("*" = "Computing CDM table hashes took {round(delta2, 2)} {attr(delta2, 'units')}"))
+  return(out)
+}
+
+
+
 

@@ -343,6 +343,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The following connection examples are provided for reference.</p>
 <div id="postgres" class="section level3">
 <h3>Postgres</h3>
+<p>Connect to Postgres using the RPostgres package.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(RPostgres<span class="sc">::</span><span class="fu">Postgres</span>(),</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>                      <span class="at">dbname =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_DBNAME&quot;</span>),</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>                      <span class="at">host =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_HOST&quot;</span>),</span>
@@ -350,97 +351,220 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>                      <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_PASSWORD&quot;</span>))</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_cdmSchema&quot;</span>), </span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                    <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_SCRATCH_SCHEMA&quot;</span>))</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_CDM_SCHEMA&quot;</span>), </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_SCRATCH_SCHEMA&quot;</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>Connect to Postgres using DatabaseConnector (version 7 or later).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(<span class="at">dbms =</span> <span class="st">&quot;postgresql&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                                             <span class="at">server =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_SERVER&quot;</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                                             <span class="at">user =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_USER&quot;</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                                             <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_PASSWORD&quot;</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_CDM_SCHEMA&quot;</span>), </span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_POSTGRESQL_SCRATCH_SCHEMA&quot;</span>))</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
 </div>
 <div id="redshift" class="section level3">
 <h3>Redshift</h3>
-<p>Redshift is almost identical to Postgres.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(RPostgres<span class="sc">::</span><span class="fu">Redshift</span>(),</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                      <span class="at">dbname   =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_DBNAME&quot;</span>),</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                      <span class="at">host     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_HOST&quot;</span>),</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                      <span class="at">port     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PORT&quot;</span>),</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                      <span class="at">user     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_USER&quot;</span>),</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                      <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PASSWORD&quot;</span>))</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_cdmSchema&quot;</span>), </span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                    <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_SCRATCH_SCHEMA&quot;</span>))</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>Connect to Redshift using the RPostgres package.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(RPostgres<span class="sc">::</span><span class="fu">Redshift</span>(),</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                      <span class="at">dbname   =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_DBNAME&quot;</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                      <span class="at">host     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_HOST&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                      <span class="at">port     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PORT&quot;</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                      <span class="at">user     =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_USER&quot;</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                      <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PASSWORD&quot;</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_CDM_SCHEMA&quot;</span>), </span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_SCRATCH_SCHEMA&quot;</span>))</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>Connect to Redshift using the DatabaseConnector package (version 7 or
+later).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)  </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(<span class="at">dbms =</span> <span class="st">&quot;redshift&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                                             <span class="at">server =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_SERVER&quot;</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                             <span class="at">user =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_USER&quot;</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                                             <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PASSWORD&quot;</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>                                             <span class="at">port =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_PORT&quot;</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_CDM_SCHEMA&quot;</span>), </span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_REDSHIFT_SCRATCH_SCHEMA&quot;</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
 </div>
 <div id="sql-server" class="section level3">
 <h3>SQL Server</h3>
 <p>Using odbc with SQL Server requires driver setup described <a href="https://solutions.posit.co/connections/db/r-packages/odbc/">here</a>.
 Note, you’ll likely need to <a href="https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16">download
 the ODBC Driver for SQL Server</a>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(),</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                      <span class="at">Driver   =</span> <span class="st">&quot;ODBC Driver 18 for SQL Server&quot;</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                      <span class="at">Server   =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_SERVER&quot;</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                      <span class="at">Database =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_CDM_DATABASE&quot;</span>),</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>                      <span class="at">UID      =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_USER&quot;</span>),</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                      <span class="at">PWD      =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_PASSWORD&quot;</span>),</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>                      <span class="at">TrustServerCertificate=</span><span class="st">&quot;yes&quot;</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>                      <span class="at">Port     =</span> <span class="dv">1433</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">c</span>(<span class="st">&quot;tempdb&quot;</span>, <span class="st">&quot;dbo&quot;</span>), </span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>                    <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(),</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                      <span class="at">Driver   =</span> <span class="st">&quot;ODBC Driver 18 for SQL Server&quot;</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                      <span class="at">Server   =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_SERVER&quot;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                      <span class="at">Database =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_CDM_DATABASE&quot;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                      <span class="at">UID      =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_USER&quot;</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                      <span class="at">PWD      =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_PASSWORD&quot;</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                      <span class="at">TrustServerCertificate=</span><span class="st">&quot;yes&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>                      <span class="at">Port     =</span> <span class="dv">1433</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">c</span>(<span class="st">&quot;cdmv54&quot;</span>, <span class="st">&quot;dbo&quot;</span>), </span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>                    <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;tempdb&quot;</span>, <span class="st">&quot;dbo&quot;</span>))</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
 <p>The connection to SQL Server can be simplified by configuring a DSN.
 See <a href="https://www.r-bloggers.com/2018/05/setting-up-an-odbc-connection-with-ms-sql-server-on-windows/">here</a>
-for instructions on how to set up the DSN.If we named it “SQL”, our
+for instructions on how to set up the DSN. If we named it “SQL”, our
 connection is then simplified to.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(), <span class="st">&quot;SQL&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">c</span>(<span class="st">&quot;tempdb&quot;</span>, <span class="st">&quot;dbo&quot;</span>), </span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                    <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(), <span class="st">&quot;SQL&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="fu">c</span>(<span class="st">&quot;tempdb&quot;</span>, <span class="st">&quot;dbo&quot;</span>), </span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                    <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>Connect to SQL Server using the DatabaseConnector package (version 7
+or later).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">dbms =</span> <span class="st">&quot;sql server&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">server =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_SERVER&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">user =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_USER&quot;</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_PASSWORD&quot;</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">port =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_SQL_SERVER_PORT&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="fu">c</span>(<span class="st">&quot;cdmv54&quot;</span>, <span class="st">&quot;dbo&quot;</span>), </span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>                  <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;tempdb&quot;</span>, <span class="st">&quot;dbo&quot;</span>))</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
 </div>
 <div id="snowflake" class="section level3">
 <h3>Snowflake</h3>
 <p>We can use the odbc package to connect to snowflake.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(),</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                          <span class="at">SERVER =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_SERVER&quot;</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                          <span class="at">UID =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_USER&quot;</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                          <span class="at">PWD =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_PASSWORD&quot;</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                          <span class="at">DATABASE =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_DATABASE&quot;</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                          <span class="at">WAREHOUSE =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_WAREHOUSE&quot;</span>),</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                          <span class="at">DRIVER =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_DRIVER&quot;</span>))</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>                    <span class="at">cdmSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;OMOP_SYNTHETIC_DATASET&quot;</span>, <span class="st">&quot;CDM53&quot;</span>), </span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>                    <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(odbc<span class="sc">::</span><span class="fu">odbc</span>(),</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                          <span class="at">SERVER =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_SERVER&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                          <span class="at">UID =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_USER&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                          <span class="at">PWD =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_PASSWORD&quot;</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                          <span class="at">DATABASE =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_DATABASE&quot;</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>                          <span class="at">WAREHOUSE =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_WAREHOUSE&quot;</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>                          <span class="at">DRIVER =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_DRIVER&quot;</span>))</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>                  <span class="at">cdmSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;OMOP_SYNTHETIC_DATASET&quot;</span>, <span class="st">&quot;CDM53&quot;</span>), </span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>                  <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
 <p>Note, as with SQL server we could set up a DSN to simplify this
 connection as described <a href="https://docs.snowflake.com/developer-guide/odbc/odbc-windows">here</a>
 for windows and <a href="https://docs.snowflake.com/developer-guide/odbc/odbc-mac">here</a>
 for macOS.</p>
+<p>Connect to Snowflake using the DatabaseConnector package (version 7
+or later).</p>
+<p>Your connection string will look something like
+<code>jdbc:snowflake://asdf.snowflakecomputing.com?db=DBNAME&amp;warehouse=COMPUTE_WH</code></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">dbms =</span> <span class="st">&quot;snowflake&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">connectionString =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_CONNECTION_STRING&quot;</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">user =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_USER&quot;</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;SNOWFLAKE_PASSWORD&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>                  <span class="at">cdmSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;OMOP_SYNTHETIC_DATASET&quot;</span>, <span class="st">&quot;CDM53&quot;</span>), </span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>                  <span class="at">writeSchema =</span>  <span class="fu">c</span>(<span class="st">&quot;ATLAS&quot;</span>, <span class="st">&quot;RESULTS&quot;</span>))</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
 </div>
 <div id="databricksspark" class="section level3">
 <h3>Databricks/Spark</h3>
-<p>Please follow the instructions here: <a href="https://solutions.posit.co/connections/db/databases/databricks/" class="uri">https://solutions.posit.co/connections/db/databases/databricks/</a></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  odbc<span class="sc">::</span><span class="fu">databricks</span>(),</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">httpPath =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;DATABRICKS_HTTPPATH&quot;</span>),</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">useNativeQuery =</span> <span class="cn">FALSE</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                  <span class="at">cdmSchema =</span>  <span class="st">&quot;gibleed&quot;</span>, </span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="st">&quot;scratch&quot;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>To connect to Databricks using ODBC please follow the instructions
+here: <a href="https://solutions.posit.co/connections/db/databases/databricks/" class="uri">https://solutions.posit.co/connections/db/databases/databricks/</a></p>
+<p>You will need to set two environment variables in your .Renviron
+file: DATABRICKS_HOST=“[Your organization’s Host URL]”
+DATABRICKS_TOKEN=“[Your personal Databricks token]”</p>
+<p>Create or open the .Renviron file by running
+<code>usethis::edit_r_environ()</code></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  odbc<span class="sc">::</span><span class="fu">databricks</span>(),</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">httpPath =</span> <span class="fu">Sys.getenv</span>(<span class="st">&quot;DATABRICKS_HTTPPATH&quot;</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">useNativeQuery =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>                  <span class="at">cdmSchema =</span>  <span class="st">&quot;gibleed&quot;</span>, </span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="st">&quot;scratch&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>To connect to Databricks using DatabaseConnector use the following
+example. The connection will look something like
+<code>&quot;jdbc:databricks://asdf.cloud.databricks.com/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/6&quot;</code></p>
+<p>The password should be your databricks token.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">dbms =</span> <span class="st">&quot;spark&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">user =</span> <span class="st">&quot;token&quot;</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">password =</span> <span class="fu">Sys.getenv</span>(<span class="st">&#39;DATABRICKS_TOKEN&#39;</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">connectionString =</span> <span class="fu">Sys.getenv</span>(<span class="st">&#39;DATABRICKS_CONNECTION_STRING&#39;</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>                  <span class="at">cdmSchema =</span>  <span class="st">&quot;gibleed&quot;</span>, </span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="st">&quot;scratch&quot;</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
+<p>We can ignore the “ERROR StatusLogger Unrecognized format/conversion
+specifier” messages as these have to do with the log format.</p>
 </div>
 <div id="duckdb" class="section level3">
 <h3>Duckdb</h3>
-<p>Duckdb is an in-process database. We use the duckdb package to
-connect.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), </span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                      <span class="at">dbdir=</span><span class="fu">Sys.getenv</span>(<span class="st">&quot;CDM5_DUCKDB_FILE&quot;</span>))</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                    <span class="at">cdmSchema =</span> <span class="st">&quot;main&quot;</span>, </span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                    <span class="at">writeSchema =</span> <span class="st">&quot;main&quot;</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>Duckdb is an in-process database similar to SQLite. We use the duckdb
+package to connect. The <code>dbdir</code> argument should point to the
+database file location.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">library</span>(CDMConnector)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(duckdb<span class="sc">::</span><span class="fu">duckdb</span>(), </span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>                      <span class="at">dbdir =</span> <span class="fu">eunomiaDir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="st">&quot;main&quot;</span>, </span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div>
+<p>We can also use DatabaseConnector to connect to duckdb. In the
+example the <code>server</code> argument points to the duckdb file
+location.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">library</span>(DatabaseConnector)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>connectionDetails <span class="ot">&lt;-</span> <span class="fu">createConnectionDetails</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="st">&quot;duckdb&quot;</span>, </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">server =</span> CDMConnector<span class="sc">::</span><span class="fu">eunomiaDir</span>(<span class="st">&quot;GiBleed&quot;</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">connect</span>(connectionDetails)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>cdm <span class="ot">&lt;-</span> <span class="fu">cdmFromCon</span>(con, </span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>                  <span class="at">cdmSchema =</span> <span class="st">&quot;main&quot;</span>, </span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>                  <span class="at">writeSchema =</span> <span class="st">&quot;main&quot;</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="fu">disconnect</span>(con)</span></code></pre></div>
 </div>
 
 

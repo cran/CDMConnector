@@ -103,29 +103,43 @@ extractCodesetIds <- function(x) {
 }
 
 createCodelistDataframe <- function(cohortSet) {
-
-  purrr::map2(cohortSet$cohort_definition_id, cohortSet$cohort, function(cohort_definition_id, ch) {
+  dfList <- list()
+  for (i in seq_along(cohortSet$cohort_definition_id)) {
 
     df1 <- dplyr::tibble(
-      cohort_definition_id = cohort_definition_id,
-      codelist_id = purrr::map_int(ch[["ConceptSets"]], "id"),
-      codelist_name = purrr::map_chr(ch[["ConceptSets"]], "name")
+      cohort_definition_id = as.integer(cohortSet$cohort_definition_id[[i]]),
+      codelist_id = purrr::map_int(cohortSet$cohort[[i]][["ConceptSets"]], "id"),
+      codelist_name = purrr::map_chr(cohortSet$cohort[[i]][["ConceptSets"]], "name")
     )
+
+    if (nrow(df1) == 0) {
+      next
+    }
 
     df2 <- dplyr::bind_rows(
       dplyr::tibble(
-        codelist_id = unname(extractCodesetIds(ch[["PrimaryCriteria"]])),
+        codelist_id = unname(extractCodesetIds(cohortSet$cohort[[i]][["PrimaryCriteria"]])),
         codelist_type = "index event"
       ),
       dplyr::tibble(
-        codelist_id = unname(extractCodesetIds(ch[["InclusionRules"]])),
+        codelist_id = unname(extractCodesetIds(cohortSet$cohort[[i]][["InclusionRules"]])),
         codelist_type = "inclusion criteria"
       )
     ) |> dplyr::filter(!is.na(.data$codelist_id))
 
-    return(dplyr::inner_join(df1, df2, by = "codelist_id"))
-  }) |>
-    dplyr::bind_rows()
+    dfList[[i]] <- dplyr::inner_join(df1, df2, by = "codelist_id")
+  }
+
+  if (length(dfList) == 0) {
+    return(dplyr::tibble(
+      cohort_definition_id = integer(),
+      codelist_id = integer(),
+      codelist_name = character(),
+      codelist_type = character()
+    ))
+  } else {
+    return(dplyr::bind_rows(dfList))
+  }
 }
 
 
@@ -155,6 +169,18 @@ extractConceptsFromConceptSetList <- function(conceptSets) {
 createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
   codelistDf <- createCodelistDataframe(cohortSet)
 
+  if (nrow(codelistDf) == 0) {
+    emptyCodelist <- dplyr::tibble(
+      cohort_definition_id = integer(),
+      codelist_name = character(),
+      codelist_type = character(),
+      concept_id = integer()
+    )
+    nm <- omopgenerics::uniqueTableName()
+    cdm <- omopgenerics::insertTable(cdm = cdm, name = paste0("codeset_", nm), table = emptyCodelist)
+    return(cdm[[paste0("codeset_", nm)]])
+  }
+
   codes <- cohortSet |>
     dplyr::select("cohort_definition_id", "cohort") |>
     dplyr::mutate(df = purrr::map(.data$cohort, ~extractConceptsFromConceptSetList(.$ConceptSets))) |>
@@ -167,9 +193,16 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
   cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = concepts)
   on.exit(omopgenerics::dropSourceTable(cdm = cdm, name = nm), add = TRUE)
 
+  if (methods::is(cdmCon(cdm), "DatabaseConnectorJdbcConnection") && dbms(cdmCon(cdm)) == "sql server") {
+    # workaround for dbplyr translation of where clause on sql server when using DatabaseConnector
+    trueValueSql <- 1L
+  } else {
+    trueValueSql <- TRUE
+  }
+
   if (any(concepts$include_descendants)) {
     cdm[[nm]] <- cdm[[nm]]  %>%
-      dplyr::filter(.data$include_descendants == TRUE) %>%
+      dplyr::filter(.data$include_descendants == .env$trueValueSql) %>%
       dplyr::inner_join(
         cdm$concept_ancestor, by = c("concept_id" = "ancestor_concept_id")
       ) %>%
@@ -189,8 +222,9 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
       dplyr::select(!"include_descendants")
   }
 
+  # Database
   concepts <- cdm[[nm]] %>%
-    dplyr::filter(.data$is_excluded == FALSE) %>%
+    dplyr::filter(.data$is_excluded == .env$trueValueSql) %>%
     # Note that concepts that are not in the vocab will be silently ignored
     dplyr::inner_join(dplyr::select(cdm$concept, "concept_id", "domain_id"), by = "concept_id") %>%
     dplyr::select(
@@ -202,7 +236,7 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
     dplyr::distinct() |>
     dplyr::compute(name = paste0("codeset_", nm))
 
-  concepts
+  return(concepts)
 }
 
 
@@ -481,18 +515,9 @@ generateCohortSet <- function(cdm,
       }
     } else {
       # we need temp emulation on spark as there are no temp tables
-
-      if ("schema" %in% names(write_schema)) {
-        s <- unname(write_schema["schema"])
-      } else if (length(write_schema) == 1) {
-        s <- unname(write_schema)
-      } else {
-        s <- unname(write_schema[2])
-      }
-
       sql <- SqlRender::translate(sql,
                                   targetDialect = CDMConnector::dbms(con),
-                                  tempEmulationSchema = s)
+                                  tempEmulationSchema = write_schema_sql)
     }
 
     if (dbms(con) == "duckdb") {
