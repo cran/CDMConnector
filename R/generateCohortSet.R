@@ -96,7 +96,10 @@ readCohortSet <- function(path) {
 
 extractCodesetIds <- function(x) {
   if (is.list(x)) {
-    codes <- x[names(x) == "CodesetId"]
+    idNames <- c("CodesetId", "ConditionSourceConcept", "ProcedureSourceConcept",
+                 "DrugSourceConcept", "DeviceSourceConcept", "MeasurementSourceConcept",
+                 "ObservationSourceConcept", "VisitSourceConcept")
+    codes <- x[names(x) %in% idNames]
     return(c(unlist(codes), unlist(purrr::map(x, extractCodesetIds))))
   }
   return(NULL)
@@ -125,7 +128,14 @@ createCodelistDataframe <- function(cohortSet) {
         codelist_id = unname(extractCodesetIds(cohortSet$cohort[[i]][["InclusionRules"]])),
         codelist_type = "inclusion criteria"
       )
-    ) |> dplyr::filter(!is.na(.data$codelist_id))
+    )
+
+    if (!("codelist_id" %in% names(df2))) {
+      # extractCodesetIds can return NULL
+      df2$codelist_id <- NA
+    }
+
+    df2 <- dplyr::filter(df2, !is.na(.data$codelist_id))
 
     dfList[[i]] <- dplyr::inner_join(df1, df2, by = "codelist_id")
   }
@@ -181,10 +191,10 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
     return(cdm[[paste0("codeset_", nm)]])
   }
 
-  codes <- cohortSet |>
-    dplyr::select("cohort_definition_id", "cohort") |>
-    dplyr::mutate(df = purrr::map(.data$cohort, ~extractConceptsFromConceptSetList(.$ConceptSets))) |>
-    dplyr::select(1, 3) |>
+  codes <- cohortSet %>%
+    dplyr::select("cohort_definition_id", "cohort") %>%
+    dplyr::mutate(df = purrr::map(.data$cohort, ~extractConceptsFromConceptSetList(.$ConceptSets))) %>%
+    dplyr::select(1, 3) %>%
     tidyr::unnest(cols = 2)
 
   concepts <- dplyr::left_join(codelistDf, codes, by = c("cohort_definition_id", "codelist_id"))
@@ -196,8 +206,10 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
   if (methods::is(cdmCon(cdm), "DatabaseConnectorJdbcConnection") && dbms(cdmCon(cdm)) == "sql server") {
     # workaround for dbplyr translation of where clause on sql server when using DatabaseConnector
     trueValueSql <- 1L
+    falseValueSql <- 0L
   } else {
     trueValueSql <- TRUE
+    falseValueSql <- FALSE
   }
 
   if (any(concepts$include_descendants)) {
@@ -211,20 +223,22 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
         "concept_id" = "descendant_concept_id", "is_excluded"
       ) %>%
       dplyr::union_all(
-        cdm[[nm]] |>
+        cdm[[nm]] %>%
           dplyr::select(
             "cohort_definition_id", "codelist_id", "codelist_name",
             "codelist_type", "concept_id", "is_excluded"
           )
       )
   } else {
-    cdm[[nm]] <- cdm[[nm]] |>
+    cdm[[nm]] <- cdm[[nm]] %>%
       dplyr::select(!"include_descendants")
   }
 
   # Database
   concepts <- cdm[[nm]] %>%
-    dplyr::filter(.data$is_excluded == .env$trueValueSql) %>%
+    dplyr::distinct() %>%
+    # remove excluded concepts
+    dplyr::filter(.data$is_excluded == .env$falseValueSql) %>%
     # Note that concepts that are not in the vocab will be silently ignored
     dplyr::inner_join(dplyr::select(cdm$concept, "concept_id", "domain_id"), by = "concept_id") %>%
     dplyr::select(
@@ -232,8 +246,8 @@ createAtlasCohortCodelistReference <- function(cdm, cohortSet) {
       "codelist_name",
       "codelist_type",
       "concept_id"
-    ) |>
-    dplyr::distinct() |>
+    ) %>%
+    dplyr::distinct() %>%
     dplyr::compute(name = paste0("codeset_", nm))
 
   return(concepts)
@@ -590,7 +604,7 @@ generateCohortSet <- function(cdm,
       cohortStem = name,
       cohortSet = cohortSet,
       overwrite = overwrite
-    ) |>
+    ) %>%
       dplyr::collect()
   } else {
     cohort_attrition_ref <- NULL
@@ -601,7 +615,7 @@ generateCohortSet <- function(cdm,
   #   DBI::dbRemoveTable(con, inSchema(write_schema, paste0(name, "_set"), dbms = dbms(con)))
   # }
 
-  cdm[[name]] <- cohort_ref |>
+  cdm[[name]] <- cohort_ref %>%
     omopgenerics::newCdmTable(src = attr(cdm, "cdm_source"), name = name)
 
   # Create the object. Let the constructor handle getting the counts.----
@@ -784,7 +798,8 @@ computeAttritionTable <- function(cdm,
   finalCounts <- dplyr::tbl(con, .inSchema(schema, cohortStem, dbms(con))) %>%
     dplyr::group_by(.data$cohort_definition_id) %>%
     dplyr::summarise(n_records = dplyr::n(), n_subjects = dplyr::n_distinct(.data$subject_id)) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::mutate_all(as.integer)
 
   lastAttritionRow <- dplyr::slice_max(attrition, n = 1, order_by = .data$reason_id, by = "cohort_definition_id")
 

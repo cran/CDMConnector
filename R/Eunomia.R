@@ -51,7 +51,7 @@ downloadEunomiaData <- function(datasetName = "GiBleed",
 
   if (datasetName == "Synthea27NjParquet" && cdmVersion == "5.3") {
     cli::cli_abort("Synthea27NjParquet is only available in CDM version 5.4")
-  } else if (!(datasetName %in% c("synpuf-1k", "Synthea27NjParquet")) && cdmVersion == "5.4") {
+  } else if (!(datasetName %in% c("synpuf-1k", "Synthea27NjParquet", "empty_cdm")) && cdmVersion == "5.4") {
     cli::cli_abort("{datasetName} is only available in CDM version 5.3")
   }
 
@@ -132,6 +132,7 @@ exampleDatasets <- function() {
     "synthea-veterans-10k",
     "synthea-weight_loss-10k",
     "synpuf-1k",
+    "synpuf-110k",
     "empty_cdm",
     "Synthea27NjParquet")
 }
@@ -274,7 +275,7 @@ eunomiaDir <- function(datasetName = "GiBleed",
       dplyr::mutate(cdm_datatype = dplyr::if_else(.data$cdm_datatype == "varchar(max)", "varchar(2000)", .data$cdm_datatype)) %>%
       dplyr::mutate(cdm_field_name = dplyr::if_else(.data$cdm_field_name == '"offset"', "offset", .data$cdm_field_name)) %>%
       tidyr::nest(col = -"cdm_table_name") %>%
-      dplyr::mutate(col = purrr::map(col, ~setNames(as.character(.$cdm_datatype), .$cdm_field_name)))
+      dplyr::mutate(col = purrr::map(col, ~stats::setNames(as.character(.$cdm_datatype), .$cdm_field_name)))
 
     files <- tools::file_path_sans_ext(basename(list.files(unzipLocation)))
     tables <- specs$cdm_table_name

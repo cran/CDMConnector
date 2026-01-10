@@ -93,6 +93,9 @@ inSchema <- function(schema, table, dbms = NULL) {
 
   if (!is.null(dbms) && dbms == "duckdb" && identical(schema, "main")) {
     out <- table
+  } else if (!is.null(dbms) && dbms == "bigquery" && length(schema) == 2) {
+    # https://github.com/darwin-eu/CDMConnector/issues/37
+    out <- paste(c(schema, table), collapse = ".")
   } else {
     out <- switch(length(schema),
       DBI::Id(schema = schema, table = table),
@@ -271,7 +274,7 @@ execute_ddl <- function(con, cdm_schema, cdm_version = "5.3", dbms = "duckdb", t
       dbms(con) == "redshift" & .data$cdmDatatype == "datetime" ~ "timestamp",
       TRUE ~ cdmDatatype)) %>%
     tidyr::nest(col = -"cdmTableName") %>%
-    dplyr::mutate(col = purrr::map(col, ~setNames(as.character(.$cdmDatatype), .$cdmFieldName)))
+    dplyr::mutate(col = purrr::map(col, ~stats::setNames(as.character(.$cdmDatatype), .$cdmFieldName)))
 
   for (i in cli::cli_progress_along(tables)) {
     fields <- specs %>%
