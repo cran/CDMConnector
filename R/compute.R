@@ -208,7 +208,7 @@ computeQuery <- function(x,
   checkmate::assertLogical(overwrite, len = 1)
 
   if (nchar(dbplyr::sql_render(x)) > 20000) {
-    rlang::warn("Your SQL query is over 20,000 characters which can cause issues on some database platforms!\nTry calling computeQuery earlier in your pipeline.")
+    rlang::inform("Your SQL query is over 20,000 characters which can cause issues on some database platforms!\nTry calling computeQuery earlier in your pipeline.")
   }
 
   if (isFALSE(temporary)) {
@@ -229,8 +229,14 @@ computeQuery <- function(x,
   if (temporary) {
 
     # handle overwrite for temp tables
+    # Use dbExistsTable to avoid listing all tables (e.g. Snowflake SHOW TABLES caps at 10k rows)
     # TODO test overwrite of temp tables this across all dbms
-    if (name %in% listTables(con)) {
+    # SQL Server temp tables use #name; dbExistsTable(con, name) does not see them, so check with # prefix
+    check_name <- name
+    if (dbms(con) == "sql server") {
+      check_name <- paste0("#", name)
+    }
+    if (DBI::dbExistsTable(con, check_name)) {
       if (isFALSE(overwrite)) {
         rlang::abort(glue::glue("table {name} already exists and overwrite is FALSE!"))
       }
@@ -275,23 +281,20 @@ computeQuery <- function(x,
       DBI::dbExecute(con, sql)
       out <- dplyr::tbl(con, name)
     } else if (dbms(con) == "sql server") {
-
-      if (methods::is(con, "DatabaseConnectorJdbcConnection")) {
-        # dbplyr doesn't recognize the dbms of DatabaseConnector connections and thus writes incorrect SQL
-        sql <- dbplyr::build_sql(
-          "SELECT * \n",
-          "INTO ", dbplyr::ident(paste0("#", name)), " FROM ( \n",
-          dbplyr::sql_render(x), " ) AS qry;",
-          con = con
-        )
-        DBI::dbExecute(con, sql)
-        out <- dplyr::tbl(con, paste0("#", name))
-      } else {
-        # compute works fine with odbc on sql server
-        suppressMessages({ # Suppress the "Created a temporary table named" message
-          out <- dplyr::compute(x, name = name, temporary = temporary, analyze = FALSE, ...)
-        })
-      }
+      # SQL Server temp tables: name must be #name without quoting, else it's not a temp table.
+      # dbplyr's default db_save_query quotes the name ("#temp..."), so use custom SQL for all SQL Server.
+      # Always drop if exists first: dbExistsTable(con, name) may not see temp tables (name has no #),
+      # so the overwrite check above can skip the drop and SELECT INTO would then fail with "already exists".
+      temp_name <- paste0("#", name)
+      DBI::dbExecute(con, dbplyr::sql(glue::glue("DROP TABLE IF EXISTS {temp_name};")))
+      sql <- dbplyr::build_sql(
+        "SELECT * \n",
+        "INTO ", dbplyr::sql(temp_name), " FROM ( \n",
+        dbplyr::sql_render(x), " ) AS qry;",
+        con = con
+      )
+      DBI::dbExecute(con, sql)
+      out <- dplyr::tbl(con, temp_name)
 
     } else {
       out <- dplyr::compute(x, name = name, temporary = temporary, analyze = FALSE, ...)

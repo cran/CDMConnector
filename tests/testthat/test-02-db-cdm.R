@@ -1,5 +1,8 @@
-library(testthat)
-library(dplyr, warn.conflicts = FALSE)
+
+suppressWarnings({
+  library(dplyr, warn.conflicts = FALSE)
+  library(testthat)
+})
 
 ### CDM object DBI drivers ------
 test_cdmFromCon <- function(con, cdmSchema, writeSchema) {
@@ -268,6 +271,7 @@ test_that("schema specification with . works", {
 
 test_that("DatabaseConnector DBI connections work with duckdb", {
 
+  skip_if_not("duckdb" %in% dbToTest)
   testthat::skip_if_not_installed("DatabaseConnector")
   testthat::skip_if_not_installed("duckdb")
 

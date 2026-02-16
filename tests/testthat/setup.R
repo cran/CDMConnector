@@ -270,9 +270,9 @@ if (Sys.getenv("CI_TEST_DB") == "") {
     # ,
     # "sqlserver"
     # ,
-    # "snowflake"
+    "snowflake"
     # ,
-    "spark"
+    # "spark"
   )
 
   } else {

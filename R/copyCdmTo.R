@@ -38,15 +38,26 @@ copyCdmTo <- function(con, cdm, schema, overwrite = FALSE) {
   checkmate::assertLogical(overwrite, len = 1)
 
   # create a new source
+  message("Creating a new cdm")
   newSource <- dbSource(con = con, writeSchema = schema)
+
+  # copy all other tables (defined early so we can report progress)
+  tables_to_copy <- names(cdm)
+  tables_to_copy <- tables_to_copy[
+    !tables_to_copy %in% c("person", "observation_period")
+  ]
+  total_tables <- 2L + length(tables_to_copy)
 
   # insert person and observation_period
   cdmTables <- list()
-  for (tab in c("person", "observation_period")) {
+  for (idx in seq_along(c("person", "observation_period"))) {
+    tab <- c("person", "observation_period")[idx]
+    table <-  cdm[[tab]] |> dplyr::collect() |> dplyr::as_tibble()
+    message(paste0("Uploading table ", tab, " (", nrow(table), " rows) - [", idx, "/", total_tables, "]"))
     cdmTables[[tab]] <- omopgenerics::insertTable(
       cdm = newSource,
       name = tab,
-      table = cdm[[tab]] |> dplyr::collect() |> dplyr::as_tibble(),
+      table = table,
       overwrite = overwrite
     )
   }
@@ -56,13 +67,10 @@ copyCdmTo <- function(con, cdm, schema, overwrite = FALSE) {
     tables = cdmTables, cdmName = omopgenerics::cdmName(cdm)
   )
 
-  # copy all other tables
-  tables_to_copy <- names(cdm)
-  tables_to_copy <- tables_to_copy[
-    !tables_to_copy %in% c("person", "observation_period")
-  ]
-  for (i in cli::cli_progress_along(tables_to_copy)) {
+  for (i in seq_along(tables_to_copy)) {
     table_name <- tables_to_copy[i]
+    table <- cdm[[table_name]] |> dplyr::collect() |> dplyr::as_tibble()
+    message(paste0("Uploading table ", table_name, " (", nrow(table), " rows) - [", i + 2L, "/", total_tables, "]"))
     cohort <- inherits(cdm[[table_name]], "cohort_table")
     if (cohort) {
       set <- omopgenerics::settings(cdm[[table_name]]) |> dplyr::as_tibble()
@@ -79,7 +87,7 @@ copyCdmTo <- function(con, cdm, schema, overwrite = FALSE) {
     newCdm <- omopgenerics::insertTable(
       cdm = newCdm,
       name = table_name,
-      table = cdm[[table_name]] |> dplyr::collect() |> dplyr::as_tibble(),
+      table = table,
       overwrite = overwrite
     )
     if (cohort) {

@@ -442,7 +442,7 @@ identify the CDM in output files.</p>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; • other tables: -</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cdm<span class="sc">$</span>observation_period</span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;observation_period&gt; [?? x 5]</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 1.4.3 [root@Darwin 23.1.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpMq98ep/file1236b4bf7bbb6.duckdb]</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 1.4.4 [root@Darwin 25.2.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpU2BH1r/file10d5d48a69fe0.duckdb]</span></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;    observation_period_id person_id observation_period_s…¹ observation_period_e…²</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;                    &lt;int&gt;     &lt;int&gt; &lt;date&gt;                 &lt;date&gt;                </span></span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  1                     6         6 1963-12-31             2007-02-06            </span></span>
@@ -464,7 +464,7 @@ identify the CDM in output files.</p>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Rows: ??</span></span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Columns: 18</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 1.4.3 [root@Darwin 23.1.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpMq98ep/file1236b4bf7bbb6.duckdb]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Database: DuckDB 1.4.4 [root@Darwin 25.2.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpU2BH1r/file10d5d48a69fe0.duckdb]</span></span>
 <span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; $ person_id                   &lt;int&gt; 6, 123, 129, 16, 65, 74, 42, 187, 18, 111,…</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; $ gender_concept_id           &lt;int&gt; 8532, 8507, 8507, 8532, 8532, 8532, 8532, …</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $ year_of_birth               &lt;int&gt; 1963, 1950, 1974, 1971, 1967, 1972, 1909, …</span></span>
@@ -563,16 +563,16 @@ viral pharyngitis”.</p>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; # A tibble: 113 × 2</span></span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    concept_name                                                                n</span></span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 Penicillin V Potassium 500 MG Oral Tablet                                1060</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 tetanus and diphtheria toxoids, adsorbed, preservative free, for adult…  7203</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 Amoxicillin 250 MG Oral Capsule                                           188</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Nitrofurantoin 5 MG/ML Oral Suspension                                    779</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 Amlodipine 5 MG Oral Tablet                                               179</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 rocuronium bromide 10 MG/ML Injectable Solution                            35</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 24 HR Donepezil hydrochloride 10 MG / Memantine hydrochloride 28 MG Ex…    26</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 Tacrine 10 MG Oral Capsule                                                 10</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 poliovirus vaccine, inactivated                                          7654</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 clopidogrel 75 MG Oral Tablet                                             356</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;  1 Acetaminophen 325 MG / Hydrocodone Bitartrate 7.5 MG Oral Tablet          305</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  2 Penicillin V Potassium 250 MG Oral Tablet                                1666</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;  3 Methylphenidate Hydrochloride 20 MG Oral Tablet                            63</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;  4 Amoxicillin 500 MG Oral Tablet                                            246</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;  5 Warfarin Sodium 5 MG Oral Tablet                                          135</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;  6 remifentanil                                                               16</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;  7 Piperacillin 4000 MG / tazobactam 500 MG Injection                         35</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;  8 {28 (Norethindrone 0.35 MG Oral Tablet) } Pack [Jolivette 28 Day]          12</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;  9 Lorazepam 2 MG/ML Injectable Solution                                       1</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 10 {7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Nore…   997</span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; # ℹ 103 more rows</span></span></code></pre></div>
 <p>To inspect the generated SQL use <code>show_query</code> from
 dplyr.</p>
@@ -675,19 +675,19 @@ Typically this should be a separate schema from the “cdm_schema”.</p>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>drugs</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; # Source:   table&lt;scratch.test&gt; [?? x 11]</span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 1.4.3 [root@Darwin 23.1.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpMq98ep/file1236b4bf7bbb6.duckdb]</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; # Database: DuckDB 1.4.4 [root@Darwin 25.2.0:R 4.5.1//private/var/folders/2j/8z0yfn1j69q8sxjc7vj9yhz40000gp/T/RtmpU2BH1r/file10d5d48a69fe0.duckdb]</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;    drug_concept_id     n concept_name   domain_id vocabulary_id concept_class_id</span></span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;              &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;         &lt;chr&gt;           </span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;  1        19128065   997 {7 (Inert Ing… Drug      RxNorm        Branded Pack    </span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;  2        40213314  1295 Haemophilus i… Drug      CVX           CVX             </span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;  3        19019979   360 Ibuprofen 100… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  4        19019273    18 Naproxen 500 … Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  5        19127904     6 {24 (drospire… Drug      RxNorm        Branded Pack    </span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  6        40224805    53 1 ML medroxyp… Drug      RxNorm        Quant Clinical …</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  7        19128009     6 {7 (Ethinyl E… Drug      RxNorm        Branded Pack    </span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  8        19077572    83 Galantamine 4… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  9        43012754    29 Levonorgestre… Drug      RxNorm        Clinical Drug   </span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 10        19133679     4 {28 (Norethin… Drug      RxNorm        Branded Pack    </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;  1        40162522   305 Acetaminophen… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;  2        19133873  1666 Penicillin V … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;  3        40236446    63 Methylphenida… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;  4        19073188   246 Amoxicillin 5… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;  5        40163554   135 Warfarin Sodi… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;  6        19016749    16 remifentanil   Drug      RxNorm        Ingredient      </span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;  7        46275444    35 Piperacillin … Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;  8        19129144    12 {28 (Norethin… Drug      RxNorm        Branded Pack    </span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;  9        19057271     1 Lorazepam 2 M… Drug      RxNorm        Clinical Drug   </span></span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt; 10        19128065   997 {7 (Inert Ing… Drug      RxNorm        Branded Pack    </span></span>
 <span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; # ℹ more rows</span></span>
 <span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; # ℹ 5 more variables: standard_concept &lt;chr&gt;, concept_code &lt;chr&gt;,</span></span>
 <span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; #   valid_start_date &lt;date&gt;, valid_end_date &lt;date&gt;, invalid_reason &lt;chr&gt;</span></span></code></pre></div>
@@ -819,16 +819,16 @@ number of persons and events.</p>
 <span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3,892 × 8</span></span>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt;    person_id observation_concept_id start_date end_date   type_concept_id domain</span></span>
 <span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;        &lt;int&gt;                  &lt;int&gt; &lt;date&gt;     &lt;date&gt;               &lt;int&gt; &lt;chr&gt; </span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1       419                3051031 1913-06-24 1913-06-24            5001 measu…</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      1516                3049273 1998-03-02 1998-03-02            5001 measu…</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3         2                3051031 1934-11-25 1934-11-25            5001 measu…</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4      1847                 372328 1981-05-03 1981-11-08           32020 condi…</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5       596               40481087 1978-12-21 1979-01-11           32020 condi…</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6      4521               40481087 1970-10-02 1970-10-16           32020 condi…</span></span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7      1318                 260139 1998-06-06 1998-06-13           32020 condi…</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8      1516               40481087 1975-12-26 1976-01-09           32020 condi…</span></span>
-<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9      5251                4112343 1965-10-03 1965-10-10           32020 condi…</span></span>
-<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10      1516                1713671 1948-10-05 1948-10-26        38000177 drug_…</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;  1      1496                4024958 1980-06-12 1980-06-12            5001 measu…</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt;  2      2333                3006322 1966-02-24 1966-02-24            5001 measu…</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  3      5185                3006322 2010-05-25 2010-05-25            5001 measu…</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt;  4      2333                4052083 1958-09-19 1958-09-19            5001 measu…</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co">#&gt;  5      5185                 260139 1993-01-01 1993-01-15           32020 condi…</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co">#&gt;  6      1954                4152936 1981-05-29 1981-06-12           32020 condi…</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co">#&gt;  7       864               40481087 1973-06-28 1973-07-12           32020 condi…</span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt;  8      3516                 439777 1964-07-21 NA                   32020 condi…</span></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a><span class="co">#&gt;  9       430               40481087 2008-10-12 2008-10-26           32020 condi…</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="co">#&gt; 10      1318               40481087 1940-08-28 1940-09-04           32020 condi…</span></span>
 <span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="co">#&gt; # ℹ 3,882 more rows</span></span>
 <span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: observation_concept_name &lt;chr&gt;, type_concept_name &lt;chr&gt;</span></span></code></pre></div>
 <div id="closing-connections" class="section level2">
