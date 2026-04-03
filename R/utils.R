@@ -415,6 +415,44 @@ dcCreateTable <- function(conn, name, fields) {
   )
 }
 
+# Spark-safe replacement for DBI::dbWriteTable().
+# On Spark/Databricks, parameterized INSERTs (VALUES (?, ?, ...)) fail with
+# ODBC error 42P02 "unbound parameter", and row-by-row INSERTs can cause
+# ODBC error HY000 driver reconnects. This helper creates the table then
+# inserts all rows in a single statement using INSERT INTO ... SELECT UNION ALL.
+# On all other databases it delegates to DBI::dbWriteTable().
+.dbWriteTableSafe <- function(con, name, value, overwrite = FALSE, temporary = FALSE) {
+  if (dbms(con) == "spark") {
+    if (overwrite) try(DBI::dbRemoveTable(con, name), silent = TRUE)
+    value <- .formatDatesForSparkInsert(value)
+    .dbCreateTable(con, name, value)
+    if (nrow(value) > 0) {
+      qualifiedName <- .qualifiedNameForSql(con, name)
+      cols <- paste(DBI::dbQuoteIdentifier(con, names(value)), collapse = ", ")
+      colNames <- names(value)
+      # Build SELECT ... UNION ALL batches to avoid row-by-row round trips
+      # (HY000 driver reconnects) while keeping SQL size manageable.
+      batchSize <- 1000L
+      for (start in seq(1L, nrow(value), by = batchSize)) {
+        end <- min(start + batchSize - 1L, nrow(value))
+        selectParts <- vapply(start:end, function(i) {
+          row <- value[i, , drop = FALSE]
+          vals <- vapply(seq_len(ncol(value)), function(j) {
+            paste(DBI::dbQuoteLiteral(con, row[[j]][[1]]), "AS", DBI::dbQuoteIdentifier(con, colNames[j]))
+          }, character(1))
+          paste0("SELECT ", paste(vals, collapse = ", "))
+        }, character(1))
+        unionSql <- paste(selectParts, collapse = " UNION ALL ")
+        sql <- paste0("INSERT INTO ", qualifiedName, " (", cols, ") ", unionSql)
+        DBI::dbExecute(con, sql)
+      }
+    }
+  } else {
+    DBI::dbWriteTable(conn = con, name = name, value = value,
+                      overwrite = overwrite, temporary = temporary)
+  }
+}
+
 # build and execute the SQL query to insert data into the table
 # .dbInsertData <- function(conn, name, table) {
 #   columns <- colnames(table)

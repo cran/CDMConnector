@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 2.5.0
+Version: 2.5.1
 Authors@R: c(
     person("Adam", "Black", , "ablack3@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5576-8701")),
@@ -32,7 +32,7 @@ Config/testthat/edition: 3
 Config/testthat/parallel: false
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2026-03-08 13:09:09 UTC; ablack
+Packaged: 2026-04-02 01:09:56 UTC; ablack
 Author: Adam Black [aut, cre] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
   Edward Burn [aut],
@@ -40,4 +40,4 @@ Author: Adam Black [aut, cre] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
   Ioanna Nika [aut]
 Maintainer: Adam Black <ablack3@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-03-08 13:50:02 UTC
+Date/Publication: 2026-04-03 05:10:29 UTC
