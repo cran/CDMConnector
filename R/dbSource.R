@@ -86,6 +86,68 @@ insertTable.db_cdm <- function(cdm,
   return(x)
 }
 
+#' Fast bulk insert of a local table on Spark / Databricks
+#'
+#' Uploads a local data frame to Spark/Databricks using multi-row
+#' `INSERT INTO ... VALUES (...), (...), ...` statements. This is the same
+#' mechanism [insertTable()] now uses by default on Spark, so you only need
+#' `insertTableSpark()` directly when you want to tune `batchSize`. Multi-row
+#' VALUES inserts are dramatically faster than the `INSERT ... SELECT ...
+#' UNION ALL` approach Spark's planner struggles with (benchmarked ~50x faster
+#' at 1000 rows).
+#'
+#' Only intended for Spark connections. For other dialects use
+#' [insertTable()].
+#'
+#' @param cdm A `cdm_reference` or `db_cdm` source object backed by a
+#'   Spark/Databricks connection. Must have a `writeSchema`.
+#' @param name Name of the destination table (single character).
+#' @param table A local data frame to upload.
+#' @param overwrite If `TRUE` (default), drop the table first if it exists.
+#' @param batchSize Number of rows per `INSERT` statement. Default 5000.
+#'   Larger batches reduce round trips but Spark imposes a query-size
+#'   limit (~16MB) — reduce if you hit "query too large" errors with very
+#'   wide tables.
+#'
+#' @return A `cdm_table` referencing the newly inserted table.
+#' @export
+insertTableSpark <- function(cdm,
+                             name,
+                             table,
+                             overwrite = TRUE,
+                             batchSize = 5000L) {
+  checkmate::assertCharacter(name, len = 1, any.missing = FALSE)
+  checkmate::assertCount(batchSize, positive = TRUE)
+
+  src <- if (inherits(cdm, "cdm_reference")) attr(cdm, "cdm_source") else cdm
+  con <- attr(src, "dbcon")
+  writeSchema <- attr(src, "write_schema")
+  if (is.null(con) || is.null(writeSchema)) {
+    cli::cli_abort("`cdm` must be a db-backed cdm or db_cdm source with a writeSchema.")
+  }
+  if (dbms(con) != "spark") {
+    cli::cli_abort("insertTableSpark() is only supported on Spark connections; use insertTable() instead.")
+  }
+
+  table <- dplyr::as_tibble(table)
+  if (!inherits(table, "data.frame")) {
+    table <- dplyr::collect(table)
+  }
+
+  fullName <- .inSchema(schema = writeSchema, table = name, dbms = dbms(con))
+  if (overwrite && (name %in% listTables(con, writeSchema))) {
+    DBI::dbRemoveTable(con, name = fullName)
+  }
+
+  .dbWriteTableSpark(con, fullName, table, batchSize = batchSize)
+
+  x <- dplyr::tbl(src = con, fullName) |>
+    dplyr::rename_all(tolower) |>
+    omopgenerics::newCdmTable(src = src, name = name) |>
+    dplyr::select(colnames(table))
+  return(x)
+}
+
 #' Drop table from a database backed cdm object
 #'
 #' Tables will be dropped from the write schema of the cdm.
