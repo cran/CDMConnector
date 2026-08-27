@@ -1,10 +1,10 @@
-9111a219d0ddbce35ba89f170bdecbf9 *DESCRIPTION
+bb4387e4b4f1425d482747e98fdb929f *DESCRIPTION
 5ce31d1c5c27670f9a1d98c670741d32 *NAMESPACE
-3d32e209b67bfce176466e6c3ec51439 *NEWS.md
+57b8234bbdc462a99d9c1283b4241646 *NEWS.md
 1f22d8ddbf6c9b98ee245644aca85311 *R/CDMConnector-package.R
 1d4f33249b52deae72c8f8ea3425f2fc *R/Eunomia.R
 fa9ebdae14630c04d9c282b5782ab351 *R/benchmarkCDMConnector.R
-fec3aae7522fc12e1d149ee59a1a8f7b *R/cdm.R
+a6574e8a1fffe7458cac388c25e2ff17 *R/cdm.R
 47e323a11ccd2cc464283d2f89f90cd7 *R/cdmFromCohortSet.R
 3a28d4eabdc5b7a79c1f715352a5223d *R/cdmSubset.R
 c3e6226024d337154e15fd751ee8e101 *R/cdmTrimVocabulary.R
@@ -13,7 +13,7 @@ dd81cf3e6065717bd70f35e357cd5ade *R/cohortTransformations.R
 aa6bdea642ed1729f87cfd71bcc4d78f *R/cohort_ddl.R
 9ad0bff50efdb7e7026127901fad7c89 *R/compute.R
 a9948c8570bffd1bd9aa87b3786a347a *R/copyCdmTo.R
-47e59d06871ebceb1d09bafa216c53a1 *R/dateadd.R
+1e511326a6618ac1fee0f448a2d61cc0 *R/dateadd.R
 4b62f85272fdaf77ed384dbe2c6c494f *R/dbSource.R
 481d42cbc3ebe7104fb538b1b36e1a0c *R/generateCohortSet.R
 1aac438e672e86823e9ffd90ec1b42a1 *R/generateConceptCohortSet.R
@@ -25,6 +25,7 @@ ec84bb95c60cd98a87de7f1a07d10ef2 *README.md
 533839446f70bde34a1050627ce80586 *build/partial.rdb
 ae154ce2dfe560dd16c875cdd4d95a80 *build/vignette.rds
 0150ba53fd188c479b5c836a7f85e5ab *inst/WORDLIST
+2225ed46d578d9838f4a63eb5115a600 *inst/breast_cancer.json
 8bdf401f8b235f1cffeb2daeb49673c4 *inst/cohorts1/CohortsToCreate.csv
 493b5093fd7e9f0720b1f8e0f6c989e8 *inst/cohorts1/cerebral_venous_sinus_thrombosis_01.json
 94b59db470c466e31b94aa86bf06147f *inst/cohorts1/deep_vein_thrombosis_01.json
@@ -47,7 +48,7 @@ b59016f5e0a94e7bcd6b8dca1d09c179 *inst/csv/OMOP_CDMv5.3_Field_Level.csv
 85d5120c8a6423cb32d9d458fb364b73 *inst/csv/OMOP_CDMv5.4_Table_Level.csv
 70b79469dcd9364c9da76595aa7623bd *inst/doc/a01_getting-started.R
 d4cbb143d883db8ad05bfd96893c90db *inst/doc/a01_getting-started.Rmd
-d5f236ecb888f112f80426af90b761b4 *inst/doc/a01_getting-started.html
+13c8d8cc29fcb90412f2a097ed907823 *inst/doc/a01_getting-started.html
 f75c591b37f9d4b44721cd474d4751e7 *inst/doc/a02_cohorts.R
 b94923fec5e26b4327853786e94dcd94 *inst/doc/a02_cohorts.Rmd
 fbe12a1a3fc0caf8dfbd56a1ef0cc1df *inst/doc/a02_cohorts.html
@@ -59,7 +60,7 @@ a1ded62b100a3b8af84078d84151825a *inst/doc/a04_DBI_connection_examples.Rmd
 80cc66c96269acedad6545022c74531f *inst/doc/a04_DBI_connection_examples.html
 c73f62709760019189678baad84f5359 *inst/doc/a06_using_cdm_attributes.R
 c392b5cb9b87f2936f5f5879c79713d1 *inst/doc/a06_using_cdm_attributes.Rmd
-afd7cf047aefb9b665f2ccfb81615928 *inst/doc/a06_using_cdm_attributes.html
+401dbb837ad4c59083c330e1f20f16cd *inst/doc/a06_using_cdm_attributes.html
 6db016dd99c7304ef86dcc481dbdea71 *inst/doc/a09_benchmarking.R
 35220e050bb6bc033ecf9143ff650390 *inst/doc/a09_benchmarking.Rmd
 7f633325c05bb5d86bc767653a1b3391 *inst/doc/a09_benchmarking.html
@@ -71,7 +72,8 @@ a19c9acd40ae15e4da5d85d57b03007d *inst/rds/gibleed_attrition.rds
 9ad374c688614fe00d938cce245416e5 *inst/rds/gibleed_cohort_set.csv
 4ec8ed6fb82001d9373ecdd0e9eefc0b *inst/rds/gibleed_count.rds
 fee7d7e5b79c530b59b1f9dd820e850e *inst/rds/gibleed_set.rds
-b206328efb470f8fe648654b63c923b6 *man/CDMConnector-package.Rd
+956404c2ac563b368169a72ca2eae5d2 *inst/testv1.json
+e614465548e569d4262a8a64ee6655e1 *man/CDMConnector-package.Rd
 eab84833e5634adbe6abe933fb9c13b3 *man/appendPermanent.Rd
 ce07d30895135a64ab458c96b2dbab86 *man/asDate.Rd
 def025a93adef8b37375ea0e45054d52 *man/benchmarkCDMConnector.Rd
