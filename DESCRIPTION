@@ -1,6 +1,6 @@
 Package: CDMConnector
 Title: Connect to an OMOP Common Data Model
-Version: 2.7.0
+Version: 2.8.0
 Authors@R: c(
     person("Ger", "Inberg", email = "g.inberg@erasmusmc.nl", role = c("aut", "cre"), 
             comment = c(ORCID = "0000-0001-8993-8748")),
@@ -24,7 +24,7 @@ Depends: R (>= 4.1.0)
 Imports: httr2, dplyr, dbplyr (>= 2.5.0), DBI (>= 0.3.0), checkmate,
         cli, purrr, rlang, tidyselect, glue, methods, withr, lifecycle,
         stringr, stringi, generics, tidyr, jsonlite, readr,
-        omopgenerics (>= 1.2.0)
+        omopgenerics (>= 1.4.2)
 Suggests: SqlRender, CirceR, rJava, covr, knitr, rmarkdown, duckdb,
         RSQLite, RPostgres, DatabaseConnector, odbc, ggplot2,
         bigrquery, lubridate, clock, tibble, testthat (>= 3.0.0), pool,
@@ -34,7 +34,7 @@ Config/testthat/edition: 3
 Config/testthat/parallel: false
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2026-08-26 17:17:35 UTC; ginberg
+Packaged: 2026-09-17 09:56:15 UTC; ginberg
 Author: Ger Inberg [aut, cre] (ORCID: <https://orcid.org/0000-0001-8993-8748>),
   Adam Black [aut] (ORCID: <https://orcid.org/0000-0001-5576-8701>),
   Artem Gorbachev [aut],
@@ -43,4 +43,4 @@ Author: Ger Inberg [aut, cre] (ORCID: <https://orcid.org/0000-0001-8993-8748>),
   Ioanna Nika [aut]
 Maintainer: Ger Inberg <g.inberg@erasmusmc.nl>
 Repository: CRAN
-Date/Publication: 2026-08-27 05:10:51 UTC
+Date/Publication: 2026-09-17 11:00:12 UTC

@@ -1,3 +1,8 @@
+# CDMConnector 2.8.0
+
+- Add support for OMOP CDM 5.5
+- Add bigquery github workflow
+
 # CDMConnector 2.7.0
 
 - Add `PostgreSQL` as supported connection class
