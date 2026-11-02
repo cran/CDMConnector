@@ -36,8 +36,8 @@ concept_synonym,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,TRUE
 concept_ancestor,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,TRUE
 source_to_concept_map,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,FALSE
 drug_strength,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,TRUE
-pack_content,vocab,FALSE,NA,FALSE,TRUE,FALSE,FALSE,FALSE
-concept_metadata,vocab,FALSE,NA,FALSE,TRUE,FALSE,FALSE,FALSE
-concept_relationship_metadata,vocab,FALSE,NA,FALSE,TRUE,FALSE,FALSE,FALSE
+pack_content,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,FALSE
+concept_metadata,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,FALSE
+concept_relationship_metadata,vocab,FALSE,NA,TRUE,TRUE,FALSE,FALSE,FALSE
 cohort,results,FALSE,NA,FALSE,TRUE,FALSE,FALSE,FALSE
 cohort_definition,results,FALSE,NA,FALSE,TRUE,FALSE,FALSE,FALSE
